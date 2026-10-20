@@ -6,6 +6,13 @@ out/
 *.tsbuildinfo
 vitest-results.json
 *.log
+desktop/node_modules/
+desktop/resources/
+desktop/dist/
+desktop/LibreTV-Data/
+desktop/.build-cache/
+desktop/test-release/
+**/LibreTV-Data/
 
 # AI 工具产物（本机会话/缓存数据，不入库）
 .mimosa/

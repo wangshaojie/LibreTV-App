@@ -1,0 +1,35 @@
+{
+  "name": "libretv-portable",
+  "version": "2.19.2-desktop.2",
+  "description": "LibreTV Windows portable desktop application",
+  "author": "LibreTV contributors",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "prepare:web": "node prepare.cjs",
+    "start": "electron .",
+    "pack": "electron-builder --win --x64 --dir",
+    "package:release": "node package-release.cjs",
+    "dist": "npm run prepare:web && electron-builder --win portable --x64"
+  },
+  "devDependencies": {
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "org.librespark.libretv.portable",
+    "productName": "LibreTV",
+    "asar": true,
+    "directories": { "output": "dist" },
+    "files": ["main.cjs", "package.json", "LICENSE"],
+    "extraResources": [{ "from": "resources", "to": "." }],
+    "win": {
+      "icon": "icon.ico",
+      "target": [{ "target": "portable", "arch": ["x64"] }],
+      "artifactName": "LibreTV-${version}-Windows-x64-Portable.exe",
+      "signExecutable": false
+    },
+    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.2-portable" }
+  }
+}

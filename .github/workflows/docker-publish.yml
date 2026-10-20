@@ -1,7 +1,7 @@
 name: docker-publish
 
-# 推送版本 tag（如 v2.0.1）时自动构建并发布镜像到 GHCR 与 Docker Hub；
-# 也可在 Actions 页面手动触发。
+# 本衍生仓库以桌面客户端发布为主，保留上游 Docker 工作流供手动使用。
+# 桌面版本 tag 不自动触发镜像发布。
 # GHCR 使用内置 GITHUB_TOKEN，无需配置 secrets；Docker Hub 需在仓库
 # Settings → Secrets and variables → Actions 配置 DOCKER_USERNAME 与
 # DOCKER_PASSWORD（Docker Hub 的 Access Token），未配置时自动降级为仅发布 GHCR。
@@ -13,9 +13,6 @@ name: docker-publish
 # 复制过去，两个 registry 的多架构镜像 digest 完全一致。
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
