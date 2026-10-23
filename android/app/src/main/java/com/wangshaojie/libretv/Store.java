@@ -24,6 +24,7 @@ public final class Store {
     public void put(String name,JSONArray data){prefs.edit().putString(name,data.toString()).apply();}
     public JSONObject object(String name){try{return new JSONObject(prefs.getString(name,"{}"));}catch(Exception e){return new JSONObject();}}
     public void putObject(String name,JSONObject data){prefs.edit().putString(name,data.toString()).apply();}
+    public void remove(String name){prefs.edit().remove(name).apply();}
     public void cache(String key,List<Catalog.Item> items){JSONArray a=new JSONArray();for(Catalog.Item i:items)a.put(i.json());try{putObject(key,new JSONObject().put("time",System.currentTimeMillis()).put("items",a));}catch(Exception ignored){}}
     public List<Catalog.Item> cached(String key){List<Catalog.Item> out=new ArrayList<>();JSONArray a=object(key).optJSONArray("items");if(a!=null)for(int n=0;n<a.length();n++)if(a.optJSONObject(n)!=null)out.add(Catalog.Item.from(a.optJSONObject(n)));return out;}
     public void searchHistory(String term){JSONArray next=new JSONArray().put(term),old=array("searches");for(int n=0;n<old.length()&&next.length()<12;n++)if(!term.equals(old.optString(n)))next.put(old.optString(n));put("searches",next);}

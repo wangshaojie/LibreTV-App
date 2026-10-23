@@ -40,5 +40,5 @@ public final class ProbeActivity extends Activity {
     private void cancel(){if(session!=null)session.cancel();loader.shutdownNow();running=false;flush();heading.setText("检测已停止");store.putObject(sourceMode?"source-health":"channel-health",health);stop.setText("重测异常");stop.setOnClickListener(v->retry());}
     private void leave(){if(running)new AlertDialog.Builder(this).setMessage("停止当前检测并返回？").setPositiveButton("停止并返回",(d,n)->finish()).setNegativeButton("继续检测",null).show();else finish();}
     @Override public void onBackPressed(){leave();}
-    @Override protected void onDestroy(){if(session!=null)session.cancel();loader.shutdownNow();handler.removeCallbacksAndMessages(null);super.onDestroy();}
+    @Override protected void onDestroy(){running=false;if(session!=null)session.cancel();loader.shutdownNow();handler.removeCallbacksAndMessages(null);super.onDestroy();}
 }

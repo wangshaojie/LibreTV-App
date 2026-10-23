@@ -106,7 +106,7 @@ jobs:
           arch: ${{ matrix.arch }}
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: gradle -p android --no-daemon ${{ matrix.task }}
+          script: gradle -p android --no-daemon ${{ matrix.task }}; result=$?; adb pull /sdcard/Android/data/com.wangshaojie.libretv/files/screenshots android/screenshots || true; exit $result
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -114,6 +114,7 @@ jobs:
           path: |
             android/app/build/reports/
             android/app/build/outputs/androidTest-results/
+            android/screenshots/
   publish:
     if: inputs.publish
     needs: [build, device-test]

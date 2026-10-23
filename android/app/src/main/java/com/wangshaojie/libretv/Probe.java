@@ -19,7 +19,7 @@ final class Probe {
         private final AtomicBoolean stopped=new AtomicBoolean();
         private final Set<HttpURLConnection> connections=Collections.newSetFromMap(new ConcurrentHashMap<>());
         private final ExecutorService workers=Executors.newFixedThreadPool(4);
-        void cancel(){stopped.set(true);for(HttpURLConnection c:connections)c.disconnect();workers.shutdownNow();}
+        void cancel(){stopped.set(true);workers.shutdownNow();List<HttpURLConnection> active=new ArrayList<>(connections);if(!active.isEmpty()){Thread close=new Thread(()->{for(HttpURLConnection c:active)c.disconnect();},"probe-disconnect");close.setDaemon(true);close.start();}}
         boolean cancelled(){return stopped.get();}
         void start(List<Catalog.Item> targets,boolean sources,Listener listener){
             AtomicInteger next=new AtomicInteger(),completed=new AtomicInteger(),remaining=new AtomicInteger(4);
@@ -49,7 +49,7 @@ final class Probe {
                 HttpURLConnection c=(HttpURLConnection)new URL(address).openConnection();connections.add(c);c.setConnectTimeout(6000);c.setReadTimeout(6000);c.setInstanceFollowRedirects(false);c.setRequestProperty("User-Agent",Net.BROWSER_UA);if(sample)c.setRequestProperty("Range","bytes=0-"+(Math.min(limit,8192)-1));for(Map.Entry<String,String> header:headers.entrySet())c.setRequestProperty(header.getKey(),header.getValue());
                 try{int code=c.getResponseCode();if(code>=300&&code<400){String location=c.getHeaderField("Location");if(location==null)throw new IOException("跳转地址缺失");address=resolve(address,location);continue;}if(code<200||code>=300)throw new IOException("HTTP "+code);
                     long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);ByteArrayOutputStream out=new ByteArrayOutputStream();try(InputStream in=c.getInputStream()){byte[] buffer=new byte[4096];int n;boolean playlist=c.getContentType()!=null&&(c.getContentType().contains("mpegurl")||c.getContentType().contains("text/"));while((n=in.read(buffer,0,Math.min(buffer.length,limit-out.size())))!=-1){if(stopped.get()||Thread.currentThread().isInterrupted())throw new IOException("已停止");out.write(buffer,0,n);if(out.size()>=limit)break;if(sample&&!playlist&&out.size()>=8192)break;if(System.nanoTime()>deadline)throw new IOException("请求超时");}}
-                    if(out.size()==0)throw new IOException("返回空数据");Response response=new Response();response.url=address;response.type=c.getContentType()==null?"":c.getContentType();response.data=out.toByteArray();return response;
+                    if(out.size()==0)throw new IOException("返回空数据");if(!sample&&out.size()>=limit)throw new IOException("源列表超过大小限制");Response response=new Response();response.url=address;response.type=c.getContentType()==null?"":c.getContentType();response.data=out.toByteArray();return response;
                 }finally{connections.remove(c);c.disconnect();}
             }throw new IOException("跳转次数过多");
         }
