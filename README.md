@@ -11,11 +11,11 @@
 
 ## 下载 Android 版
 
-**[下载手机 / 电视通用 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.0.1/LibreTV-App-Android-v1.0.1-universal.apk)** · [版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.0.1)
+**[下载手机 / 电视通用 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.0.2/LibreTV-App-Android-v1.0.2-universal.apk)** · [版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.0.2)
 
-当前安卓版本：`1.0.1`。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK，按提示允许该安装工具安装应用。安装后可从手机或电视桌面打开，无需运行 Windows 程序或部署服务器。
+当前安卓版本：`1.0.2`。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK，按提示允许该安装工具安装应用。安装后可从手机或电视桌面打开，无需运行 Windows 程序或部署服务器。
 
-2026-10-23 更新：Windows ZIP 和 Android APK 均带入 **7 个点播源、9 个直播源**。Android 1.0.0 用户直接覆盖安装 1.0.1，会自动补入新增源并保留个人配置、收藏和记录。Windows EXE 未变，下载包中的源配置已更新；已有用户保留自己的数据，可在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
+2026-10-23 更新：Windows ZIP 和 Android APK 均带入 **7 个点播源、9 个直播源**。Android 1.0.0 用户直接覆盖安装 1.0.2，会自动补入新增源并保留个人配置、收藏和记录。Windows EXE 未变，下载包中的源配置已更新；已有用户保留自己的数据，可在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
 
 支持 M3U 直播、Apple CMS 点播搜索、线路与选集、收藏、观看记录和续播。手机用触屏，电视用方向键和确定键操作，返回键退出播放，菜单键或长按可收藏。内置此前 Windows 公开包中的源配置，网络请求由当前 Android 设备发起。
 

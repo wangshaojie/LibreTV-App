@@ -19,7 +19,7 @@ public final class Net {
                 if(code<200||code>=300)throw new IOException("HTTP "+code);
                 Charset charset=Charset.forName("UTF-8");String type=c.getContentType();if(type!=null&&type.toLowerCase(Locale.ROOT).contains("charset="))try{charset=Charset.forName(type.substring(type.toLowerCase(Locale.ROOT).indexOf("charset=")+8).split(";")[0].trim());}catch(Exception ignored){}
                 try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] buffer=new byte[8192];int count;while((count=in.read(buffer))!=-1){if(Thread.currentThread().isInterrupted())throw new IOException("已取消");if(out.size()+count>12*1024*1024)throw new IOException("列表超过 12 MB");out.write(buffer,0,count);}return new String(out.toByteArray(),charset);}
-            }finally{c.disconnect();}
+            }catch(IOException e){android.util.Log.w("LibreTV-Net","Request failed for "+new URL(current).getHost(),e);throw e;}finally{c.disconnect();}
         }throw new IOException("跳转次数过多");
     }
 }

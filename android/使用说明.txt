@@ -1,4 +1,6 @@
-LibreTV-App Android 1.0.1 · 手机 / Android TV 通用版
+LibreTV-App Android 1.0.2 · 手机 / Android TV 通用版
+
+修复 Android 5–7 旧证书库导致的 HTTPS 订阅读取失败，证书校验仍然开启。
 
 源配置更新于 2026-10-23：7 个点播源、9 个直播源。
 1.0.0 用户直接覆盖安装，自动补入新增 6 个源，保留自定义配置、收藏和记录。不要先卸载。

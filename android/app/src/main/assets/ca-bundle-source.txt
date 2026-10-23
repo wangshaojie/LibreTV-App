@@ -1,0 +1,6 @@
+Mozilla CA trust bundle from certifi/python-certifi
+Commit: b60466c9f2882d9cf088943c650b0faac06c080c
+Imported: 2026-10-23
+License: MPL-2.0 (certifi-LICENSE.txt)
+Source: https://github.com/certifi/python-certifi/tree/b60466c9f2882d9cf088943c650b0faac06c080c
+

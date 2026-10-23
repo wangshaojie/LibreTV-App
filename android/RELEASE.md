@@ -1,19 +1,7 @@
-# Android 1.0.1 · 手机 / Android TV 通用 APK
+# Android 1.0.2 · Android 5 电视 HTTPS 兼容修复
 
-2026-10-23 源配置更新：内置 7 个点播源、9 个直播源，新增非凡资源、优酷资源、光速资源、iptv-org 中国大陆、中文频道和 aptv 综合。
+修复旧电视读取 HTTPS 订阅时出现“Trust anchor for certification path not found”的问题。Android 5–7 会补充来自 Mozilla / certifi 的可信根证书，订阅及播放器均适用，仍保留证书链和主机名校验；不会修改电视的系统证书或代理设置。
 
-从 1.0.0 直接覆盖安装即可。首次升级会按类型和地址去重补入新增的 6 个源，保留原有自定义源、收藏和观看记录；补入只执行一次，之后手动删除的源不会反复恢复。请勿先卸载旧版。
+内置 7 个点播源、9 个直播源。手机与 Android TV 通用，最低 Android 5.0，直接覆盖安装即可，保留源配置、收藏和观看记录。
 
-同一个签名 APK 可安装在 Android 手机、平板和 Android TV，最低 Android 5.0 / API 21，无需 Windows 或自建服务器。
-
-- M3U 直播订阅、分组、搜索与原生播放器。
-- Apple CMS JSON 多源点播搜索、线路、选集和自动下一集。
-- 收藏、观看记录、续播，源配置导入导出。
-- 触屏及遥控器方向键、确认/返回/媒体按键支持，电视桌面启动入口。
-- 提供正式签名 APK、对应源码 ZIP、使用说明及 SHA-256 校验文件。
-
-初始源来自此前 Windows 公开包中的配置；不包含 Windows 的观看记录或 Cookies。第三方源能否访问取决于当前 Android 设备的网络和代理配置，解码能力取决于设备。
-
-这是第一版原生 Android 实现，尚未包含 EPG、离线下载、Spider/网页解析及 Windows 版的全部高级功能。Windows 版保持原有下载地址。
-
-基于 LibreSpark/LibreTV 的非官方客户端，采用 AGPL-3.0-or-later。
+提供签名 APK、对应源码 ZIP、使用说明和 SHA-256 校验文件。基于 LibreSpark/LibreTV 的非官方客户端，采用 AGPL-3.0-or-later；CA 数据采用 MPL-2.0，第三方许可随包提供。

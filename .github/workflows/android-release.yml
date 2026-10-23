@@ -40,9 +40,9 @@ jobs:
       - name: Verify and package
         run: |
           mkdir -p android-release
-          cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v1.0.1-universal.apk
+          cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v1.0.2-universal.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs android-release/*.apk
-          git archive --format=zip --output=android-release/LibreTV-App-Android-v1.0.1-Source.zip HEAD
+          git archive --format=zip --output=android-release/LibreTV-App-Android-v1.0.2-Source.zip HEAD
           cp android/使用说明.txt android-release/LibreTV-App-Android-Guide.txt
           cd android-release && sha256sum *.apk *.zip > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
@@ -113,5 +113,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create android-v1.0.1 --target "$GITHUB_SHA" --draft --title 'LibreTV-App Android 1.0.1 · 手机 / 电视通用' --notes-file android/RELEASE.md android-release/*
-          gh release edit android-v1.0.1 --draft=false --latest
+          gh release create android-v1.0.2 --target "$GITHUB_SHA" --draft --title 'LibreTV-App Android 1.0.2 · 手机 / 电视通用' --notes-file android/RELEASE.md android-release/*
+          gh release edit android-v1.0.2 --draft=false --latest

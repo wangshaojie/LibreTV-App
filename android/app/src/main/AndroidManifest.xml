@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-    <application android:allowBackup="false" android:label="LibreTV-App" android:icon="@drawable/app_icon"
+    <application android:name=".LibreTvApplication" android:allowBackup="false" android:label="LibreTV-App" android:icon="@drawable/app_icon"
         android:banner="@drawable/tv_banner" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="true">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>

@@ -30,6 +30,14 @@ public class DeviceSmokeTest {
         PackageInfo info=c.getPackageManager().getPackageInfo(c.getPackageName(),PackageManager.GET_CONFIGURATIONS);for(FeatureInfo f:info.reqFeatures)if("android.hardware.touchscreen".equals(f.name))assertEquals(0,f.flags&FeatureInfo.FLAG_REQUIRED);
     }
     @Test public void favoriteAndHistoryPersist(){Store s=new Store(main.getActivity());Catalog.Item item=new Catalog.Item();item.title="Test";item.url="https://example.com/test.mp4";if(!s.favorite(item))s.toggleFavorite(item);assertTrue(new Store(main.getActivity()).favorite(item));s.remember(item,12345);assertEquals(12345,new Store(main.getActivity()).position(item.url));s.toggleFavorite(item);}
+    @Test public void legacyCaStoreRejectsUntrustedCertificate()throws Exception{
+        Context c=main.getActivity();javax.net.ssl.X509TrustManager trust=TlsCompat.trustManager(c);assertTrue(trust.getAcceptedIssuers().length>=100);
+        try(InputStream in=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("untrusted.pem")){
+            java.security.cert.X509Certificate cert=(java.security.cert.X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509").generateCertificate(in);
+            try{trust.checkServerTrusted(new java.security.cert.X509Certificate[]{cert},"RSA");fail("An unknown self-signed certificate must be rejected");}catch(java.security.cert.CertificateException expected){}
+        }
+        javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();TlsCompat.install(c);assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
+    }
     @Test public void upgradeAddsPresetsOnceAndPreservesUserData()throws Exception{
         Context base=main.getActivity();Context isolated=new ContextWrapper(base){@Override public SharedPreferences getSharedPreferences(String name,int mode){return base.getSharedPreferences("preset-migration-test",mode);}};
         SharedPreferences prefs=isolated.getSharedPreferences("libretv",0);prefs.edit().clear().putString("sources","[{\"type\":\"live\",\"name\":\"My source\",\"url\":\"https://example.com/mine.m3u\"}]").putString("favorites","[{\"title\":\"Keep me\"}]").commit();
