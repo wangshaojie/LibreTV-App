@@ -26,6 +26,22 @@
 
 Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个人数据，在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
 
+## Android TV 实机截图
+
+以下截图拍摄于 2026-10-24，来自 Android 5.0.1 电视上的 2.0.2 兼容版。海报、频道和视频画面来自使用时的第三方数据源，仅用于展示客户端界面。
+
+**首页：电影 / 剧集海报、最近观看与遥控器导航**
+
+![Android TV 首页](docs/screenshots/android-tv-home.png)
+
+**直播频道：分组、搜索、批量测活与可连接筛选**
+
+![Android TV 直播频道与测活结果](docs/screenshots/android-tv-channels.png)
+
+**直播播放页**
+
+![Android TV 直播播放](docs/screenshots/android-tv-live.png)
+
 ## 下载 Windows 版
 
 **[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.2/LibreTV-App-v2.19.2-desktop.2-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
@@ -92,11 +108,17 @@ LibreTV-App/
 - 出错时可查看 `LibreTV-Data/desktop.log`；提交问题前请自行检查并隐去日志中的私人地址或令牌。
 - 当前构建未做代码签名，Windows 可能显示发布者未知。
 
-当前提供 x64 程序；Windows 7、32 位和 ARM 原生版本未提供，Android 暂无安装包。
+Windows 当前提供 x64 程序，Windows 7、32 位和 ARM 原生版本未提供。Android 已发布独立 APK，下载链接见本文顶部。
 
 ## Android 通用版
 
-Android 原生客户端已实现，正在完成正式签名构建和手机 / Android TV 模拟器验证。支持 M3U 直播、Apple CMS 点播搜索、原生播放、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。源码与功能范围见 [android/README.md](android/README.md)。APK 通过验证后发布到本仓库 Releases。
+Android 手机 / TV 通用版 **2.0.2 已正式发布**，提供兼容版（Android 5.0+）和新版（Android 8.0+）两个签名 APK。已完成四组手机 / TV 模拟设备验证，并在 Android 5 实机电视上验证遥控器点播流程。
+
+支持海报推荐首页、电影 / 剧集分类、Apple CMS 全源搜索、详情选集、M3U 直播、批量测活、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。2.0.2 修复了搜索结果海报高亮后，遥控器确认键无法打开详情的问题；同时保留视频直连优先和换线路入口。
+
+- [下载 Android 5.0+ 兼容版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-legacy-android5.apk)
+- [下载 Android 8.0+ 新版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-modern-android8.apk)
+- [使用、构建与功能说明](android/README.md) · [最新版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.2)
 
 ## 从源码构建 Windows 版
 
@@ -127,8 +149,8 @@ Releases 同时提供与已发布程序对应的源码 ZIP。Windows 下载包�
 - 上游版本：`2.19.2`
 - 基础提交：`dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc`
 - 原项目说明：[README.upstream.md](README.upstream.md)
-- 本仓库增加：Windows 便携封装、系统代理网络适配、构建/验证脚本和发布文档。
-- 桌面封装修改日期：2026-10-17；仓库与 ZIP 发布文档整理日期：2026-10-20。
+- 本仓库增加：Windows 便携封装、系统代理网络适配、Android 手机 / TV 原生客户端、批量测活、构建/验证脚本和发布文档。
+- 桌面封装修改日期：2026-10-17；Android 实机截图与发布文档更新日期：2026-10-24。
 
 LibreTV 和本项目按 **AGPL-3.0-or-later** 提供，完整条款见 [LICENSE](LICENSE)。Electron、Chromium 及其他第三方组件遵循各自许可证。
 

@@ -6,6 +6,24 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 2026-10-23 更新内置源至 7 个点播源、9 个直播源。1.0.0 用户覆盖安装后会自动补入新增 6 个源，按类型与地址去重，仅执行一次，不覆盖个人源、收藏和历史。
 
+## 下载与实机截图
+
+Android 2.0.2 已发布：
+
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.2)
+
+2.0.2 修复电视遥控器确认键无法打开海报结果；支持确认键、回车、触屏和菜单键操作。覆盖安装保留数据。
+
+2026-10-24 实机截图（Android 5.0.1 电视，2.0.2 兼容版）：
+
+![电视首页](../docs/screenshots/android-tv-home.png)
+
+![直播频道与批量测活](../docs/screenshots/android-tv-channels.png)
+
+![直播播放页](../docs/screenshots/android-tv-live.png)
+
 ## 2.0 界面与功能
 
 新增海报推荐首页、电影 / 剧集分类、最近观看、聚合搜索卡片、原生详情选集、源启用开关，以及源与频道批量测活。手机采用底部导航，Android TV 采用侧栏与遥控器焦点。
