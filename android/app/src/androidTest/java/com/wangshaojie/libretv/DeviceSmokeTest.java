@@ -30,6 +30,12 @@ public class DeviceSmokeTest {
         PackageInfo info=c.getPackageManager().getPackageInfo(c.getPackageName(),PackageManager.GET_CONFIGURATIONS);for(FeatureInfo f:info.reqFeatures)if("android.hardware.touchscreen".equals(f.name))assertEquals(0,f.flags&FeatureInfo.FLAG_REQUIRED);
     }
     @Test public void favoriteAndHistoryPersist(){Store s=new Store(main.getActivity());Catalog.Item item=new Catalog.Item();item.title="Test";item.url="https://example.com/test.mp4";if(!s.favorite(item))s.toggleFavorite(item);assertTrue(new Store(main.getActivity()).favorite(item));s.remember(item,12345);assertEquals(12345,new Store(main.getActivity()).position(item.url));s.toggleFavorite(item);}
+    @Test public void upgradeAddsPresetsOnceAndPreservesUserData()throws Exception{
+        Context base=main.getActivity();Context isolated=new ContextWrapper(base){@Override public SharedPreferences getSharedPreferences(String name,int mode){return base.getSharedPreferences("preset-migration-test",mode);}};
+        SharedPreferences prefs=isolated.getSharedPreferences("libretv",0);prefs.edit().clear().putString("sources","[{\"type\":\"live\",\"name\":\"My source\",\"url\":\"https://example.com/mine.m3u\"}]").putString("favorites","[{\"title\":\"Keep me\"}]").commit();
+        Store upgraded=new Store(isolated);assertEquals(7,upgraded.array("sources").length());assertEquals("My source",upgraded.array("sources").getJSONObject(0).getString("name"));assertEquals("Keep me",upgraded.array("favorites").getJSONObject(0).getString("title"));
+        org.json.JSONArray saved=upgraded.array("sources");saved.remove(1);upgraded.put("sources",saved);assertEquals(6,new Store(isolated).array("sources").length());prefs.edit().clear().commit();
+    }
     @Test public void playsH264AndHandlesMediaPause()throws Exception {
         Instrumentation i=InstrumentationRegistry.getInstrumentation();Context target=i.getTargetContext();File sample=new File(target.getCacheDir(),"playback.mp4");
         try(InputStream in=i.getContext().getAssets().open("sample.mp4");OutputStream out=new FileOutputStream(sample)){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}

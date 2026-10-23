@@ -1,6 +1,8 @@
 # LibreTV-App Android
 
-原生 Android 客户端，**同一 APK 兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `1.0.0`，最低 Android 5.0 / API 21。
+原生 Android 客户端，**同一 APK 兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `1.0.1`，最低 Android 5.0 / API 21。
+
+2026-10-23 更新内置源至 7 个点播源、9 个直播源。1.0.0 用户覆盖安装后会自动补入新增 6 个源，按类型与地址去重，仅执行一次，不覆盖个人源、收藏和历史。
 
 ## 功能与操作
 
@@ -16,7 +18,7 @@
 
 ## 安装
 
-从仓库 Releases 下载 `LibreTV-App-Android-v1.0.0-universal.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
+从仓库 Releases 下载 `LibreTV-App-Android-v1.0.1-universal.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
 
 手机桌面和电视桌面均有启动入口。手机播放页可切换横/竖屏，电视采用横屏和明显的焦点边框。
 

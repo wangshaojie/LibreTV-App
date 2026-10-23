@@ -20,6 +20,21 @@
     "url": "https://api.wujinapi.me/api.php/provide/vod"
   },
   {
+    "type": "vod",
+    "name": "非凡资源",
+    "url": "https://cj.ffzyapi.com/api.php/provide/vod"
+  },
+  {
+    "type": "vod",
+    "name": "优酷资源",
+    "url": "https://api.ukuapi88.com/api.php/provide/vod"
+  },
+  {
+    "type": "vod",
+    "name": "光速资源",
+    "url": "https://api.guangsuapi.com/api.php/provide/vod"
+  },
+  {
     "type": "live",
     "name": "直播源",
     "url": "https://iptv-org.github.io/iptv/countries/cn.m3u"
@@ -48,5 +63,20 @@
     "type": "live",
     "name": "范明明源镜像",
     "url": "https://m3u.ibert.me/fmml_ipv6.m3u"
+  },
+  {
+    "type": "live",
+    "name": "iptv-org 中国大陆",
+    "url": "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/cn.m3u"
+  },
+  {
+    "type": "live",
+    "name": "中文频道",
+    "url": "https://iptv-org.github.io/iptv/languages/zho.m3u"
+  },
+  {
+    "type": "live",
+    "name": "aptv 综合",
+    "url": "https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u"
   }
 ]

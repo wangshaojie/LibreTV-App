@@ -1,0 +1,73 @@
+{
+  "name": "LibreTV-SourceList",
+  "version": 2,
+  "exportedAt": 1792761576893,
+  "sources": [
+    {
+      "name": "暴风资源",
+      "url": "https://bfzyapi.com/api.php/provide/vod"
+    },
+    {
+      "name": "极速资源",
+      "url": "https://jszyapi.com/api.php/provide/vod/at/json"
+    },
+    {
+      "name": "量子",
+      "url": "https://cj.lziapi.com/api.php/provide/vod"
+    },
+    {
+      "name": "无尽",
+      "url": "https://api.wujinapi.me/api.php/provide/vod"
+    },
+    {
+      "name": "非凡资源",
+      "url": "https://cj.ffzyapi.com/api.php/provide/vod"
+    },
+    {
+      "name": "优酷资源",
+      "url": "https://api.ukuapi88.com/api.php/provide/vod"
+    },
+    {
+      "name": "光速资源",
+      "url": "https://api.guangsuapi.com/api.php/provide/vod"
+    }
+  ],
+  "liveSources": [
+    {
+      "name": "直播源",
+      "url": "https://iptv-org.github.io/iptv/countries/cn.m3u"
+    },
+    {
+      "name": "直播源",
+      "url": "https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u"
+    },
+    {
+      "name": "电影",
+      "url": "https://raw.githubusercontent.com/onlinem3u/publicdomainm3u/main/movies.m3u"
+    },
+    {
+      "name": "剧集",
+      "url": "https://raw.githubusercontent.com/onlinem3u/publicdomainm3u/main/series.m3u"
+    },
+    {
+      "name": "vbskycn IPv4",
+      "url": "https://live.zbds.top/tv/iptv4.m3u"
+    },
+    {
+      "name": "范明明源镜像",
+      "url": "https://m3u.ibert.me/fmml_ipv6.m3u"
+    },
+    {
+      "name": "iptv-org 中国大陆",
+      "url": "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/cn.m3u"
+    },
+    {
+      "name": "中文频道",
+      "url": "https://iptv-org.github.io/iptv/languages/zho.m3u"
+    },
+    {
+      "name": "aptv 综合",
+      "url": "https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u"
+    }
+  ]
+}

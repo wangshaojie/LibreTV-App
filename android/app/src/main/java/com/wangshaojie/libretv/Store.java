@@ -6,7 +6,20 @@ import java.io.*;
 
 public final class Store {
     private final SharedPreferences prefs;
-    public Store(Context context){prefs=context.getSharedPreferences("libretv",Context.MODE_PRIVATE);if(!prefs.contains("sources"))try(InputStream in=context.getAssets().open("default-sources.json")){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1)out.write(b,0,n);put("sources",new JSONArray(out.toString("UTF-8")));}catch(Exception ignored){put("sources",new JSONArray());}}
+    public Store(Context context){
+        prefs=context.getSharedPreferences("libretv",Context.MODE_PRIVATE);
+        try {
+            if(!prefs.contains("sources"))prefs.edit().putString("sources",asset(context,"default-sources.json").toString()).putBoolean("presets-1.0.1",true).apply();
+            else if(!prefs.getBoolean("presets-1.0.1",false)){
+                JSONArray current=array("sources"),added=asset(context,"new-sources-1.0.1.json");
+                Set<String> seen=new HashSet<>();for(int n=0;n<current.length();n++){JSONObject s=current.optJSONObject(n);if(s!=null)seen.add(sourceKey(s));}
+                for(int n=0;n<added.length();n++){JSONObject s=added.getJSONObject(n);if(seen.add(sourceKey(s)))current.put(s);}
+                prefs.edit().putString("sources",current.toString()).putBoolean("presets-1.0.1",true).apply();
+            }
+        }catch(Exception ignored){/* Leave the migration unmarked so a later initialization can retry. */}
+    }
+    private static String sourceKey(JSONObject s){return s.optString("type")+":"+s.optString("url").replaceAll("/+$","");}
+    private static JSONArray asset(Context context,String name)throws Exception{try(InputStream in=context.getAssets().open(name)){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1)out.write(b,0,n);return new JSONArray(out.toString("UTF-8"));}}
     public JSONArray array(String name){try{return new JSONArray(prefs.getString(name,"[]"));}catch(Exception e){return new JSONArray();}}
     public void put(String name,JSONArray data){prefs.edit().putString(name,data.toString()).apply();}
     public long position(String url){return prefs.getLong("position:"+url,0);}

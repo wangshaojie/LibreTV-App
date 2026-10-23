@@ -1,4 +1,7 @@
-LibreTV-App Android 1.0.0 · 手机 / Android TV 通用版
+LibreTV-App Android 1.0.1 · 手机 / Android TV 通用版
+
+源配置更新于 2026-10-23：7 个点播源、9 个直播源。
+1.0.0 用户直接覆盖安装，自动补入新增 6 个源，保留自定义配置、收藏和记录。不要先卸载。
 
 安装 universal.apk 即可，最低 Android 5.0，无需连接 Windows 或部署服务器。
 同一安装包支持触屏手机、平板及 Android TV。电视端可以从电视桌面启动。

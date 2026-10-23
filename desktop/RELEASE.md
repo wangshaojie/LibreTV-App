@@ -1,6 +1,6 @@
 # LibreTV-App Windows 免安装版 v2.19.2-desktop.2
 
-Windows 版已发布，Android 版本计划中，暂未提供 APK。
+2026-10-23 更新下载包中的源配置：现含 **7 个点播源、9 个直播源**。本次为数据更新，EXE 仍为 2.19.2-desktop.2。Android 手机 / TV 通用版 1.0.1 同步更新。
 
 ## 下载
 
@@ -16,13 +16,18 @@ Windows ZIP 内包含 `LibreTV.exe`、发布者的 `LibreTV-Data` 数据快照�
 
 升级用户请先关闭旧版，仅替换 EXE，保留自己的 `LibreTV-Data`，不要用随包数据覆盖已有记录。希望从空白配置开始的用户，可在首次运行前将随包数据目录移走备份。
 
+已有 Windows 用户若只想补充最新源，请在源管理的订阅入口添加：
+https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json
+
+ZIP 内另附 `LibreTV-Sources.json`，供迁移、托管订阅或导入 Android 使用。
+
 ## 本版本
 
 - 基于 LibreTV 2.19.2 的非官方 Windows 桌面封装。
 - 修复内置服务没有跟随 Windows 系统代理/PAC、导致部分 M3U 订阅下载失败的问题。
 - 保留逐跳目标校验，兼容重定向、Range、流式传输和超时中断。
 - 本地数据随 EXE 保存，便于备份和迁移。
-- Android 客户端处于规划阶段，具体功能与发布时间待定。
+- Android 1.0.1 已发布，兼容手机及 Android TV。
 
 在线内容需要联网，线路是否可播取决于网络、地区、源站和编码。本构建未做数字签名。
 
