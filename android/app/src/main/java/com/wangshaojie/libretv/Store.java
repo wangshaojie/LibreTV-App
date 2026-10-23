@@ -30,6 +30,8 @@ public final class Store {
     public void searchHistory(String term){JSONArray next=new JSONArray().put(term),old=array("searches");for(int n=0;n<old.length()&&next.length()<12;n++)if(!term.equals(old.optString(n)))next.put(old.optString(n));put("searches",next);}
     public static String itemKey(Catalog.Item item){return item.url.isEmpty()?item.source+":"+item.vodId:item.url;}
     public long position(String url){return prefs.getLong("position:"+url,0);}
+    public JSONObject exportPositions(){JSONObject out=new JSONObject();for(Catalog.Item item:items("history"))try{if(!item.url.isEmpty())out.put(item.url,position(item.url));}catch(Exception ignored){}return out;}
+    public void importPositions(JSONObject data){if(data==null)return;SharedPreferences.Editor editor=prefs.edit();for(Iterator<String> keys=data.keys();keys.hasNext();){String url=keys.next();if(Catalog.httpUrl(url,null)!=null)editor.putLong("position:"+url,Math.max(0,data.optLong(url)));}editor.apply();}
     public void remember(Catalog.Item item,long position){
         prefs.edit().putLong("position:"+item.url,item.live?0:position).apply();JSONArray next=new JSONArray();next.put(item.json());JSONArray previous=array("history");for(int n=0;n<previous.length()&&next.length()<60;n++){JSONObject j=previous.optJSONObject(n);if(j!=null&&!j.optString("url").equals(item.url))next.put(j);}put("history",next);
     }

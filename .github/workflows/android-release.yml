@@ -65,21 +65,25 @@ jobs:
         include:
           - device: legacy-phone
             api: 21
+            profile: Nexus 5
             target: default
             arch: x86
             task: connectedLegacyDebugAndroidTest
           - device: legacy-tv
             api: 28
+            profile: tv_1080p
             target: android-tv
             arch: x86
             task: connectedLegacyDebugAndroidTest
           - device: modern-phone
             api: 35
+            profile: pixel_2
             target: google_apis
             arch: x86_64
             task: connectedModernDebugAndroidTest
           - device: modern-tv
             api: 28
+            profile: tv_1080p
             target: android-tv
             arch: x86
             task: connectedModernDebugAndroidTest
@@ -104,9 +108,10 @@ jobs:
           api-level: ${{ matrix.api }}
           target: ${{ matrix.target }}
           arch: ${{ matrix.arch }}
+          profile: ${{ matrix.profile }}
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: gradle -p android --no-daemon ${{ matrix.task }}; result=$?; adb pull /sdcard/Android/data/com.wangshaojie.libretv/files/screenshots android/screenshots || true; exit $result
+          script: gradle -p android --no-daemon ${{ matrix.task }}; result=$?; adb pull /data/local/tmp/libretv-screenshots android/screenshots || true; exit $result
       - uses: actions/upload-artifact@v4
         if: always()
         with:

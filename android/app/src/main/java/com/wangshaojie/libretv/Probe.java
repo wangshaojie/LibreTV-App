@@ -21,6 +21,7 @@ final class Probe {
         private final ExecutorService workers=Executors.newFixedThreadPool(4);
         void cancel(){stopped.set(true);workers.shutdownNow();List<HttpURLConnection> active=new ArrayList<>(connections);if(!active.isEmpty()){Thread close=new Thread(()->{for(HttpURLConnection c:active)c.disconnect();},"probe-disconnect");close.setDaemon(true);close.start();}}
         boolean cancelled(){return stopped.get();}
+        String text(String url)throws IOException{return new String(fetch(url,Collections.emptyMap(),12*1024*1024,false).data,java.nio.charset.StandardCharsets.UTF_8);}
         void start(List<Catalog.Item> targets,boolean sources,Listener listener){
             AtomicInteger next=new AtomicInteger(),completed=new AtomicInteger(),remaining=new AtomicInteger(4);
             for(int n=0;n<4;n++)workers.execute(()->{try{int index;while(!stopped.get()&&(index=next.getAndIncrement())<targets.size()){
