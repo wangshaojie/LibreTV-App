@@ -43,7 +43,7 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v1.0.0-universal.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs android-release/*.apk
           git archive --format=zip --output=android-release/LibreTV-App-Android-v1.0.0-Source.zip HEAD
-          cp android/使用说明.txt android-release/
+          cp android/使用说明.txt android-release/LibreTV-App-Android-Guide.txt
           cd android-release && sha256sum *.apk *.zip > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:

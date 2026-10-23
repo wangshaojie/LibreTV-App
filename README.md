@@ -2,12 +2,22 @@
 
 基于 [LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV) 的**非官方跨平台客户端**。
 
-**Windows 免安装版已发布；Android 手机 / TV 通用原生版已实现，正在构建与验证。**
+**Windows 免安装版和 Android 手机 / TV 通用版均已发布。**
 
 | 平台 | 状态 | 说明 |
 | --- | --- | --- |
 | Windows | 已发布 | Windows 10/11 x64，解压后双击运行 |
-| Android | 构建验证中 | 同一 APK 兼容手机触屏和 Android TV 遥控器 |
+| Android | 已发布 | Android 5.0 及以上，同一 APK 兼容手机触屏和 Android TV 遥控器 |
+
+## 下载 Android 版
+
+**[下载手机 / 电视通用 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.0.0/LibreTV-App-Android-v1.0.0-universal.apk)** · [版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.0.0)
+
+当前安卓版本：`1.0.0`。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK，按提示允许该安装工具安装应用。安装后可从手机或电视桌面打开，无需运行 Windows 程序或部署服务器。
+
+支持 M3U 直播、Apple CMS 点播搜索、线路与选集、收藏、观看记录和续播。手机用触屏，电视用方向键和确定键操作，返回键退出播放，菜单键或长按可收藏。内置此前 Windows 公开包中的源配置，网络请求由当前 Android 设备发起。
+
+这是第一版原生 Android 客户端，尚未移植 EPG、离线下载、Spider/网页解析及 Windows 版的全部高级功能。源的可用性和解码能力取决于网络及设备。[完整 Android 使用与构建说明](android/README.md)。
 
 ## 下载 Windows 版
 
