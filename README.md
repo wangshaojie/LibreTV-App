@@ -15,6 +15,8 @@
 
 当前安卓版本：`1.0.2`。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK，按提示允许该安装工具安装应用。安装后可从手机或电视桌面打开，无需运行 Windows 程序或部署服务器。
 
+1.0.2 修复 Android 5–7 旧证书库导致的 HTTPS 订阅读取失败，已在 Android 5.0.1 实体电视验证。仍保留 HTTPS 证书链和主机名校验。
+
 2026-10-23 更新：Windows ZIP 和 Android APK 均带入 **7 个点播源、9 个直播源**。Android 1.0.0 用户直接覆盖安装 1.0.2，会自动补入新增源并保留个人配置、收藏和记录。Windows EXE 未变，下载包中的源配置已更新；已有用户保留自己的数据，可在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
 
 支持 M3U 直播、Apple CMS 点播搜索、线路与选集、收藏、观看记录和续播。手机用触屏，电视用方向键和确定键操作，返回键退出播放，菜单键或长按可收藏。内置此前 Windows 公开包中的源配置，网络请求由当前 Android 设备发起。
