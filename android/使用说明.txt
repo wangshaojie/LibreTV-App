@@ -1,4 +1,4 @@
-LibreTV-App Android 2.0.0 · 兼容版 / 新版
+LibreTV-App Android 2.0.1 · 兼容版 / 新版
 
 安装：legacy-android5.apk 最低 Android 5.0，推荐 5–7.1 旧设备；modern-android8.apk 适合 Android 8.0 及以上。两版均支持手机和 Android TV，功能一致，按设备选择一版直接覆盖安装，保留原数据，不要先卸载。
 

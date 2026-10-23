@@ -27,7 +27,7 @@ public final class DetailActivity extends Activity {
     }
     private void load(){worker.execute(()->{try{
         String json=Net.get(MainActivity.cmsUrl(item.source,"videolist","ids",item.vodId));LinkedHashMap<String,List<Catalog.Item>> routes=Catalog.episodes(json);
-        runOnUiThread(()->{if(isFinishing()||isDestroyed())return;state.setText("选择线路与剧集");state.setTextColor(Ui.TEXT);String[] names=routes.keySet().toArray(new String[0]);Spinner picker=new Spinner(this);picker.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,names));episodeBox.addView(picker);LinearLayout episodes=Ui.column(this);episodeBox.addView(episodes);
+        runOnUiThread(()->{if(isFinishing()||isDestroyed())return;state.setText("选择线路与剧集");state.setTextColor(Ui.TEXT);String[] names=routes.keySet().toArray(new String[0]);String[] labels=new String[names.length];for(int n=0;n<names.length;n++)labels[n]=names[n]+(Catalog.directRoute(routes.get(names[n]))?" · 视频直连":" · 其他地址");Spinner picker=new Spinner(this);picker.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,labels));episodeBox.addView(picker);LinearLayout episodes=Ui.column(this);episodeBox.addView(episodes);
             picker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int at,long id){selected=routes.get(names[at]);renderEpisodes(episodes,60);}});
         });
     }catch(Exception e){runOnUiThread(()->{if(isFinishing()||isDestroyed())return;state.setText("暂未获取到可播放线路："+e.getMessage());episodeBox.addView(Ui.button(this,"重新加载",this::load));});}});}

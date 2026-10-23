@@ -66,6 +66,13 @@ public final class Catalog {
         JSONObject v=list.getJSONObject(0);String[] groups=v.optString("vod_play_url").split("\\$\\$\\$");String[] names=v.optString("vod_play_from").split("\\$\\$\\$");
         LinkedHashMap<String,List<Item>> result=new LinkedHashMap<>();
         for(int g=0;g<groups.length;g++){List<Item> items=new ArrayList<>();for(String ep:groups[g].split("#")){int split=ep.indexOf('$');String u=httpUrl(split>=0?ep.substring(split+1):ep,null);if(u==null)continue;Item i=new Item();i.title=v.optString("vod_name")+" · "+(split>=0?ep.substring(0,split):"正片");i.url=u;i.poster=v.optString("vod_pic");i.summary=v.optString("vod_content");i.year=v.optString("vod_year");items.add(i);if(items.size()==500)break;}if(!items.isEmpty())result.put((g<names.length&&!names[g].isEmpty()?names[g]:"线路 "+(g+1)),items);}
-        if(result.isEmpty())throw new JSONException("此源没有可直接播放的地址（不支持网页解析线路）");return result;
+        if(result.isEmpty())throw new JSONException("此源没有可直接播放的地址（不支持网页解析线路）");
+        // CMS providers often put their HTML player before the actual media route.
+        // Keep extensionless streams as fallbacks, but never select them ahead of known media.
+        LinkedHashMap<String,List<Item>> ordered=new LinkedHashMap<>();
+        for(Map.Entry<String,List<Item>> route:result.entrySet())if(directRoute(route.getValue()))ordered.put(route.getKey(),route.getValue());
+        for(Map.Entry<String,List<Item>> route:result.entrySet())if(!ordered.containsKey(route.getKey()))ordered.put(route.getKey(),route.getValue());
+        return ordered;
     }
+    static boolean directRoute(List<Item> episodes){if(episodes.isEmpty())return false;try{String path=new URI(episodes.get(0).url).getPath().toLowerCase(Locale.ROOT);return path.matches(".*\\.(m3u8|mpd|mp4|m4v|mkv|webm|ts|flv|mov|avi|mp3|aac)$");}catch(Exception e){return false;}}
 }
