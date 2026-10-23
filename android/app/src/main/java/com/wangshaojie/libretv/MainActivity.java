@@ -123,7 +123,7 @@ public final class MainActivity extends Activity {
     }catch(Exception e){Ui.message(this,"操作失败："+error(e));}}
     private void appendSources(JSONArray out,JSONArray sources,String fallback)throws JSONException{if(sources==null)return;for(int n=0;n<sources.length();n++){JSONObject s=sources.optJSONObject(n);if(s==null||Catalog.httpUrl(s.optString("url"),null)==null)continue;String type=s.optString("type",fallback);out.put(new JSONObject().put("name",s.optString("name","导入的源")).put("url",s.optString("url")).put("type",type.equals("live")?"live":"vod"));}}
     private void about(){new AlertDialog.Builder(this).setTitle("LibreTV-App Android 1.0.0").setMessage("非官方 LibreTV 客户端\n手机触屏 / Android TV 遥控器通用\n\n支持 HTTP/HTTPS M3U、Apple CMS JSON 和原生 HLS/MP4 播放。解码能力取决于设备，不支持网页解析及 Spider 引擎。\n\n上游：LibreSpark/LibreTV\n许可：AGPL-3.0-or-later\n原生 Android 端：2026-10-23\n本软件按原样提供，不作担保。源码和许可可在仓库查看。")
-        .setPositiveButton("源码与许可",(d,n)->startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/wangshaojie/LibreTV-App")))).setNegativeButton("关闭",null).show();}
+        .setPositiveButton("源码与许可",(d,n)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/wangshaojie/LibreTV-App")));}catch(ActivityNotFoundException e){Ui.message(this,"此设备未安装浏览器，请用手机或电脑访问：\nhttps://github.com/wangshaojie/LibreTV-App");}}).setNegativeButton("关闭",null).show();}
     private String error(Exception e){return e.getMessage()==null?e.getClass().getSimpleName():e.getMessage();}
     @Override protected void onResume(){super.onResume();if(store!=null&&(page.equals("favorites")||page.equals("history")))saved(page);}
     @Override protected void onDestroy(){generation++;workers.shutdownNow();super.onDestroy();}
