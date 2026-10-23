@@ -19,3 +19,9 @@ desktop/test-release/
 .zcode/
 .codebuddy/
 generated-images/
+android/.gradle/
+android/**/build/
+android/local.properties
+*.jks
+*.keystore
+*.p12

@@ -2,12 +2,12 @@
 
 基于 [LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV) 的**非官方跨平台客户端**。
 
-**Windows 免安装版已发布，Android 版本计划中。**
+**Windows 免安装版已发布；Android 手机 / TV 通用原生版已实现，正在构建与验证。**
 
 | 平台 | 状态 | 说明 |
 | --- | --- | --- |
 | Windows | 已发布 | Windows 10/11 x64，解压后双击运行 |
-| Android | 计划中 | 尚未提供 APK，发布时间待定 |
+| Android | 构建验证中 | 同一 APK 兼容手机触屏和 Android TV 遥控器 |
 
 ## 下载 Windows 版
 
@@ -71,9 +71,9 @@ LibreTV-App/
 
 当前提供 x64 程序；Windows 7、32 位和 ARM 原生版本未提供，Android 暂无安装包。
 
-## Android 计划
+## Android 通用版
 
-Android 客户端处于规划阶段，计划沿用 LibreTV 的搜索、源管理和播放体验。具体技术方案、功能范围和发布时间尚未确定，后续进展会在此仓库更新。
+Android 原生客户端已实现，正在完成正式签名构建和手机 / Android TV 模拟器验证。支持 M3U 直播、Apple CMS 点播搜索、原生播放、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。源码与功能范围见 [android/README.md](android/README.md)。APK 通过验证后发布到本仓库 Releases。
 
 ## 从源码构建 Windows 版
 
