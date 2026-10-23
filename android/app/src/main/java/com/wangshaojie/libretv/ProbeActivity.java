@@ -1,0 +1,44 @@
+package com.wangshaojie.libretv;
+
+import android.app.*;
+import android.content.*;
+import android.content.pm.ActivityInfo;
+import android.os.*;
+import android.view.*;
+import android.widget.*;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.json.*;
+
+@androidx.media3.common.util.UnstableApi
+public final class ProbeActivity extends Activity {
+    private final Handler handler=new Handler(Looper.getMainLooper());
+    private final ExecutorService loader=Executors.newSingleThreadExecutor();
+    private final List<Probe.Result> results=new ArrayList<>(),visible=new ArrayList<>(),pending=new ArrayList<>();
+    private final AtomicBoolean scheduled=new AtomicBoolean();
+    private Probe.Session session;private Store store;private TextView heading,summary;private ProgressBar progress;private Button stop;private BaseAdapter adapter;private JSONObject health;private boolean sourceMode,running;private String filter="全部";private int total;private long savedAt;private List<Catalog.Item> targets=new ArrayList<>();
+    static void launch(Context context,String mode){context.startActivity(new Intent(context,ProbeActivity.class).putExtra("mode",mode));}
+    static void channels(Context context,List<Catalog.Item> items){try{JSONArray a=new JSONArray();for(Catalog.Item i:items)a.put(i.json());File file=new File(context.getCacheDir(),"probe-"+UUID.randomUUID()+".json");try(FileOutputStream out=new FileOutputStream(file)){out.write(a.toString().getBytes("UTF-8"));}context.startActivity(new Intent(context,ProbeActivity.class).putExtra("mode","channels").putExtra("jobs",file.getName()));}catch(Exception e){Ui.message(context,"无法开始测活："+e.getMessage());}}
+    @Override public void onCreate(Bundle saved){super.onCreate(saved);store=new Store(this);if(Ui.tv(this))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);sourceMode=getIntent().getStringExtra("mode")==null||getIntent().getStringExtra("mode").equals("sources");health=store.object(sourceMode?"source-health":"channel-health");
+        LinearLayout root=Ui.column(this);Ui.inset(this,root);LinearLayout bar=Ui.row(this);bar.addView(Ui.button(this,"返回",this::leave));bar.addView(Ui.heading(this,sourceMode?"源测活中心":"频道测活中心"));root.addView(bar);
+        LinearLayout content=Ui.column(this);Ui.padding(content,Ui.tv(this)?28:16);root.addView(content,new LinearLayout.LayoutParams(-1,0,1));LinearLayout card=Ui.panel(this);heading=Ui.heading(this,"正在准备检测");card.addView(heading);card.addView(Ui.gap(this,8));summary=Ui.label(this,"4 路并发 · 可随时停止",14,Ui.MUTED);card.addView(summary);progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(true);card.addView(progress,new LinearLayout.LayoutParams(-1,Ui.dp(this,16)));stop=Ui.button(this,"停止检测",this::cancel);card.addView(stop);content.addView(card);content.addView(Ui.gap(this,12));
+        LinearLayout filters=Ui.row(this);for(String name:new String[]{"全部","可连接","异常"})filters.addView(Ui.button(this,name,()->{filter=name;update();}));content.addView(filters);TextView note=Ui.label(this,sourceMode?"检查源列表能否访问及解析，不代表每条影片线路均可播放。":"检查播放列表与媒体片段的连通性，实际解码能力取决于设备。",12,Ui.MUTED);content.addView(note);content.addView(Ui.gap(this,12));ListView list=new ListView(this);list.setDividerHeight(Ui.dp(this,6));adapter=new BaseAdapter(){public int getCount(){return visible.size();}public Object getItem(int n){return visible.get(n);}public long getItemId(int n){return n;}public View getView(int n,View old,ViewGroup parent){Probe.Result result=visible.get(n);LinearLayout row=Ui.panel(ProbeActivity.this);TextView title=Ui.label(ProbeActivity.this,(result.ok?"●  ":"○  ")+result.name,16,result.ok?Ui.ACCENT:Ui.BAD);row.addView(title);row.addView(Ui.gap(ProbeActivity.this,6));row.addView(Ui.label(ProbeActivity.this,result.ok?"可连接 · "+result.millis+" ms"+(sourceMode?" · "+result.count+" 项":""):result.error,13,Ui.MUTED));return row;}};list.setAdapter(adapter);content.addView(list,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);prepare();
+    }
+    private void prepare(){session=new Probe.Session();running=true;loader.execute(()->{try{
+        String mode=getIntent().getStringExtra("mode");List<Catalog.Item> jobs=new ArrayList<>();Set<String> seen=new HashSet<>();
+        if(sourceMode){JSONArray sources=store.array("sources");for(int n=0;n<sources.length();n++){JSONObject s=sources.getJSONObject(n);Catalog.Item i=new Catalog.Item();i.title=s.optString("name");i.source=s.optString("url");i.live=s.optString("type").equals("live");i.url=i.live?i.source:MainActivity.cmsUrl(i.source,"videolist",null,null);jobs.add(i);}}
+        else if("allChannels".equals(mode)){JSONArray sources=store.array("sources");for(int n=0;n<sources.length()&&!session.cancelled();n++){JSONObject s=sources.getJSONObject(n);if(!s.optString("type").equals("live")||!s.optBoolean("enabled",true))continue;final String name=s.optString("name");runOnUiThread(()->{if(running)heading.setText("收集频道 · "+name);});try{for(Catalog.Item item:Catalog.m3u(Net.get(s.optString("url")),s.optString("url")))if(seen.add(item.url)){item.sourceName=name;jobs.add(item);}}catch(Exception e){Probe.Result failed=new Probe.Result();failed.name=name;failed.url=s.optString("url");failed.kind="订阅";failed.error="订阅读取失败："+e.getMessage();synchronized(pending){pending.add(failed);}}}}
+        else{String name=getIntent().getStringExtra("jobs");File file=new File(getCacheDir(),name==null?"missing":name);if(!file.getCanonicalFile().getParentFile().equals(getCacheDir().getCanonicalFile()))throw new IOException("无效任务文件");try(InputStream in=new FileInputStream(file);ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1){if(out.size()+n>20*1024*1024)throw new IOException("列表过大");out.write(b,0,n);}JSONArray a=new JSONArray(out.toString("UTF-8"));for(int k=0;k<a.length();k++){Catalog.Item item=Catalog.Item.from(a.getJSONObject(k));if(seen.add(item.url))jobs.add(item);}}file.delete();}
+        if(session.cancelled())return;runOnUiThread(()->start(jobs));
+    }catch(Exception e){runOnUiThread(()->{if(isDestroyed())return;running=false;heading.setText("无法开始检测");summary.setText(e.getMessage());progress.setIndeterminate(false);stop.setText("返回");stop.setOnClickListener(v->finish());});}});}
+    private void start(List<Catalog.Item> jobs){if(isDestroyed()||session.cancelled())return;targets=jobs;total=jobs.size();progress.setIndeterminate(false);progress.setMax(Math.max(1,total));heading.setText("正在检测");session.start(jobs,sourceMode,new Probe.Listener(){public void result(Probe.Result result,int done,int count){synchronized(pending){pending.add(result);}if(scheduled.compareAndSet(false,true))handler.postDelayed(()->{scheduled.set(false);flush();},180);}public void finished(boolean cancelled){runOnUiThread(()->{flush();running=false;heading.setText(cancelled?"检测已停止":"检测完成");stop.setText("重测异常");stop.setOnClickListener(v->retry());store.putObject(sourceMode?"source-health":"channel-health",health);});}});}
+    private void flush(){if(isDestroyed())return;synchronized(pending){for(Probe.Result r:pending){results.add(r);try{health.put(r.url,r.json());}catch(Exception ignored){}}pending.clear();}update();long now=System.currentTimeMillis();if(now-savedAt>1200){store.putObject(sourceMode?"source-health":"channel-health",health);savedAt=now;}}
+    private void update(){int good=0;visible.clear();for(Probe.Result r:results){if(r.ok)good++;if(filter.equals("全部")||filter.equals("可连接")==r.ok)visible.add(r);}summary.setText("已完成 "+results.size()+" / "+total+"  ·  可连接 "+good+"  ·  异常 "+(results.size()-good));progress.setProgress(results.size());adapter.notifyDataSetChanged();}
+    private void retry(){if(running)return;Set<String> failed=new HashSet<>();for(Probe.Result r:results)if(!r.ok)failed.add(r.url);List<Catalog.Item> next=new ArrayList<>();for(Catalog.Item i:targets)if(failed.contains(sourceMode?i.source:i.url))next.add(i);if(next.isEmpty()){Ui.toast(this,"没有需要重测的项目");return;}results.clear();visible.clear();session=new Probe.Session();running=true;stop.setText("停止检测");stop.setOnClickListener(v->cancel());start(next);}
+    private void cancel(){if(session!=null)session.cancel();loader.shutdownNow();running=false;flush();heading.setText("检测已停止");store.putObject(sourceMode?"source-health":"channel-health",health);stop.setText("重测异常");stop.setOnClickListener(v->retry());}
+    private void leave(){if(running)new AlertDialog.Builder(this).setMessage("停止当前检测并返回？").setPositiveButton("停止并返回",(d,n)->finish()).setNegativeButton("继续检测",null).show();else finish();}
+    @Override public void onBackPressed(){leave();}
+    @Override protected void onDestroy(){if(session!=null)session.cancel();loader.shutdownNow();handler.removeCallbacksAndMessages(null);super.onDestroy();}
+}

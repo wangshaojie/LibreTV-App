@@ -5,14 +5,20 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 public final class Net {
+    static final String BROWSER_UA="Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile Safari/537.36";
     private Net() {}
     public static String get(String address)throws IOException {
+        return get(address,Collections.emptyMap());
+    }
+    public static String get(String address,Map<String,String> headers)throws IOException {
         String current=address;
         for(int hop=0;hop<6;hop++) {
+            if(Thread.currentThread().isInterrupted())throw new IOException("已取消");
             if(Catalog.httpUrl(current,null)==null)throw new IOException("只支持 HTTP/HTTPS 地址");
             HttpURLConnection c=(HttpURLConnection)new URL(current).openConnection();
             c.setConnectTimeout(12000);c.setReadTimeout(15000);c.setInstanceFollowRedirects(false);
             c.setRequestProperty("User-Agent","LibreTV-App/1.0 Android");c.setRequestProperty("Accept","*/*");
+            for(Map.Entry<String,String> h:headers.entrySet())c.setRequestProperty(h.getKey(),h.getValue());
             try {
                 int code=c.getResponseCode();
                 if(code==301||code==302||code==303||code==307||code==308){String location=c.getHeaderField("Location");if(location==null)throw new IOException("跳转地址缺失");current=new URL(new URL(current),location).toString();continue;}
