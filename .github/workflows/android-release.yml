@@ -111,7 +111,7 @@ jobs:
           profile: ${{ matrix.profile }}
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: gradle -p android --no-daemon ${{ matrix.task }}; result=$?; adb pull /data/local/tmp/libretv-screenshots android/screenshots || true; exit $result
+          script: gradle -p android --no-daemon ${{ matrix.task }}; result=$?; python3 android/tools/extract_test_screenshots.py; shots=$?; if [ $result -ne 0 ]; then exit $result; fi; exit $shots
       - uses: actions/upload-artifact@v4
         if: always()
         with:

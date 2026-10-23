@@ -11,16 +11,16 @@
 
 ## 下载 Android 版
 
-安卓版本：**1.1.0**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
+安卓版本：**2.0.0**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
 
 | 安装包 | 适用设备 | 下载 |
 | --- | --- | --- |
-| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.1.0/LibreTV-App-Android-v1.1.0-legacy-android5.apk) |
-| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.1.0/LibreTV-App-Android-v1.1.0-modern-android8.apk) |
+| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.0/LibreTV-App-Android-v2.0.0-legacy-android5.apk) |
+| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.0/LibreTV-App-Android-v2.0.0-modern-android8.apk) |
 
-[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.1.0)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
+[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.0)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
 
-已修正点播首页容易被误认为报错的 Spider/网页源说明，改为输入片名的搜索引导。内置点播源使用 Apple CMS JSON 接口；详情请求与 Windows 端统一使用 videolist，正常搜索、线路和选集不需要 Spider 引擎。
+**Android 2.0 已重做界面与主要流程**：海报推荐首页、电影 / 剧集分类、同名聚合搜索、详情与选集、直播分组、源开关和批量测活。手机使用底部导航，电视使用遥控器侧栏与清晰焦点。测活可查看进度、停止、筛选异常并重测，结果会保存在本机。
 
 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录和续播；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
