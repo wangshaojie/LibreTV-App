@@ -7,21 +7,24 @@
 | 平台 | 状态 | 说明 |
 | --- | --- | --- |
 | Windows | 已发布 | Windows 10/11 x64，解压后双击运行 |
-| Android | 已发布 | Android 5.0 及以上，同一 APK 兼容手机触屏和 Android TV 遥控器 |
+| Android | 已发布 | 兼容版 Android 5.0+；新版 Android 8.0+；两版均支持手机和电视 |
 
 ## 下载 Android 版
 
-**[下载手机 / 电视通用 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.0.2/LibreTV-App-Android-v1.0.2-universal.apk)** · [版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.0.2)
+安卓版本：**1.1.0**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
 
-当前安卓版本：`1.0.2`。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK，按提示允许该安装工具安装应用。安装后可从手机或电视桌面打开，无需运行 Windows 程序或部署服务器。
+| 安装包 | 适用设备 | 下载 |
+| --- | --- | --- |
+| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.1.0/LibreTV-App-Android-v1.1.0-legacy-android5.apk) |
+| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v1.1.0/LibreTV-App-Android-v1.1.0-modern-android8.apk) |
 
-1.0.2 修复 Android 5–7 旧证书库导致的 HTTPS 订阅读取失败，已在 Android 5.0.1 实体电视验证。仍保留 HTTPS 证书链和主机名校验。
+[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v1.1.0)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
 
-2026-10-23 更新：Windows ZIP 和 Android APK 均带入 **7 个点播源、9 个直播源**。Android 1.0.0 用户直接覆盖安装 1.0.2，会自动补入新增源并保留个人配置、收藏和记录。Windows EXE 未变，下载包中的源配置已更新；已有用户保留自己的数据，可在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
+已修正点播首页容易被误认为报错的 Spider/网页源说明，改为输入片名的搜索引导。内置点播源使用 Apple CMS JSON 接口；详情请求与 Windows 端统一使用 videolist，正常搜索、线路和选集不需要 Spider 引擎。
 
-支持 M3U 直播、Apple CMS 点播搜索、线路与选集、收藏、观看记录和续播。手机用触屏，电视用方向键和确定键操作，返回键退出播放，菜单键或长按可收藏。内置此前 Windows 公开包中的源配置，网络请求由当前 Android 设备发起。
+手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录和续播；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
-这是第一版原生 Android 客户端，尚未移植 EPG、离线下载、Spider/网页解析及 Windows 版的全部高级功能。源的可用性和解码能力取决于网络及设备。[完整 Android 使用与构建说明](android/README.md)。
+Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个人数据，在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
 
 ## 下载 Windows 版
 

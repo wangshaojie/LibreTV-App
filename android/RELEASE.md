@@ -1,9 +1,11 @@
-# Android 1.0.2 · Android 5 电视 HTTPS 兼容修复
+# Android 1.1.0 · 兼容版 / 新版
 
-修复旧电视读取 HTTPS 订阅时出现“Trust anchor for certification path not found”的问题。Android 5–7 会补充来自 Mozilla / certifi 的可信根证书，订阅及播放器均适用，仍保留证书链和主机名校验；不会修改电视的系统证书或代理设置。
+- Legacy 兼容版：最低 Android 5.0，推荐 Android 5–7.1 旧设备。保留旧系统 Mozilla / certifi 根证书兼容处理。
+- Modern 新版：最低 Android 8.0，使用系统证书库，不打入旧系统 CA 数据。
+- 两版均兼容手机和 Android TV，内置 7 个点播源、9 个直播源，功能一致。
+- 修正点播首页将 Spider/网页源限制作为固定提示、容易被误认为报错的问题，现在显示输入片名的搜索引导。
+- 点播详情改为与 Windows 一致的 ac=videolist&ids= 请求，兼容正常的 Apple CMS 源。没有新增 Spider 引擎或网页解析能力。
 
-内置 7 个点播源、9 个直播源。手机与 Android TV 通用，最低 Android 5.0，直接覆盖安装即可，保留源配置、收藏和观看记录。
+根据 Android 版本下载一份 APK，直接覆盖安装 1.0.x 即可。两版使用相同包名和原签名，保留个人配置、收藏和观看记录；同一设备不能将两版作为独立应用并存，不要先卸载旧版。
 
-已在 Android 5.0.1 实体电视验证：原来证书失败的默认 HTTPS 订阅可正常读取频道列表。另有手机、Android TV 模拟器回归测试，以及未知自签名证书拒绝测试。
-
-提供签名 APK、对应源码 ZIP、使用说明和 SHA-256 校验文件。基于 LibreSpark/LibreTV 的非官方客户端，采用 AGPL-3.0-or-later；CA 数据采用 MPL-2.0，第三方许可随包提供。
+提供两份签名 APK、完整对应源码 ZIP、中文使用说明与校验文件。采用 AGPL-3.0-or-later，第三方许可随包提供。

@@ -31,12 +31,29 @@ public class DeviceSmokeTest {
     }
     @Test public void favoriteAndHistoryPersist(){Store s=new Store(main.getActivity());Catalog.Item item=new Catalog.Item();item.title="Test";item.url="https://example.com/test.mp4";if(!s.favorite(item))s.toggleFavorite(item);assertTrue(new Store(main.getActivity()).favorite(item));s.remember(item,12345);assertEquals(12345,new Store(main.getActivity()).position(item.url));s.toggleFavorite(item);}
     @Test public void legacyCaStoreRejectsUntrustedCertificate()throws Exception{
-        Context c=main.getActivity();javax.net.ssl.X509TrustManager trust=TlsCompat.trustManager(c);assertTrue(trust.getAcceptedIssuers().length>=100);
+        Context c=main.getActivity();javax.net.ssl.X509TrustManager trust;
+        if(BuildConfig.LEGACY_TLS){trust=TlsCompat.trustManager(c);assertTrue(trust.getAcceptedIssuers().length>=100);}
+        else{javax.net.ssl.TrustManagerFactory factory=javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm());factory.init((java.security.KeyStore)null);trust=(javax.net.ssl.X509TrustManager)factory.getTrustManagers()[0];try(InputStream ignored=c.getAssets().open("cacert.pem")){fail("Modern edition must use system CAs without the legacy bundle");}catch(FileNotFoundException expected){}}
         try(InputStream in=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("untrusted.pem")){
             java.security.cert.X509Certificate cert=(java.security.cert.X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509").generateCertificate(in);
             try{trust.checkServerTrusted(new java.security.cert.X509Certificate[]{cert},"RSA");fail("An unknown self-signed certificate must be rejected");}catch(java.security.cert.CertificateException expected){}
         }
-        javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();TlsCompat.install(c);assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
+        javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();if(BuildConfig.LEGACY_TLS)TlsCompat.install(c);assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
+    }
+    @Test public void vodLandingGuidesSearchWithoutDisplayingAnError()throws Exception{
+        Instrumentation i=InstrumentationRegistry.getInstrumentation();Activity a=main.getActivity();
+        i.runOnMainSync(()->{ArrayList<View> found=new ArrayList<>();a.getWindow().getDecorView().findViewsWithText(found,"点播",View.FIND_VIEWS_WITH_TEXT);for(View v:found)if(v instanceof Button){v.performClick();break;}ArrayList<View> guidance=new ArrayList<>();a.getWindow().getDecorView().findViewsWithText(guidance,"输入片名后点击搜索",View.FIND_VIEWS_WITH_TEXT);assertFalse(guidance.isEmpty());ArrayList<View> misleading=new ArrayList<>();a.getWindow().getDecorView().findViewsWithText(misleading,"Spider",View.FIND_VIEWS_WITH_TEXT);assertTrue(misleading.isEmpty());});
+    }
+    @Test public void cmsSearchAndEpisodeRequestsPreserveApiParameters()throws Exception{
+        java.net.ServerSocket server=new java.net.ServerSocket(0,4,java.net.InetAddress.getByName("127.0.0.1"));
+        java.util.concurrent.FutureTask<Void> fixture=new java.util.concurrent.FutureTask<>(()->{for(int n=0;n<2;n++)try(java.net.Socket socket=server.accept()){
+            BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));String request=reader.readLine();String line;while((line=reader.readLine())!=null&&!line.isEmpty()){}
+            assertTrue(request.contains("ac=videolist"));assertTrue(request.contains("token=keep"));String body;
+            if(n==0){assertTrue(request.contains("wd="));body="{\"list\":[{\"vod_id\":7,\"vod_name\":\"Fixture\"}]}";}
+            else{assertTrue(request.contains("ids=7"));body="{\"list\":[{\"vod_name\":\"Fixture\",\"vod_play_from\":\"HLS\",\"vod_play_url\":\"Episode$https://example.com/fixture.m3u8\"}]}";}
+            byte[] bytes=body.getBytes("UTF-8");OutputStream out=socket.getOutputStream();out.write(("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "+bytes.length+"\r\nConnection: close\r\n\r\n").getBytes("US-ASCII"));out.write(bytes);out.flush();
+        }return null;});new Thread(fixture,"cms-fixture").start();
+        try{String base="http://127.0.0.1:"+server.getLocalPort()+"/api?token=keep&ac=old&pg=9";List<Catalog.Item> found=Catalog.search(Net.get(MainActivity.cmsUrl(base,"videolist","wd","test")),base,"Fixture");assertEquals(1,found.size());assertEquals("7",found.get(0).vodId);Map<String,List<Catalog.Item>> episodes=Catalog.episodes(Net.get(MainActivity.cmsUrl(base,"videolist","ids",found.get(0).vodId)));assertEquals("https://example.com/fixture.m3u8",episodes.get("HLS").get(0).url);fixture.get(5,java.util.concurrent.TimeUnit.SECONDS);}finally{server.close();}
     }
     @Test public void upgradeAddsPresetsOnceAndPreservesUserData()throws Exception{
         Context base=main.getActivity();Context isolated=new ContextWrapper(base){@Override public SharedPreferences getSharedPreferences(String name,int mode){return base.getSharedPreferences("preset-migration-test",mode);}};
