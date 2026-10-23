@@ -76,7 +76,7 @@ public final class MainActivity extends Activity {
         final int token=++generation;items.clear();shown.clear();refresh();status.setText("正在读取 "+source.optString("name")+"…");
         workers.execute(()->{try{
             List<Catalog.Item> channels=Catalog.m3u(Net.get(source.optString("url")),source.optString("url"));if(channels.isEmpty())throw new IOException("列表没有 HTTP/HTTPS 节目，请检查是否为 M3U 地址");
-            for(Catalog.Item i:channels){i.sourceName=source.optString("name");i.source=source.optString("url");}
+            for(Catalog.Item i:channels){i.sourceName=source.optString("name");i.source=source.optString("url");}android.util.Log.i("LibreTV-Net","Subscription loaded: "+channels.size()+" entries");
             runOnUiThread(()->{if(!current(token))return;items.addAll(channels);LinkedHashSet<String> gs=new LinkedHashSet<>();gs.add("全部分组");for(Catalog.Item i:items)if(!i.group.isEmpty())gs.add(i.group);
                 List<String> groups=new ArrayList<>(gs);group="全部分组";groupPicker.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,groups));groupPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int n,long id){group=groups.get(n);filter();}});filter();});
         }catch(Exception e){runOnUiThread(()->{if(current(token))status.setText("订阅读取失败："+error(e)+" · 可在源管理中修改或测试");});}});
