@@ -1,6 +1,6 @@
 # LibreTV-App Android
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.1`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.2`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -30,7 +30,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 安装
 
-从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.1-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.1-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
+从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.2-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.2-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
 
 手机桌面和电视桌面均有启动入口。手机播放页可切换横/竖屏，电视采用横屏和明显的焦点边框。
 
@@ -52,4 +52,4 @@ gradle -p android testLegacyDebugUnitTest testModernDebugUnitTest assembleLegacy
 
 基于 LibreSpark/LibreTV 的非官方客户端。Android 原生实现修改日期：2026-10-23。项目继续使用 AGPL-3.0-or-later；原许可证见根目录 LICENSE，应用内也包含完整许可证。Media3/ExoPlayer 遵循 Apache-2.0，其他组件遵循各自许可证。
 
-点播首页的 Spider/网页源文字原为固定能力说明，2.0.1 已改成正常搜索引导；无需据此更换内置点播源。详情使用与 Windows 端一致的 videolist API。
+点播首页的 Spider/网页源文字原为固定能力说明，2.0.2 已改成正常搜索引导；无需据此更换内置点播源。详情使用与 Windows 端一致的 videolist API。
