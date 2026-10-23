@@ -32,12 +32,18 @@ LibreTV-App/
 ## 快速开始
 
 1. 下载 Windows ZIP 包，**完整解压**到有写入权限的文件夹。
-2. 双击 `LibreTV.exe`，首次启动需要解包，请稍等片刻。
+2. 双击 `LibreTV.exe`，首次`启动需要解包，请稍等片刻`。
 3. 无需另装 Node.js、Docker 或浏览器，也不需要管理员权限。
 4. 在「设置 → 源管理」中管理自己的点播源或直播源。M3U 播放列表应添加到**直播源**；Apple CMS JSON API 应添加到**点播源**。
 5. 首页用于影片搜索；顶部「直播」用于浏览 M3U 频道和分组。
+6. 内置多个直播和点播源
 
 如果要从空白配置开始，首次运行前将随包的 `LibreTV-Data` 移到其他文件夹备份，程序会自动创建全新的数据目录。
+<img width="1264" height="831" alt="image" src="https://github.com/user-attachments/assets/27d2f58d-cdd1-4c25-897d-2965d6466cf1" />
+<img width="1264" height="829" alt="image" src="https://github.com/user-attachments/assets/a0eeed2d-d53a-4c7c-bfd0-6e60cd978f45" />
+<img width="1264" height="775" alt="image" src="https://github.com/user-attachments/assets/98da3a7c-5e43-4582-a68f-3e5ad38933fd" />
+点击测活，可是测试所有源中可用频道
+<img width="1264" height="775" alt="image" src="https://github.com/user-attachments/assets/93cc0020-1ebb-46fe-b3c6-bda0a23ca18a" />
 
 ## Windows 版功能
 
