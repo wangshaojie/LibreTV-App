@@ -114,7 +114,7 @@ Windows 当前提供 x64 程序，Windows 7、32 位和 ARM 原生版本未提�
 
 Android 手机 / TV 通用版 **2.0.3 已正式发布**，提供兼容版（Android 5.0+）和新版（Android 8.0+）两个签名 APK。已完成四组手机 / TV 模拟设备验证，并在 Android 5 实机电视上验证遥控器点播流程。
 
-支持海报推荐首页、电影 / 剧集分类、Apple CMS 全源搜索、详情选集、M3U 直播、批量测活、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。2.0.3 改为复用同一个播放器实例，切台、换线路不再反复重建硬件解码器，降低老旧电视上「只有声音没有画面」的概率；解码失败时给出可读提示并自动重建解码器重试一次。
+支持海报推荐首页、电影 / 剧集分类、Apple CMS 全源搜索、详情选集、M3U 直播、批量测活、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。2.0.3 在解码失败时给出可读提示（说明是本机解码能力问题，并提示换线路、选更低清晰度的源或重启电视），并修复部分 Android 版本上回车键无法打开海报详情的问题。
 
 - [下载 Android 5.0+ 兼容版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.3/LibreTV-App-Android-v2.0.3-legacy-android5.apk)
 - [下载 Android 8.0+ 新版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.3/LibreTV-App-Android-v2.0.3-modern-android8.apk)
