@@ -10,6 +10,7 @@ import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.ui.PlayerView;
 import org.json.*;
 import java.util.*;
@@ -26,9 +27,10 @@ public final class PlayerActivity extends Activity {
         nav.addView(Ui.button(this,"倍速",()->new AlertDialog.Builder(this).setTitle("播放速度").setItems(new String[]{"0.75×","1.0×","1.25×","1.5×","2.0×"},(d,n)->{if(player!=null)player.setPlaybackSpeed(new float[]{.75f,1f,1.25f,1.5f,2f}[n]);}).show()));nav.addView(Ui.button(this,"画面比例",()->new AlertDialog.Builder(this).setTitle("画面显示").setItems(new String[]{"适应屏幕","填满屏幕","裁切放大"},(d,n)->video.setResizeMode(new int[]{androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM}[n])).show()));
         title=Ui.text(this,"",17);root.addView(title);video=new PlayerView(this);video.setUseController(true);video.setControllerAutoShow(true);video.setFocusable(true);root.addView(video,new LinearLayout.LayoutParams(-1,0,1));error=Ui.text(this,"",14);root.addView(error);setContentView(root);resume=store.position(items.get(index).url);
     }
-    // The vendor decoder on older MStar TV chips aborts the process when a failed
-    // MediaCodec is released from the playback callback (ACodec.cpp CHECK_EQ on
-    // OMX_IndexParamAudioMp3), so the player is only released from the UI thread.
+    // One player instance is reused for every episode, channel and route. Releasing the
+    // player re-creates the vendor MediaCodec, and on older MStar TV firmware that teardown
+    // aborts the process (ACodec.cpp CHECK_EQ on OMX_IndexParamAudioMp3), which leaves the
+    // television's video path stuck and makes every later video play with sound but no picture.
     private ExoPlayer ensurePlayer(){
         if(player!=null)return player;
         player=new ExoPlayer.Builder(this,new DefaultRenderersFactory(this).setEnableDecoderFallback(true)).build();
@@ -38,13 +40,13 @@ public final class PlayerActivity extends Activity {
     }
     private void releasePlayer(){if(player!=null){player.release();player=null;}}
     private void prepare(){
-        if(items.isEmpty())return;releasePlayer();Catalog.Item item=items.get(index);title.setText(item.title+" · "+(index+1)+"/"+items.size());error.setText("正在连接…");
+        if(items.isEmpty())return;Catalog.Item item=items.get(index);title.setText(item.title+" · "+(index+1)+"/"+items.size());error.setText("正在连接…");
         Map<String,String> headers=new LinkedHashMap<>(item.headers);String ua=headers.remove("User-Agent");
         DefaultHttpDataSource.Factory http=new DefaultHttpDataSource.Factory().setUserAgent(ua==null?"LibreTV-App/1.0 Android":ua).setAllowCrossProtocolRedirects(true).setConnectTimeoutMs(12000).setReadTimeoutMs(20000).setDefaultRequestProperties(headers);
-        ExoPlayer p=ensurePlayer();
-        MediaItem.Builder media=new MediaItem.Builder().setUri(item.url);String path=item.url.toLowerCase(Locale.ROOT).split("\\?")[0];if(path.endsWith(".m3u8"))media.setMimeType(MimeTypes.APPLICATION_M3U8);p.setMediaItem(media.build());
-        if(!item.live&&resume>0)p.seekTo(resume);
-        p.prepare();p.setPlayWhenReady(autoplay);video.setKeepScreenOn(true);video.requestFocus();store.remember(item,resume);
+        MediaItem.Builder media=new MediaItem.Builder().setUri(item.url);String path=item.url.toLowerCase(Locale.ROOT).split("\\?")[0];if(path.endsWith(".m3u8"))media.setMimeType(MimeTypes.APPLICATION_M3U8);
+        MediaSource source=new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this,http)).createMediaSource(media.build());
+        ExoPlayer p=ensurePlayer();p.setMediaSource(source);p.prepare();if(!item.live&&resume>0)p.seekTo(resume);p.setPlayWhenReady(autoplay);
+        video.setKeepScreenOn(true);video.requestFocus();store.remember(item,resume);
     }
     private boolean decodeFailure(PlaybackException e){int code=e.errorCode;return code==PlaybackException.ERROR_CODE_DECODING_FAILED||code==PlaybackException.ERROR_CODE_DECODER_INIT_FAILED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES;}
     private void handleError(PlaybackException e){

@@ -1,6 +1,6 @@
 # LibreTV-App Android
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.3`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.4`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -8,15 +8,15 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 下载与实机截图
 
-Android 2.0.3 已发布：
+Android 2.0.4 已发布：
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.3/LibreTV-App-Android-v2.0.3-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.3/LibreTV-App-Android-v2.0.3-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.3)
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.4/LibreTV-App-Android-v2.0.4-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.4/LibreTV-App-Android-v2.0.4-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.4)
 
-2.0.3 解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情。覆盖安装保留数据。
+2.0.4 切台与换线路改为复用同一播放器，不再销毁重建电视的硬件解码器——早期 MStar 固件在解码器释放时会导致进程原生崩溃，随后电视所有视频只剩声音没有画面。同时解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情。覆盖安装保留数据。
 
-2026-10-24 实机截图（Android 5.0.1 电视，2.0.3 兼容版）：
+2026-10-24 实机截图（Android 5.0.1 电视，2.0.4 兼容版）：
 
 ![电视首页](../docs/screenshots/android-tv-home.png)
 
@@ -37,7 +37,7 @@ Android 2.0.3 已发布：
 2. 返回详情点「换线路」换一条线路，或在直播列表选择更低清晰度的频道（例如标有 576p / SD 的同名台）。
 3. 若电视上所有视频都只有声音没有画面，请重启电视：断电 10 秒再开机（或在系统设置里重启），电视的视频通路会重新初始化。
 
-2.0.3 起，解码失败时应用会直接说明原因并给出换线路、降低清晰度或重启电视的建议。少数早期电视的硬解在反复切换后仍可能进入异常状态，此时重启电视即可恢复。
+2.0.4 起，切台与换线路不再销毁重建解码器，早期电视上这类崩溃与「只剩声音」的连锁故障可以避免。若已经出现所有视频只有声音没有画面，请重启电视（断电 10 秒再开机）恢复。
 ## 2.0 界面与功能
 
 新增海报推荐首页、电影 / 剧集分类、最近观看、聚合搜索卡片、原生详情选集、源启用开关，以及源与频道批量测活。手机采用底部导航，Android TV 采用侧栏与遥控器焦点。
@@ -62,7 +62,7 @@ Android 2.0.3 已发布：
 
 ## 安装
 
-从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.3-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.3-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
+从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.4-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.4-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
 
 手机桌面和电视桌面均有启动入口。手机播放页可切换横/竖屏，电视采用横屏和明显的焦点边框。
 
@@ -84,4 +84,4 @@ gradle -p android testLegacyDebugUnitTest testModernDebugUnitTest assembleLegacy
 
 基于 LibreSpark/LibreTV 的非官方客户端。Android 原生实现修改日期：2026-10-23。项目继续使用 AGPL-3.0-or-later；原许可证见根目录 LICENSE，应用内也包含完整许可证。Media3/ExoPlayer 遵循 Apache-2.0，其他组件遵循各自许可证。
 
-点播首页的 Spider/网页源文字原为固定能力说明，2.0.3 已改成正常搜索引导；无需据此更换内置点播源。详情使用与 Windows 端一致的 videolist API。
+点播首页的 Spider/网页源文字原为固定能力说明，2.0.4 已改成正常搜索引导；无需据此更换内置点播源。详情使用与 Windows 端一致的 videolist API。
