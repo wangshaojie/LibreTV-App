@@ -25,6 +25,9 @@ public final class PlayerActivity extends Activity {
     private ExoPlayer player;private PlayerView video;private Store store;private List<Catalog.Item> items=new ArrayList<>();private int index;
     private FrameLayout root;private LinearLayout titleBar,panel;private TextView title,status,osd,clock;private SeekBar seek;private Button playButton,prevButton,nextButton;
     private long resume;private boolean autoplay=true;private boolean panelOn,titleOn,osdOn,locked,dragging;
+    // Live reconnect bookkeeping: -1 means "never tried", recoverCount is the number of
+    // consecutive failed reconnects and is reset as soon as the stream plays again.
+    private long lastRecoveryAt=-1L;private int recoverCount;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final Runnable hideTitleTask=()->{if(!panelOn)hideTitle();};
     private final Runnable hidePanelTask=()->hidePanel();
@@ -95,7 +98,7 @@ public final class PlayerActivity extends Activity {
         if(player!=null)return player;
         player=new ExoPlayer.Builder(this,new DefaultRenderersFactory(this).setEnableDecoderFallback(true)).build();
         player.setAudioAttributes(new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),true);player.setHandleAudioBecomingNoisy(true);
-        player.addListener(new Player.Listener(){@Override public void onPlaybackStateChanged(int state){if(state==Player.STATE_READY)setStatus("方向键调节进度 · 上下键呼出控制 · 返回键退出");if(state==Player.STATE_ENDED&&index+1<items.size())change(1);}@Override public void onIsPlayingChanged(boolean playing){playButton.setText(playing?"暂停":"播放");}@Override public void onPlayerError(PlaybackException e){handleError(e);}});
+        player.addListener(new Player.Listener(){@Override public void onPlaybackStateChanged(int state){if(state==Player.STATE_READY){recoverCount=0;setStatus("方向键调节进度 · 上下键呼出控制 · 返回键退出");}if(state==Player.STATE_ENDED&&index+1<items.size())change(1);}@Override public void onIsPlayingChanged(boolean playing){playButton.setText(playing?"暂停":"播放");}@Override public void onPlayerError(PlaybackException e){handleError(e);}});
         video.setPlayer(player);return player;
     }
     private void releasePlayer(){if(player!=null){player.release();player=null;}}
@@ -111,10 +114,29 @@ public final class PlayerActivity extends Activity {
     }
     private boolean decodeFailure(PlaybackException e){int code=e.errorCode;return code==PlaybackException.ERROR_CODE_DECODING_FAILED||code==PlaybackException.ERROR_CODE_DECODER_INIT_FAILED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES;}
     private void handleError(PlaybackException e){
+        int code=e.errorCode;
+        android.util.Log.w("LibreTV-Player","Playback error "+e.getErrorCodeName()+" ("+code+") live="+live()+" recoveries="+recoverCount);
+        // A live stream that falls behind the sliding live window is not a real failure: the
+        // stream itself is fine, the player just has to join the live edge again. Reconnect
+        // at most three times in a row and never faster than every 20 seconds, so a dead
+        // channel can never turn into an endless reconnect loop.
+        if(live()&&liveRecoverable(code)&&recoverCount<3&&(lastRecoveryAt<0||SystemClock.uptimeMillis()-lastRecoveryAt>20000)){
+            lastRecoveryAt=SystemClock.uptimeMillis();recoverCount++;recoverLive();return;
+        }
         if(decodeFailure(e))setStatus("本机硬件解码器无法处理这条视频（可能是清晰度过高或编码不兼容）。可按「重试」再试一次，或返回详情点「换线路」换一条线路 / 选择更低清晰度的源；若电视上所有视频都只有声音没有画面，需要重启电视。");
-        else if(e.errorCode==PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED)setStatus("当前地址未识别为视频，可能是网页播放线路。点「换线路」返回详情，选择 m3u8 / MP4 线路。");
+        else if(code==PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED)setStatus("当前地址未识别为视频，可能是网页播放线路。点「换线路」返回详情，选择 m3u8 / MP4 线路。");
+        else if(liveRecoverable(code))setStatus("直播流落后于直播窗口，可按「重试」重新接入直播；也可以点「换线路」换一个频道。");
         else setStatus("播放失败："+e.getErrorCodeName()+"。可点「换线路」尝试其他线路，或按「重试」重新连接。");
         showPanel(true);
+    }
+    private boolean live(){return !items.isEmpty()&&items.get(index).live;}
+    private static boolean liveRecoverable(int code){return code==PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT||code==PlaybackException.ERROR_CODE_IO_UNSPECIFIED||code==PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS;}
+    // Reconnect to the live edge: the same code path as the retry button, so the player
+    // instance is reused and the vendor decoder is never torn down.
+    private void recoverLive(){
+        if(player==null||items.isEmpty())return;
+        showOsd("正在重新接入直播…");
+        prepare();
     }
     private void setStatus(String text){status.setText(text);status.setVisibility(text==null||text.isEmpty()?View.GONE:View.VISIBLE);}
 

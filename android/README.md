@@ -1,6 +1,6 @@
 # LibreTV-App Android
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.5`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.6`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -8,15 +8,15 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 下载与实机截图
 
-Android 2.0.5 已发布：
+Android 2.0.6 已发布：
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.5/LibreTV-App-Android-v2.0.5-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.5/LibreTV-App-Android-v2.0.5-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.5)
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.6)
 
-2.0.5 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题。2.0.4 切台与换线路改为复用同一播放器，不再销毁重建电视的硬件解码器——早期 MStar 固件在解码器释放时会导致进程原生崩溃，随后电视所有视频只剩声音没有画面。同时解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情。覆盖安装保留数据。
+2.0.6 直播播放遇到「落后于直播窗口」时自动重新接入直播边缘并继续观看，不用手动按「重试」。2.0.5 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题。2.0.4 切台与换线路改为复用同一播放器，不再销毁重建电视的硬件解码器——早期 MStar 固件在解码器释放时会导致进程原生崩溃，随后电视所有视频只剩声音没有画面。同时解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情。覆盖安装保留数据。
 
-2026-10-24 实机截图（Android 5.0.1 电视，2.0.5 兼容版）：
+2026-10-24 实机截图（Android 5.0.1 电视，2.0.6 兼容版）：
 
 ![电视首页](../docs/screenshots/android-tv-home.png)
 
@@ -52,6 +52,15 @@ Android 2.0.5 已发布：
 - 面板隐藏时：左右键快进 / 快退 10 秒（画面中央短暂提示），确定键播放 / 暂停，遥控器频道键切台。
 - 媒体键（播放 / 暂停 / 上下曲 / 快进快退）保持可用，与系统播放器一致。
 
+## 直播：自动重新接入直播边缘
+
+2.0.6 起，直播流因为网络抖动或落后于滑动直播窗口而中断时，应用会自己重新接入直播边缘并继续观看：
+
+- 触发条件：直播源播放中断（落后于直播窗口、网络连接失败 / 超时、服务器返回异常状态等）。
+- 行为：画面中央短暂提示「正在重新接入直播…」，随后自动重新拉流并继续播放，不需要手动按「重试」。
+- 保护：两次自动重连至少间隔 20 秒，连续失败 3 次后停止自动重连并给出提示，避免无限重试占用带宽。重新接入成功即重新开始计时。
+- 点播内容不受影响：点播仍按原来的错误提示处理，方便换线路或选择更低清晰度的源。
+
 ## 2.0 界面与功能
 
 新增海报推荐首页、电影 / 剧集分类、最近观看、聚合搜索卡片、原生详情选集、源启用开关，以及源与频道批量测活。手机采用底部导航，Android TV 采用侧栏与遥控器焦点。
@@ -76,7 +85,7 @@ Android 2.0.5 已发布：
 
 ## 安装
 
-从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.5-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.5-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
+从仓库 Releases 按设备下载 `LibreTV-App-Android-v2.0.6-legacy-android5.apk` 或 `LibreTV-App-Android-v2.0.6-modern-android8.apk`，允许你选择的安装工具安装应用后打开。无需 Windows 程序、Docker、Node.js 或自行搭建服务器。不会请求通讯录、摄像头、定位或全盘存储权限。
 
 手机桌面和电视桌面均有启动入口。手机播放页的控制面板里可切换横/竖屏，电视采用横屏和明显的焦点边框。
 
