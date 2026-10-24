@@ -19,7 +19,7 @@ try {
   logFile = path.join(dataDir, 'desktop.log');
   if (fs.existsSync(logFile) && fs.statSync(logFile).size > 2 * 1024 * 1024) fs.writeFileSync(logFile, '');
 } catch (error) {
-  dialog.showErrorBox('LibreTV 无法保存数据', `请将 EXE 放在可写入的文件夹后再启动。\n${error.message}`);
+  dialog.showErrorBox('静观 TV 无法保存数据', `请将 EXE 放在可写入的文件夹后再启动。\n${error.message}`);
   app.exit(1);
 }
 
@@ -34,7 +34,7 @@ function fail(error) {
   if (smoke) {
     fs.writeFileSync(path.join(dataDir, 'smoke-result.json'), JSON.stringify({ success: false, error: error.message }));
   } else {
-    dialog.showErrorBox('LibreTV 启动失败', `${error.message}\n\n日志：${logFile}`);
+    dialog.showErrorBox('静观 TV 启动失败', `${error.message}\n\n日志：${logFile}`);
   }
   app.exitCode = 1;
   app.quit();
@@ -94,7 +94,7 @@ function openExternal(url) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    title: 'LibreTV', width: 1280, height: 840, minWidth: 860, minHeight: 620,
+    title: '静观 TV', width: 1280, height: 840, minWidth: 860, minHeight: 620,
     show: false, backgroundColor: '#0b101a',
     icon: path.join(app.isPackaged ? process.resourcesPath : path.join(__dirname, 'resources'), 'web/public/favicon.ico'),
     webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true },
@@ -108,7 +108,7 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => { if (!smoke) mainWindow.show(); });
   mainWindow.on('closed', () => { mainWindow = null; });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
-    { label: 'LibreTV', submenu: [
+    { label: '静观 TV', submenu: [
       { label: '首页', accelerator: 'Alt+Home', click: () => mainWindow?.loadURL(origin) },
       { label: '重新登录', click: () => login().then(() => mainWindow?.loadURL(origin)).catch(fail) },
       { label: '打开数据文件夹', click: () => shell.openPath(dataDir) },
@@ -163,7 +163,7 @@ else {
     session.defaultSession.setPermissionCheckHandler((_wc, permission) => permission === 'fullscreen');
     const webDir = path.join(app.isPackaged ? process.resourcesPath : path.join(__dirname, 'resources'), 'web');
     server = utilityProcess.fork(path.join(webDir, '..', 'server-bootstrap.cjs'), [], {
-      cwd: webDir, serviceName: 'LibreTV Local Server', stdio: 'pipe',
+      cwd: webDir, serviceName: '静观 TV 本地服务', stdio: 'pipe',
       // A separate, nonpersistent network session avoids sharing local login
       // cookies with upstream requests, while retaining OS proxy/PAC behavior.
       partition: 'libretv-upstream',

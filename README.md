@@ -6,7 +6,7 @@
 
 | 平台 | 状态 | 说明 |
 | --- | --- | --- |
-| Windows | 已发布 | Windows 10/11 x64，解压后双击运行 |
+| Windows | 已发布 | 应用名静观 TV；Windows 10/11 x64，解压后双击运行 |
 | Android | 已发布 | 应用名静观 TV；兼容版 Android 5.0+；新版 Android 8.0+；两版均支持手机和电视 |
 
 ## 下载 Android 版
@@ -56,9 +56,9 @@
 
 ## 下载 Windows 版
 
-**[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.2/LibreTV-App-v2.19.2-desktop.2-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.3/LibreTV-App-v2.19.2-desktop.3-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
-当前桌面版本：`2.19.2-desktop.2`，基于 LibreTV `2.19.2`。
+当前桌面版本：`2.19.2-desktop.3`，应用名 **静观 TV**，基于 LibreTV `2.19.2`。
 
 ZIP 包包含免安装程序、发布者提供的 `LibreTV-Data` 本地数据快照，以及中文使用说明。数据快照保留源配置、设置和观看记录，已排除浏览器缓存、Cookies、日志和运行锁文件。
 
@@ -66,7 +66,7 @@ Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个�
 
 ```text
 LibreTV-App/
-├── LibreTV.exe
+├── 静观TV.exe
 ├── LibreTV-Data/
 ├── 使用说明.txt
 ├── 更新日志.txt
@@ -79,7 +79,7 @@ LibreTV-App/
 ## 快速开始
 
 1. 下载 Windows ZIP 包，**完整解压**到有写入权限的文件夹。
-2. 双击 `LibreTV.exe`，首次`启动需要解包，请稍等片刻`。
+2. 双击 `静观TV.exe`，首次`启动需要解包，请稍等片刻`。
 3. 无需另装 Node.js、Docker 或浏览器，也不需要管理员权限。
 4. 在「设置 → 源管理」中管理自己的点播源或直播源。M3U 播放列表应添加到**直播源**；Apple CMS JSON API 应添加到**点播源**。
 5. 首页用于影片搜索；顶部「直播」用于浏览 M3U 频道和分组。
@@ -138,7 +138,7 @@ npm run dist
 输出文件：
 
 ```text
-desktop/dist/LibreTV-2.19.2-desktop.2-Windows-x64-Portable.exe
+desktop/dist/LibreTV-2.19.2-desktop.3-Windows-x64-Portable.exe
 ```
 
 构建过程需要联网下载依赖。打包使用 Electron 和 electron-builder，源码归档使用 Windows 自带的 `tar.exe`。更多开发与验证说明见 [desktop/README.md](desktop/README.md)。

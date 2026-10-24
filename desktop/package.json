@@ -1,7 +1,7 @@
 {
   "name": "libretv-portable",
-  "version": "2.19.2-desktop.2",
-  "description": "LibreTV Windows portable desktop application",
+  "version": "2.19.2-desktop.3",
+  "description": "静观 TV Windows portable desktop application",
   "author": "LibreTV contributors",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -19,7 +19,7 @@
   },
   "build": {
     "appId": "org.librespark.libretv.portable",
-    "productName": "LibreTV",
+    "productName": "静观 TV",
     "asar": true,
     "directories": { "output": "dist" },
     "files": ["main.cjs", "package.json", "LICENSE"],
@@ -30,6 +30,6 @@
       "artifactName": "LibreTV-${version}-Windows-x64-Portable.exe",
       "signExecutable": false
     },
-    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.2-portable" }
+    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.3-portable" }
   }
 }

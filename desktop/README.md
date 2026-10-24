@@ -1,4 +1,4 @@
-# LibreTV Windows 免安装版
+# 静观 TV Windows 免安装版
 
 基于 LibreSpark/LibreTV 2.19.2，增加 Electron 桌面外壳。
 
@@ -6,7 +6,7 @@
 
 ## 使用
 
-1. 将 `LibreTV-2.19.2-desktop.2-Windows-x64-Portable.exe`（交付时命名为 `LibreTV-修复版.exe`）放到有写入权限的文件夹，双击启动。
+1. 将 包内直接双击的 EXE 为 `静观TV.exe`（构建产物为 `LibreTV-2.19.2-desktop.3-Windows-x64-Portable.exe`）放到有写入权限的文件夹，双击启动。
 2. 无需安装 Node.js、Docker 或浏览器，也不需要管理员权限。首次启动会解包到系统临时目录，可能需要稍等。
 3. 在「设置 → 源管理」中添加自己的点播源或直播源，随后搜索和播放。项目未内置影视源；网络内容需要联网，能否播放取决于数据源、网络和视频编码。
 4. 关闭窗口即退出程序，同时停止内置服务。菜单支持刷新、全屏、重新登录和打开数据文件夹。
@@ -32,7 +32,7 @@ npm ci
 npm run dist
 ```
 
-需要联网下载依赖及打包工具。输出位于 `desktop/dist/LibreTV-2.19.2-desktop.2-Windows-x64-Portable.exe`。Windows 的 `tar.exe` 用于生成对应源码 ZIP。Next.js 的 standalone 输出会被复制到桌面包，随后由 Electron 自带 Node 运行，不依赖目标机器上的开发环境。
+需要联网下载依赖及打包工具。输出位于 `desktop/dist/LibreTV-2.19.2-desktop.3-Windows-x64-Portable.exe`。Windows 的 `tar.exe` 用于生成对应源码 ZIP。Next.js 的 standalone 输出会被复制到桌面包，随后由 Electron 自带 Node 运行，不依赖目标机器上的开发环境。
 
 开发运行：先执行 `npm run prepare:web`，再执行 `npm start`。打包成目录：`npm run pack`。
 
@@ -40,4 +40,4 @@ npm run dist
 
 ## 开源许可
 
-LibreTV 及此封装按 AGPL-3.0-or-later 提供。完整许可证见 `LICENSE`，上游提交见 `desktop/ORIGIN.txt`。EXE 内含此版本对应的完整应用源码 ZIP，可通过「LibreTV → 开源许可与源代码」打开。分发目录也提供相同的源码 ZIP。Electron/Chromium 及其他第三方依赖沿用各自许可证。
+LibreTV 及此封装按 AGPL-3.0-or-later 提供。完整许可证见 `LICENSE`，上游提交见 `desktop/ORIGIN.txt`。EXE 内含此版本对应的完整应用源码 ZIP，可通过「静观 TV → 开源许可与源代码」打开。分发目录也提供相同的源码 ZIP。Electron/Chromium 及其他第三方依赖沿用各自许可证。
