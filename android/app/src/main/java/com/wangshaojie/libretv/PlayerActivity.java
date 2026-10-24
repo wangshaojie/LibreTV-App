@@ -152,15 +152,34 @@ public final class PlayerActivity extends Activity {
     @Override protected void onStart(){super.onStart();if(!items.isEmpty())prepare();}
     @Override protected void onStop(){save();releasePlayer();if(video!=null)video.setKeepScreenOn(false);super.onStop();}
     @Override public boolean dispatchKeyEvent(KeyEvent event){
-        if(video!=null&&video.dispatchMediaKeyEvent(event))return true;
+        if(mediaKey(event))return true;
         if(!panelOn&&event.getAction()==KeyEvent.ACTION_DOWN){switch(event.getKeyCode()){
-            case KeyEvent.KEYCODE_DPAD_CENTER:case KeyEvent.KEYCODE_ENTER:case KeyEvent.KEYCODE_SPACE:case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:togglePlay();return true;
+            case KeyEvent.KEYCODE_DPAD_CENTER:case KeyEvent.KEYCODE_ENTER:case KeyEvent.KEYCODE_SPACE:togglePlay();return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:seekBy(-10000);return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:seekBy(10000);return true;
             case KeyEvent.KEYCODE_DPAD_UP:case KeyEvent.KEYCODE_DPAD_DOWN:case KeyEvent.KEYCODE_MENU:showPanel(false);return true;
         }}
         return super.dispatchKeyEvent(event);
     }
+    // PlayerView only forwards media keys to the player while its built in controller is
+    // enabled. That controller is off here so the immersive screen stays free of chrome, and
+    // the same key handling is done by hand instead.
+    private boolean mediaKey(KeyEvent event){
+        if(player==null)return false;int code=event.getKeyCode();
+        if(event.getAction()!=KeyEvent.ACTION_DOWN)return isMediaKey(code);
+        if(code==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){player.seekForward();return true;}
+        if(code==KeyEvent.KEYCODE_MEDIA_REWIND){player.seekBack();return true;}
+        if(event.getRepeatCount()!=0)return true;
+        switch(code){
+            case KeyEvent.KEYCODE_MUSIC:case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:togglePlay();return true;
+            case KeyEvent.KEYCODE_MEDIA_PLAY:player.play();return true;
+            case KeyEvent.KEYCODE_MEDIA_PAUSE:player.pause();return true;
+            case KeyEvent.KEYCODE_MEDIA_NEXT:if(player.isCommandAvailable(Player.COMMAND_SEEK_TO_NEXT))player.seekToNext();return true;
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS:if(player.isCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS))player.seekToPrevious();return true;
+        }
+        return false;
+    }
+    private static boolean isMediaKey(int code){return code==KeyEvent.KEYCODE_MUSIC||code==KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE||code==KeyEvent.KEYCODE_MEDIA_PLAY||code==KeyEvent.KEYCODE_MEDIA_PAUSE||code==KeyEvent.KEYCODE_MEDIA_NEXT||code==KeyEvent.KEYCODE_MEDIA_PREVIOUS||code==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD||code==KeyEvent.KEYCODE_MEDIA_REWIND;}
     @Override public boolean onKeyDown(int key,KeyEvent event){
         if(!items.isEmpty()&&items.get(index).live&&(key==KeyEvent.KEYCODE_CHANNEL_UP||key==KeyEvent.KEYCODE_CHANNEL_DOWN)){change(key==KeyEvent.KEYCODE_CHANNEL_UP?1:-1);return true;}
         if(panelOn&&key==KeyEvent.KEYCODE_BACK)return true;
