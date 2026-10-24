@@ -38,9 +38,13 @@ Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个�
 
 ![Android TV 直播频道与测活结果](docs/screenshots/android-tv-channels.png)
 
-**直播播放页**
+**直播播放页：全屏沉浸式，观看时不显示任何按钮或标题**
 
 ![Android TV 直播播放](docs/screenshots/android-tv-live.png)
+
+**播放页控制面板：按上下键呼出，几秒后自动淡出**
+
+![Android TV 播放控制面板](docs/screenshots/android-tv-player-controls.png)
 
 ## 下载 Windows 版
 
