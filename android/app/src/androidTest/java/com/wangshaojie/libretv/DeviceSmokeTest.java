@@ -61,6 +61,19 @@ public class DeviceSmokeTest {
         Store upgraded=new Store(isolated);assertEquals(7,upgraded.array("sources").length());assertEquals("My source",upgraded.array("sources").getJSONObject(0).getString("name"));assertEquals("Keep me",upgraded.array("favorites").getJSONObject(0).getString("title"));
         org.json.JSONArray saved=upgraded.array("sources");saved.remove(1);upgraded.put("sources",saved);assertEquals(6,new Store(isolated).array("sources").length());prefs.edit().clear().commit();
     }
+    @Test public void keepsControlsUpWhileConnectingAndFadesThemAfterPlayback()throws Exception {
+        Instrumentation i=InstrumentationRegistry.getInstrumentation();Context target=i.getTargetContext();File sample=new File(target.getCacheDir(),"panel.mp4");
+        try(InputStream in=i.getContext().getAssets().open("sample.mp4");OutputStream out=new FileOutputStream(sample)){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}
+        Catalog.Item item=new Catalog.Item();item.title="Panel test";item.url=sample.toURI().toString();
+        Intent intent=new Intent(target,PlayerActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("items","["+item.json()+"]");Activity video=i.startActivitySync(intent);
+        Field panelField=PlayerActivity.class.getDeclaredField("panel");panelField.setAccessible(true);
+        boolean[] up={false};i.runOnMainSync(()->{try{up[0]=((View)panelField.get(video)).getVisibility()==View.VISIBLE;}catch(Exception e){throw new RuntimeException(e);}});
+        assertTrue("The control panel must stay up while the source connects, otherwise the viewer only sees a black screen",up[0]);
+        boolean[] gone={false};long deadline=System.currentTimeMillis()+20000;
+        while(System.currentTimeMillis()<deadline&&!gone[0]){Thread.sleep(300);i.runOnMainSync(()->{try{gone[0]=((View)panelField.get(video)).getVisibility()!=View.VISIBLE;}catch(Exception e){throw new RuntimeException(e);}});}
+        assertTrue("The control panel must fade away on its own once playback starts",gone[0]);
+        i.runOnMainSync(video::finish);
+    }
     @Test public void playsH264AndHandlesMediaPause()throws Exception {
         Instrumentation i=InstrumentationRegistry.getInstrumentation();Context target=i.getTargetContext();File sample=new File(target.getCacheDir(),"playback.mp4");
         try(InputStream in=i.getContext().getAssets().open("sample.mp4");OutputStream out=new FileOutputStream(sample)){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}

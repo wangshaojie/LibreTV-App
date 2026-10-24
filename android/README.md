@@ -1,6 +1,6 @@
 # 静观 TV（Android）
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.7`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.8`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -8,9 +8,9 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 下载与安装
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.7)
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.8)
 
 手机直接下载安装，电视可用 U 盘或电视文件管理器打开 APK；系统弹出「允许安装未知来源应用」时选择允许即可。手机桌面和电视桌面均有启动入口；手机播放页的控制面板里可切换横 / 竖屏，电视采用横屏和明显的焦点边框。覆盖安装保留数据。
 
@@ -18,6 +18,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 版本要点
 
+- **2.0.8** 连接中的播放页不再是一片黑屏：控制面板会先显示并提示「正在连接…」，开始播放后自动淡出。
 - **2.0.7** 应用更名为静观 TV，图标沿用原来的 LibreTV 渐变字母 L；包名、签名和下载地址不变，可直接覆盖升级。
 - **2.0.6** 直播播放遇到「落后于直播窗口」时自动重新接入直播边缘并继续观看，不用手动按「重试」。
 - **2.0.5** 播放页改为全屏沉浸式：画面铺满屏幕，观看时不显示常驻按钮与标题。
@@ -55,6 +56,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 2.0.5 起播放页是纯粹的画面：视频铺满整块屏幕，观看时不显示顶部按钮、标题或状态栏。
 
 - 呼出控制：手机点一下画面；电视按上 / 下键或菜单键。
+- 连接期间：控制面板会先显示出来并提示「正在连接…」，不会只剩一片黑屏；开始播放后约 4 秒自动淡出。切换频道、换集、点「重试」都是同样的表现。
 - 面板内容：进度条与时间、上一集 / 下一集、后退 / 前进 10 秒、播放暂停、选集、倍速、画面比例、横竖屏（仅手机）、收藏、换线路、重试、返回。
 - 收起控制：再点一次画面，或按返回键（第一次返回只收起面板，再按一次才退出播放页）。
 - 面板在无操作约 4 秒后自动淡出；标题单独淡入淡出，观看时始终只留画面。

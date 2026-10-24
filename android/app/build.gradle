@@ -7,8 +7,8 @@ android {
         applicationId 'com.wangshaojie.libretv'
         minSdk 21
         targetSdk 35
-        versionCode 12
-        versionName '2.0.7'
+        versionCode 13
+        versionName '2.0.8'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig true }

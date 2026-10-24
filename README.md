@@ -11,14 +11,14 @@
 
 ## 下载 Android 版
 
-安卓应用名：**静观 TV**，版本 **2.0.7**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
+安卓应用名：**静观 TV**，版本 **2.0.8**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
 
 | 安装包 | 适用设备 | 下载 |
 | --- | --- | --- |
-| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-legacy-android5.apk) |
-| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-modern-android8.apk) |
+| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-legacy-android5.apk) |
+| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-modern-android8.apk) |
 
-[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.7)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
+[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.8)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
 
 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录、续播和配置导入导出；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
@@ -26,6 +26,7 @@
 
 **版本要点**
 
+- **2.0.8** 连接中的播放页不再是一片黑屏：控制面板会先显示并提示「正在连接…」，开始播放后自动淡出。
 - **2.0.7** 应用更名为静观 TV，图标沿用原来的 LibreTV 渐变字母 L；包名、签名和下载地址不变，可直接覆盖升级。
 - **2.0.6** 直播源中断后自动重新接入直播边缘并继续观看，落后于直播窗口或网络抖动时不需要手动重试。
 - **2.0.5** 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题，控制面板按需呼出并自动淡出。

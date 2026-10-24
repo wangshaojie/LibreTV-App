@@ -27,10 +27,10 @@ public final class PlayerActivity extends Activity {
     private long resume;private boolean autoplay=true;private boolean panelOn,titleOn,osdOn,locked,dragging;
     // Live reconnect bookkeeping: -1 means "never tried", recoverCount is the number of
     // consecutive failed reconnects and is reset as soon as the stream plays again.
-    private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting;
+    private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting,connecting;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final Runnable hideTitleTask=()->{if(!panelOn)hideTitle();};
-    private final Runnable hidePanelTask=()->hidePanel();
+    private final Runnable hidePanelTask=()->hidePanel(360);
     private final Runnable hideOsdTask=()->{osdOn=false;osd.animate().alpha(0f).setDuration(280).withEndAction(()->{if(!osdOn)osd.setVisibility(View.GONE);}).start();};
     private final Runnable tickTask=new Runnable(){@Override public void run(){refreshProgress();ui.postDelayed(this,400);}};
 
@@ -98,7 +98,7 @@ public final class PlayerActivity extends Activity {
         if(player!=null)return player;
         player=new ExoPlayer.Builder(this,new DefaultRenderersFactory(this).setEnableDecoderFallback(true)).build();
         player.setAudioAttributes(new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),true);player.setHandleAudioBecomingNoisy(true);
-        player.addListener(new Player.Listener(){@Override public void onPlaybackStateChanged(int state){if(state==Player.STATE_READY){recoverCount=0;setStatus("方向键调节进度 · 上下键呼出控制 · 返回键退出");}if(state==Player.STATE_ENDED&&index+1<items.size())change(1);}@Override public void onIsPlayingChanged(boolean playing){playButton.setText(playing?"暂停":"播放");}@Override public void onPlayerError(PlaybackException e){handleError(e);}});
+        player.addListener(new Player.Listener(){@Override public void onPlaybackStateChanged(int state){if(state==Player.STATE_READY){connecting=false;recoverCount=0;setStatus("方向键调节进度 · 上下键呼出控制 · 返回键退出");ui.removeCallbacks(hidePanelTask);ui.postDelayed(hidePanelTask,4200);}if(state==Player.STATE_ENDED&&index+1<items.size())change(1);}@Override public void onIsPlayingChanged(boolean playing){playButton.setText(playing?"暂停":"播放");}@Override public void onPlayerError(PlaybackException e){handleError(e);}});
         video.setPlayer(player);return player;
     }
     private void releasePlayer(){if(player!=null){player.release();player=null;}}
@@ -110,7 +110,11 @@ public final class PlayerActivity extends Activity {
         MediaItem.Builder media=new MediaItem.Builder().setUri(item.url);String path=item.url.toLowerCase(Locale.ROOT).split("\\?")[0];if(path.endsWith(".m3u8"))media.setMimeType(MimeTypes.APPLICATION_M3U8);
         MediaSource source=new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this,http)).createMediaSource(media.build());
         ExoPlayer p=ensurePlayer();p.setMediaSource(source);p.prepare();if(!item.live&&resume>0)p.seekTo(resume);p.setPlayWhenReady(autoplay);
-        video.setKeepScreenOn(true);root.requestFocus();store.remember(item,resume);if(!reconnecting)showTitle();
+        video.setKeepScreenOn(true);root.requestFocus();store.remember(item,resume);
+        // While the source is still loading the picture is black, so the panel stays up with
+        // the "connecting" hint instead of leaving the viewer in front of an empty screen.
+        // It fades away on its own once playback starts.
+        if(!reconnecting){connecting=true;showPanel(false);}
     }
     private boolean decodeFailure(PlaybackException e){int code=e.errorCode;return code==PlaybackException.ERROR_CODE_DECODING_FAILED||code==PlaybackException.ERROR_CODE_DECODER_INIT_FAILED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES;}
     private void handleError(PlaybackException e){
@@ -127,7 +131,7 @@ public final class PlayerActivity extends Activity {
         else if(code==PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED)setStatus("当前地址未识别为视频，可能是网页播放线路。点「换线路」返回详情，选择 m3u8 / MP4 线路。");
         else if(liveRecoverable(code))setStatus("直播流落后于直播窗口，可按「重试」重新接入直播；也可以点「换线路」换一个频道。");
         else setStatus("播放失败："+e.getErrorCodeName()+"。可点「换线路」尝试其他线路，或按「重试」重新连接。");
-        showPanel(true);
+        connecting=false;showPanel(true);
     }
     private boolean live(){return !items.isEmpty()&&items.get(index).live;}
     private static boolean liveRecoverable(int code){return code==PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT||code==PlaybackException.ERROR_CODE_IO_UNSPECIFIED||code==PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS;}
@@ -149,12 +153,13 @@ public final class PlayerActivity extends Activity {
         if(panelOn){if(lock){locked=true;ui.removeCallbacks(hidePanelTask);}return;}
         panelOn=true;locked=lock;panel.setAlpha(0f);panel.setVisibility(View.VISIBLE);panel.animate().alpha(1f).setDuration(220).start();
         showTitle();ui.removeCallbacks(tickTask);ui.postDelayed(tickTask,300);refreshProgress();
-        ui.removeCallbacks(hidePanelTask);if(!locked)ui.postDelayed(hidePanelTask,4200);
+        ui.removeCallbacks(hidePanelTask);if(!locked&&!connecting)ui.postDelayed(hidePanelTask,4200);
         if(Ui.tv(this))playButton.requestFocus();
     }
-    private void hidePanel(){
-        if(!panelOn)return;panelOn=false;locked=false;ui.removeCallbacks(hidePanelTask);ui.removeCallbacks(tickTask);
-        panel.animate().alpha(0f).setDuration(220).withEndAction(()->{if(panelOn)return;panel.setVisibility(View.GONE);panel.setAlpha(1f);root.requestFocus();}).start();
+    private void hidePanel(){hidePanel(220);}
+    private void hidePanel(int duration){
+        if(!panelOn||connecting)return;panelOn=false;locked=false;ui.removeCallbacks(hidePanelTask);ui.removeCallbacks(tickTask);
+        panel.animate().alpha(0f).setDuration(duration).withEndAction(()->{if(panelOn)return;panel.setVisibility(View.GONE);panel.setAlpha(1f);root.requestFocus();}).start();
         hideTitle();
     }
     private void togglePanel(){if(panelOn)hidePanel();else showPanel(false);}
