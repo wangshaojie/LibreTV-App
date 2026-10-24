@@ -25,7 +25,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 实机截图
 
-2026-10-24 实机截图（Android 5.0.1 电视，2.0.6 兼容版）：
+2026-10-24 实机截图（Android 5.0.1 电视，2.0.6 兼容版）。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化：
 
 ![电视首页](../docs/screenshots/android-tv-home.png)
 
