@@ -1,6 +1,6 @@
-# LibreTV-App Android
+# 静观 TV（Android）
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用包名 `com.wangshaojie.libretv`，版本 `2.0.6`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.7`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -8,9 +8,9 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 下载与安装
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.6)
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.7/LibreTV-App-Android-v2.0.7-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.7)
 
 手机直接下载安装，电视可用 U 盘或电视文件管理器打开 APK；系统弹出「允许安装未知来源应用」时选择允许即可。手机桌面和电视桌面均有启动入口；手机播放页的控制面板里可切换横 / 竖屏，电视采用横屏和明显的焦点边框。覆盖安装保留数据。
 
@@ -18,6 +18,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 版本要点
 
+- **2.0.7** 应用更名为静观 TV，图标改为暗色中发着柔光的屏幕与播放键；包名、签名和下载地址不变，可直接覆盖升级。
 - **2.0.6** 直播播放遇到「落后于直播窗口」时自动重新接入直播边缘并继续观看，不用手动按「重试」。
 - **2.0.5** 播放页改为全屏沉浸式：画面铺满屏幕，观看时不显示常驻按钮与标题。
 - **2.0.4** 切台与换线路改为复用同一播放器，不再销毁重建电视的硬件解码器；同时解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情。
@@ -101,4 +102,4 @@ gradle -p android testLegacyDebugUnitTest testModernDebugUnitTest assembleLegacy
 
 ## 许可与来源
 
-基于 LibreSpark/LibreTV 的非官方客户端。Android 原生实现修改日期：2026-10-24。项目继续使用 AGPL-3.0-or-later；原许可证见根目录 LICENSE，应用内也包含完整许可证。Media3/ExoPlayer 遵循 Apache-2.0，其他组件遵循各自许可证。
+基于 LibreSpark/LibreTV 的非官方客户端，Android 端名为静观 TV。原生实现修改日期：2026-10-24。项目继续使用 AGPL-3.0-or-later；原许可证见根目录 LICENSE，应用内也包含完整许可证。Media3/ExoPlayer 遵循 Apache-2.0，其他组件遵循各自许可证。

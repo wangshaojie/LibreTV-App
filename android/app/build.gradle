@@ -7,8 +7,8 @@ android {
         applicationId 'com.wangshaojie.libretv'
         minSdk 21
         targetSdk 35
-        versionCode 11
-        versionName '2.0.6'
+        versionCode 12
+        versionName '2.0.7'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildFeatures { buildConfig true }
@@ -18,13 +18,13 @@ android {
             dimension 'androidVersion'
             minSdk 21
             buildConfigField 'boolean', 'LEGACY_TLS', 'true'
-            resValue 'string', 'app_name', 'LibreTV-App 兼容版'
+            resValue 'string', 'app_name', '静观 TV 兼容版'
         }
         modern {
             dimension 'androidVersion'
             minSdk 26
             buildConfigField 'boolean', 'LEGACY_TLS', 'false'
-            resValue 'string', 'app_name', 'LibreTV-App 新版'
+            resValue 'string', 'app_name', '静观 TV 新版'
         }
     }
     signingConfigs {
