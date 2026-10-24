@@ -2,8 +2,8 @@ Upstream: https://github.com/LibreSpark/LibreTV
 Upstream version: 2.19.2
 Upstream commit: dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc
 Local changes: Windows portable Electron wrapper, standalone packaging, source archive and build documentation.
-Desktop revision: 2.19.2-desktop.2. Upstream requests now use Chromium networking and system proxy/PAC settings.
-Desktop modification date: 2026-10-17.
+Desktop revision: 2.19.2-desktop.3. Upstream requests now use Chromium networking and system proxy/PAC settings.
+Desktop modification date: 2026-10-24.
 Distribution documentation and portable ZIP packaging date: 2026-10-20.
 Downstream repository: https://github.com/wangshaojie/LibreTV-App
 License: AGPL-3.0-or-later; see ../LICENSE.
