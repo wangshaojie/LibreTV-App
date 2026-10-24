@@ -177,7 +177,6 @@ public final class PlayerActivity extends Activity {
         if(code==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){player.seekForward();return true;}
         if(code==KeyEvent.KEYCODE_MEDIA_REWIND){player.seekBack();return true;}
         if(event.getRepeatCount()!=0)return true;
-        android.util.Log.i("LibreTV","media key "+code+" repeat="+event.getRepeatCount()+" playing="+player.getPlayWhenReady());
         switch(code){
             case KeyEvent.KEYCODE_MUSIC:case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:togglePlay();return true;
             case KeyEvent.KEYCODE_MEDIA_PLAY:player.play();return true;
