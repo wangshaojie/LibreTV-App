@@ -27,7 +27,7 @@ public final class PlayerActivity extends Activity {
     private long resume;private boolean autoplay=true;private boolean panelOn,titleOn,osdOn,locked,dragging;
     // Live reconnect bookkeeping: -1 means "never tried", recoverCount is the number of
     // consecutive failed reconnects and is reset as soon as the stream plays again.
-    private long lastRecoveryAt=-1L;private int recoverCount;
+    private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final Runnable hideTitleTask=()->{if(!panelOn)hideTitle();};
     private final Runnable hidePanelTask=()->hidePanel();
@@ -110,7 +110,7 @@ public final class PlayerActivity extends Activity {
         MediaItem.Builder media=new MediaItem.Builder().setUri(item.url);String path=item.url.toLowerCase(Locale.ROOT).split("\\?")[0];if(path.endsWith(".m3u8"))media.setMimeType(MimeTypes.APPLICATION_M3U8);
         MediaSource source=new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this,http)).createMediaSource(media.build());
         ExoPlayer p=ensurePlayer();p.setMediaSource(source);p.prepare();if(!item.live&&resume>0)p.seekTo(resume);p.setPlayWhenReady(autoplay);
-        video.setKeepScreenOn(true);root.requestFocus();store.remember(item,resume);showTitle();
+        video.setKeepScreenOn(true);root.requestFocus();store.remember(item,resume);if(!reconnecting)showTitle();
     }
     private boolean decodeFailure(PlaybackException e){int code=e.errorCode;return code==PlaybackException.ERROR_CODE_DECODING_FAILED||code==PlaybackException.ERROR_CODE_DECODER_INIT_FAILED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED||code==PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES;}
     private void handleError(PlaybackException e){
@@ -132,11 +132,14 @@ public final class PlayerActivity extends Activity {
     private boolean live(){return !items.isEmpty()&&items.get(index).live;}
     private static boolean liveRecoverable(int code){return code==PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED||code==PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT||code==PlaybackException.ERROR_CODE_IO_UNSPECIFIED||code==PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS;}
     // Reconnect to the live edge: the same code path as the retry button, so the player
-    // instance is reused and the vendor decoder is never torn down.
+    // instance is reused and the vendor decoder is never torn down. The title bar stays
+    // hidden, a short hint in the middle of the picture is enough.
     private void recoverLive(){
         if(player==null||items.isEmpty())return;
+        reconnecting=true;
         showOsd("正在重新接入直播…");
         prepare();
+        reconnecting=false;
     }
     private void setStatus(String text){status.setText(text);status.setVisibility(text==null||text.isEmpty()?View.GONE:View.VISIBLE);}
 
