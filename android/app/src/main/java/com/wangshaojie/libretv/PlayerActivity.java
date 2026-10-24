@@ -147,17 +147,13 @@ public final class PlayerActivity extends Activity {
     private void pickRatio(){new AlertDialog.Builder(this).setTitle("画面显示").setItems(new String[]{"适应屏幕","填满屏幕","裁切放大"},(d,n)->video.setResizeMode(new int[]{androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM}[n])).show();}
     private void save(){if(player!=null&&!items.isEmpty()){resume=player.getCurrentPosition();autoplay=player.getPlayWhenReady();store.remember(items.get(index),resume);}}
     private void change(int delta){int next=index+delta;if(next<0||next>=items.size()){Ui.toast(this,"没有更多剧集");return;}save();index=next;resume=store.position(items.get(index).url);autoplay=true;prepare();}
-    // Hiding the system bars with the legacy flags makes Android 11+ raise the "immersive mode
-    // confirmation" overlay, which grabs the input focus and swallows the next key press. The
-    // modern insets controller hides the bars without that overlay, so only older systems use
-    // the legacy flags.
+    // Hiding the system bars in an immersive way makes Android 11 and newer raise the
+    // "immersive mode confirmation" overlay, which takes the input focus and swallows the
+    // next key press. Televisions keep the immersive flags, where no such overlay exists,
+    // while phones only hide the status bar and stay edge to edge.
     private void immersive(){
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
-            WindowInsetsController controller=getWindow().getInsetsController();
-            if(controller!=null){controller.hide(WindowInsets.Type.systemBars());controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);}
-        }else{
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+        if(Ui.tv(this))getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        else getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
     @Override public void onWindowFocusChanged(boolean has){super.onWindowFocusChanged(has);if(has)immersive();}
     @Override protected void onStart(){super.onStart();if(!items.isEmpty())prepare();}
