@@ -20,11 +20,17 @@
 
 [版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.6)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
 
-**Android 2.0 已重做界面与主要流程**：海报推荐首页、电影 / 剧集分类、同名聚合搜索、详情与选集、直播分组、源开关和批量测活。手机使用底部导航，电视使用遥控器侧栏与清晰焦点。测活可查看进度、停止、筛选异常并重测，结果会保存在本机。
+手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录、续播和配置导入导出；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
-手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录和续播；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
+**界面与流程**：海报推荐首页、电影 / 剧集分类、同名聚合搜索（Apple CMS 全源）、详情与选集、直播分组、源开关和批量测活。手机使用底部导航，电视使用遥控器侧栏与清晰焦点。测活可查看进度、停止、筛选异常并重测，结果会保存在本机。
 
-Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个人数据，在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
+**版本要点**
+
+- **2.0.6** 直播源中断后自动重新接入直播边缘并继续观看，落后于直播窗口或网络抖动时不需要手动重试。
+- **2.0.5** 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题，控制面板按需呼出并自动淡出。
+- **2.0.4** 修复早期电视上「所有视频只有声音没有画面」：切台、换线路不再销毁重建硬件解码器（老旧 MStar 固件在解码器释放时会 native 崩溃，并把电视的视频通路留在坏状态）；解码失败时给出可读提示；修复部分 Android 版本上回车键无法打开海报详情。
+
+已通过四组手机 / TV 模拟设备测试，并在 Android 5.0.1 真机电视上验证遥控器点播与直播中断后的自动重连。
 
 ## Android TV 实机截图
 
@@ -53,6 +59,8 @@ Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个�
 当前桌面版本：`2.19.2-desktop.2`，基于 LibreTV `2.19.2`。
 
 ZIP 包包含免安装程序、发布者提供的 `LibreTV-Data` 本地数据快照，以及中文使用说明。数据快照保留源配置、设置和观看记录，已排除浏览器缓存、Cookies、日志和运行锁文件。
+
+Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个人数据，在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
 
 ```text
 LibreTV-App/
@@ -113,16 +121,6 @@ LibreTV-App/
 - 当前构建未做代码签名，Windows 可能显示发布者未知。
 
 Windows 当前提供 x64 程序，Windows 7、32 位和 ARM 原生版本未提供。Android 已发布独立 APK，下载链接见本文顶部。
-
-## Android 通用版
-
-Android 手机 / TV 通用版 **2.0.6 已正式发布**，提供兼容版（Android 5.0+）和新版（Android 8.0+）两个签名 APK。已完成四组手机 / TV 模拟设备验证，并在 Android 5 实机电视上验证遥控器点播流程与直播中断后的自动重连。
-
-支持海报推荐首页、电影 / 剧集分类、Apple CMS 全源搜索、详情选集、M3U 直播、批量测活、收藏、续播及配置导入导出；无需连接 Windows 或搭建服务器。2.0.6 直播源中断后自动重新接入直播边缘并继续观看（落后于直播窗口、网络抖动等场景无需手动重试）。2.0.5 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题，控制面板按需呼出并自动淡出。2.0.4 修复早期电视上「所有视频只有声音没有画面」：切台、换线路不再销毁重建硬件解码器（老旧 MStar 固件在解码器释放时会 native 崩溃，并把电视的视频通路留在坏状态）。同时在解码失败时给出可读提示，并修复部分 Android 版本上回车键无法打开海报详情的问题。
-
-- [下载 Android 5.0+ 兼容版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-legacy-android5.apk)
-- [下载 Android 8.0+ 新版](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.6/LibreTV-App-Android-v2.0.6-modern-android8.apk)
-- [使用、构建与功能说明](android/README.md) · [最新版本说明与源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.6)
 
 ## 从源码构建 Windows 版
 
