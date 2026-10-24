@@ -1,39 +1,18 @@
-# Android 2.0.2 · 修复电视遥控器无法打开海报结果
+# Android 2.0.3 · 降低老旧电视「只有声音没有画面」的概率
 
-在真实 Android 5 电视上复现：从首页进入搜索后，结果海报高亮，但遥控器确认键和回车键无法打开详情。此前卡片子视图自己处理触屏点击，网格控件却没有绑定条目激活事件。
+在 Android 5.0.1 真机电视上排查「所有视频有声音但没有画面」后定位到播放器的解码器生命周期问题：此前每切一次台、换一条线路或点一次重试，都会释放并重建整个 ExoPlayer，等于反复销毁、重建电视的硬件 H.264 解码器。早期 MStar 等电视芯片的硬解在高频创建 / 销毁后会进入异常状态，此后所有视频都解不出画面（音频解码独立，仍在播放），只有重启电视才能恢复。
 
-- 搜索、分类、收藏与历史共用的海报网格统一由 GridView 处理点击、长按和遥控器激活。
-- 海报子视图不再抢占网格焦点；保留选中高亮和菜单键管理收藏。
-- 增加真正发送方向键确认、回车和触屏事件的回归测试，确认进入影片详情。
-- 保留 2.0.1 的视频直连优先及换线路入口。
+## 改动
+
+- 播放器实例在整个播放页复用，切台、换线路、选集只替换媒体源，不再重建解码器。
+- 解码失败时自动重建解码器并重试一次。
+- 解码失败提示改为可读说明：提示更换线路、选择更低清晰度的源，以及必要时重启电视。
+- 保留 2.0.2 的遥控器确认键激活、视频直连优先与换线路入口。
+
+## 适用范围
 
 兼容版最低 Android 5.0（推荐 5–7.1），新版最低 Android 8.0；均支持手机和电视。使用原签名与包名，覆盖安装保留配置、收藏和历史。
 
-## 下载
-
-| 安装包 | 适用设备 | 文件 |
-| --- | --- | --- |
-| 兼容版 Legacy | Android 5.0 及以上，推荐 5–7.1 旧设备 | [LibreTV-App-Android-v2.0.2-legacy-android5.apk](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-legacy-android5.apk) |
-| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [LibreTV-App-Android-v2.0.2-modern-android8.apk](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.2/LibreTV-App-Android-v2.0.2-modern-android8.apk) |
-
-内置 7 个点播源、9 个直播源。手机直接下载安装；电视可用 U 盘或电视上的文件管理器打开 APK。完整说明见 [仓库首页](https://github.com/wangshaojie/LibreTV-App) 与 [android/README.md](https://github.com/wangshaojie/LibreTV-App/blob/main/android/README.md)。
-
-## 实机截图
-
-以下截图拍摄于 2026-10-24，来自 Android 5.0.1 电视上的 2.0.2 兼容版。海报、频道和视频画面来自使用时的第三方数据源，仅用于展示客户端界面。
-
-**首页：电影 / 剧集海报、最近观看与遥控器导航**
-
-![Android TV 首页](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/docs/screenshots/android-tv-home.png)
-
-**直播频道：分组、搜索、批量测活与可连接筛选**
-
-![Android TV 直播频道与测活结果](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/docs/screenshots/android-tv-channels.png)
-
-**直播播放页**
-
-![Android TV 直播播放](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/docs/screenshots/android-tv-live.png)
-
-首页推荐片单与实际播放源分开：点击推荐后先匹配片源，再进入影片详情选集。第三方片源有效性、播放内容及解码能力以实际播放为准。不提供 Spider 或网页解析引擎。
+需要注意：电视只有硬件解码器时，遇到芯片无法处理的码流（例如过高的清晰度或非常规编码），应用内只能提示换线路，无法在本机解码；此时选择更低清晰度的线路或重启电视即可恢复。
 
 附签名 APK、对应源码、中文说明与校验文件。基于 LibreSpark/LibreTV 的非官方原生客户端，采用 AGPL-3.0-or-later。
