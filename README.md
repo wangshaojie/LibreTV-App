@@ -1,45 +1,85 @@
-# LibreTV-App
+<div align="center">
 
-基于 [LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV) 的**非官方跨平台客户端**。
+# 静观 TV
 
-**Windows 免安装版和 Android 手机 / TV 通用版均已发布。**
+### 把 LibreTV 装进你的手机和电视 —— 原生客户端、免安装、数据只留在本机
 
-| 平台 | 状态 | 说明 |
+[![Stars](https://img.shields.io/github/stars/wangshaojie/LibreTV-App?style=flat-square&label=Stars&color=40dec2)](https://github.com/wangshaojie/LibreTV-App/stargazers)
+[![Forks](https://img.shields.io/github/forks/wangshaojie/LibreTV-App?style=flat-square&label=Forks&color=40dec2)](https://github.com/wangshaojie/LibreTV-App/network/members)
+[![Release](https://img.shields.io/github/v/release/wangshaojie/LibreTV-App?style=flat-square&label=Release&color=40dec2)](https://github.com/wangshaojie/LibreTV-App/releases/latest)
+[![Android](https://img.shields.io/badge/Android-5.0%2B-40dec2?style=flat-square&logo=android&logoColor=black)](https://github.com/wangshaojie/LibreTV-App/releases)
+[![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
+[![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
+
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
+
+</div>
+
+---
+
+## 这是什么
+
+**静观 TV** 是基于 [LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV) 的**非官方跨平台客户端**。
+
+原版是一个需要自己用 Docker 部署的网页应用。我们把它做成了两个可以直接用的东西：
+
+- **Windows 免安装版** —— 绿色 EXE + 数据目录，解压即用，不需要装 Node.js、Docker 或管理员权限。
+- **Android 原生客户端** —— 一个 APK，手机触屏和电视遥控器都是原生手感，最低支持 Android 5.0 的老电视。
+
+内置 **7 个点播源、9 个直播源**，开箱即用。你的片源配置、收藏和观看记录**全部保存在自己的设备上**——没有账号，没有遥测，没有广告。
+
+## 和原版有什么不同
+
+| | 静观 TV | 原版 LibreTV |
 | --- | --- | --- |
-| Windows | 已发布 | 应用名静观 TV；Windows 10/11 x64，解压后双击运行 |
-| Android | 已发布 | 应用名静观 TV；通用版 Android 5.0+；支持手机和电视 |
+| **Android** | 原生 APK，手机触屏 + 电视遥控器，最低 Android 5.0 | 无官方客户端 |
+| **Windows** | 绿色 EXE，解压即用 | 需自行 Docker 部署 |
+| **片源更新** | 官方清单远程合并，源坏了不用手动改 | 手动编辑配置 |
+| **片源体检** | Windows 与 Android 原生客户端内均可批量测活 | 仅网页端 |
+| **网络** | Windows 版自动跟随系统代理 / PAC | 需自行配置代理 |
+| **隐私** | 数据全在本机，无账号、无遥测 | 自托管，配置项更多 |
 
-## 下载 Android 版
+## 亮点
 
-安卓应用名：**静观 TV**，版本 **2.0.12**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
+🎬 **详情页里直接换片源** —— 同一部影片在多个源都有时，详情页下方就是「片源 · N 个可用」一行，点一下即切换，线路与剧集立刻跟着换，不必退回搜索结果重选。剧集不跨源合并，避免不同源集数对不上。
 
-| 安装包 | 适用设备 | 下载 |
-| --- | --- | --- |
-| 通用版 | 最低 Android 5.0，手机与 Android TV 通用 | [下载 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk) |
+🔄 **官方片源清单远程维护** —— 启动时自动拉取项目维护的源清单并与本地配置合并。**合并以你的意图为准**：新增的源自动补入，你手动停用的源保持停用，你自己添加的源完全不受影响，你删除过的官方源不会被加回。清单地址由维护者控制，普通用户只能读取。
 
-[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.12)。只有一个安装包，覆盖升级保留源配置、收藏和记录；无需先卸载。
+🩺 **批量测活** —— 一次检查所有片源或所有直播频道，可随时停止、筛选异常并重测，结果保存在本机。
 
-手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录、续播和配置导入导出；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
+📺 **为老电视专门修过** —— 早期电视只有硬件解码器，切台时销毁重建解码器会导致固件 native 崩溃、整台电视「只有声音没有画面」。我们改为复用同一个播放器实例，并修复了老系统 IPv6 路由缺失导致连不上站点的问题。
 
-**界面与流程**：海报推荐首页、电影 / 剧集分类、同名聚合搜索（Apple CMS 全源）、详情与选集、直播分组、源开关和批量测活。手机使用底部导航，电视使用遥控器侧栏与清晰焦点。测活可查看进度、停止、筛选异常并重测，结果会保存在本机。
+🔒 **隐私干净** —— 不请求通讯录、定位、摄像头或全盘存储权限；不集成广告、统计或遥测 SDK。
 
-**版本要点**
+## 下载
 
-- **2.0.12** 合并为一个通用安装包：此前分发的「兼容版（Android 5.0+）」与「新版（Android 8.0+）」功能完全一致，差异只在最低系统版本和一份证书补丁，现合并为单个 APK，最低 Android 5.0，桌面图标统一为「静观 TV」。证书补丁按系统版本自动启用：Android 8.0 以下补齐根证书库，8.0 及以上直接用系统证书库。
-- **2.0.11** 详情页里直接换片源：搜到的影片若多个片源都有，简介下方就是「片源 · N 个可用」一行，点一下即切换，线路与剧集随之更新，不必再弹窗二次选择；剧集不跨片源合并。同时修正 2.0.10 的连接改动：改为默认按域名连接，仅在确认 IPv6 不可达时才改用 IPv4 重试，片源站的 HTTPS 不再失败。
-- **2.0.10** 修复部分老电视连不上网：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。（2.0.11 已改正该做法。）
-- **2.0.9** 新增官方片源清单：启动时自动获取项目维护的源清单并合并到本地配置——新增的源自动补入、手动停用的源保持停用、你自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。
-- **2.0.8** 连接中的播放页不再是一片黑屏：控制面板会先显示并提示「正在连接…」，开始播放后自动淡出。
-- **2.0.7** 应用更名为静观 TV，图标沿用原来的 LibreTV 渐变字母 L；包名、签名和下载地址不变，可直接覆盖升级。
-- **2.0.6** 直播源中断后自动重新接入直播边缘并继续观看，落后于直播窗口或网络抖动时不需要手动重试。
-- **2.0.5** 播放页改为全屏沉浸式：画面铺满屏幕，观看时不再常驻按钮与标题，控制面板按需呼出并自动淡出。
-- **2.0.4** 修复早期电视上「所有视频只有声音没有画面」：切台、换线路不再销毁重建硬件解码器（老旧 MStar 固件在解码器释放时会 native 崩溃，并把电视的视频通路留在坏状态）；解码失败时给出可读提示；修复部分 Android 版本上回车键无法打开海报详情。
+### Windows 免安装版
 
-已通过四组手机 / TV 模拟设备测试，并在 Android 5.0.1 真机电视上验证遥控器点播与直播中断后的自动重连。
+<div align="center">
 
-## Android TV 实机截图
+**[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
-以下截图拍摄于 2026-10-24，来自 Android 5.0.1 电视上的 2.0.6。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化。海报、频道和视频画面来自使用时的第三方数据源，仅用于展示客户端界面。
+</div>
+
+版本 `2.19.2-desktop.4` · Windows 10 / 11 x64 · 解压后双击 `静观TV.exe` 即可运行
+
+ZIP 内附发布者的数据快照（含初始源配置与设置），升级时只替换 EXE 即可保留你自己的数据。
+
+### Android 通用版
+
+<div align="center">
+
+**[⬇ 下载 Android APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+
+</div>
+
+版本 `2.0.12` · 最低 Android 5.0 · 手机与 Android TV 通用 · 只有一个安装包
+
+> 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。两端均为**同一安装包覆盖升级**，保留源配置、收藏和观看记录，无需先卸载。
+
+## 界面预览
+
+### Android TV
 
 **首页：电影 / 剧集海报、最近观看与遥控器导航**
 
@@ -57,79 +97,57 @@
 
 ![Android TV 播放控制面板](docs/screenshots/android-tv-player-controls.png)
 
-## 下载 Windows 版
+### Windows
 
-**[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+首页与聚合搜索 · 直播频道分组 · 源管理 · 批量测活（可一次检测所有源中可用的频道）
 
-当前桌面版本：`2.19.2-desktop.4`，应用名 **静观 TV**，基于 LibreTV `2.19.2`。
+<img width="1264" height="831" alt="Windows 首页" src="https://github.com/user-attachments/assets/27d2f58d-cdd1-4c25-897d-2965d6466cf1" />
+<img width="1264" height="829" alt="Windows 直播频道" src="https://github.com/user-attachments/assets/a0eeed2d-d53a-4c7c-bfd0-6e60cd978f45" />
+<img width="1264" height="775" alt="Windows 聚合搜索" src="https://github.com/user-attachments/assets/98da3a7c-5e43-4582-a68f-3e5ad38933fd" />
+<img width="1264" height="775" alt="Windows 批量测活" src="https://github.com/user-attachments/assets/93cc0020-1ebb-46fe-b3c6-bda0a23ca18a" />
 
-ZIP 包包含免安装程序、发布者提供的 `LibreTV-Data` 本地数据快照，以及中文使用说明。数据快照保留源配置、设置和观看记录，已排除浏览器缓存、Cookies、日志和运行锁文件。
+## 快速上手
 
-Windows 版启动时会自动获取项目维护的官方源清单（[sources/latest.json](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)），并与本地配置合并：新增的源会自动补入，你手动停用的源保持停用，你自己添加的源不受影响，你删除过的官方源不会被自动加回。清单地址由项目维护者控制，普通用户只能读取、无法改写。已有 Windows 用户可保留个人数据，直接升级即可。
+**Windows**
 
-```text
-LibreTV-App/
-├── 静观TV.exe
-├── LibreTV-Data/
-├── 使用说明.txt
-├── 更新日志.txt
-├── 来源与许可.txt
-├── 源码说明.txt
-├── LICENSE.txt
-└── SHA256.txt
-```
+1. 下载 ZIP 包，**完整解压**到有写入权限的文件夹。
+2. 双击 `静观TV.exe`，首次启动需要解包，请稍等片刻。
+3. 在「设置 → 源管理」中管理自己的片源：M3U 播放列表加到**直播源**，Apple CMS JSON API 加到**点播源**。
+4. 首页用于影片搜索，顶部「直播」用于浏览 M3U 频道和分组。
 
-## 快速开始
+**Android**
 
-1. 下载 Windows ZIP 包，**完整解压**到有写入权限的文件夹。
-2. 双击 `静观TV.exe`，首次`启动需要解包，请稍等片刻`。
-3. 无需另装 Node.js、Docker 或浏览器，也不需要管理员权限。
-4. 在「设置 → 源管理」中管理自己的点播源或直播源。M3U 播放列表应添加到**直播源**；Apple CMS JSON API 应添加到**点播源**。
-5. 首页用于影片搜索；顶部「直播」用于浏览 M3U 频道和分组。
-6. 内置多个直播和点播源
+1. 下载 APK 并安装（电视需允许「安装未知来源应用」）。
+2. 首页点海报即可查找片源；「点播」页全源搜索同名影片。
+3. 「源管理」管理片源，「直播」浏览频道，遥控器方向键移动、确定键选择。
 
-如果要从空白配置开始，首次运行前将随包的 `LibreTV-Data` 移到其他文件夹备份，程序会自动创建全新的数据目录。
-<img width="1264" height="831" alt="image" src="https://github.com/user-attachments/assets/27d2f58d-cdd1-4c25-897d-2965d6466cf1" />
-<img width="1264" height="829" alt="image" src="https://github.com/user-attachments/assets/a0eeed2d-d53a-4c7c-bfd0-6e60cd978f45" />
-<img width="1264" height="775" alt="image" src="https://github.com/user-attachments/assets/98da3a7c-5e43-4582-a68f-3e5ad38933fd" />
-点击测活，可是测试所有源中可用频道
-<img width="1264" height="775" alt="image" src="https://github.com/user-attachments/assets/93cc0020-1ebb-46fe-b3c6-bda0a23ca18a" />
+## 常见问题
 
-## Windows 版功能
+**Q：需要账号或服务器吗？**
+不需要。Windows 版内置本地服务，Android 版完全在设备上运行。数据都存在你自己的设备里。
 
-- 独立桌面窗口，免安装运行。
-- 保留 LibreTV 的聚合搜索、HLS 播放、直播/IPTV、源管理、历史记录和续播功能。
-- 内置本地服务，启动时自动登录，关闭程序时停止服务。
-- 服务端请求跟随 **Windows 系统代理/PAC**，兼容依赖代理访问的订阅地址。
-- 数据保存在 EXE 旁边，方便备份和迁移。
-- 支持菜单刷新、全屏、重新登录和打开数据文件夹。
+**Q：为什么我的老电视连不上某些源？**
+部分片源站点已不可用，或需要代理。用「源管理 → 全部测活」检测一遍，把连不上的关掉即可。2.0.11 起还修复了老系统 IPv6 路由缺失导致连不上站点的问题。
 
-程序仅监听本机回环地址 `127.0.0.1`。它不会自动安装或配置代理软件；网络访问使用当前电脑已有的代理设置。
+**Q：可以加自己的源吗？**
+可以。M3U 播放列表填「直播源」，Apple CMS JSON API 填「点播源」，两个端都支持。
 
-## 数据、升级和迁移
+**Q：Windows 版怎么升级？**
+关闭旧版，**只替换 EXE**。不要用发布包里的示例数据覆盖你已经使用的数据目录。
 
-`LibreTV-Data` 保存源配置、观看记录、设置、浏览器数据和固定本地端口。
+更多细节见 [Android 说明](android/README.md) · [Windows 说明](desktop/README.md)
 
-- **备份/迁移**：关闭程序，将 EXE 与自己的 `LibreTV-Data` 一起复制。
-- **升级**：关闭旧版，仅替换 EXE。不要用发布包里的示例数据覆盖你已经使用的数据目录。
-- **同机运行**：避免同时启动多个副本。
-- **端口占用**：已有数据目录对应的端口被占用时，关闭占用程序后重试；不要随意修改 `desktop.json`，存储来源改变后原记录可能暂时不可见。
+## 参与共建
 
-本发布包附带的是发布者的数据快照；数据源和频道状态会随时间变化，请按自己的网络情况管理。
+这是我们最想看到的一件事 ⭐
 
-## 网络和播放说明
+- **点个 Star** —— 让更多人知道这个项目，也让更多电视机能用上。
+- **报问题** —— 把你遇到的老电视型号、报错和片源失效情况告诉我们，这类问题只有真机能复现。
+- **提 PR** —— 欢迎提交修复与改进，尤其欢迎补充片源解析、播放器体验和电视端适配。
 
-- 在线内容需要联网，订阅能导入不代表每条线路均可播放。
-- 个别频道可能受地区、运营商、服务器状态或编码兼容性影响。
-- 如果订阅地址依赖代理，请确保本机的系统代理和代理软件正常工作。
-- 出错时可查看 `LibreTV-Data/desktop.log`；提交问题前请自行检查并隐去日志中的私人地址或令牌。
-- 当前构建未做代码签名，Windows 可能显示发布者未知。
+## 从源码构建
 
-Windows 当前提供 x64 程序，Windows 7、32 位和 ARM 原生版本未提供。Android 端名为静观 TV，独立 APK 下载链接见本文顶部。
-
-## 从源码构建 Windows 版
-
-在 Windows x64 上使用 Node.js 22 或更新的受支持版本；本次构建使用 Node.js 24.15.0。
+**Windows 版**（需要 Node.js 22 或更新的受支持版本）：
 
 ```powershell
 npm ci
@@ -138,27 +156,22 @@ npm ci
 npm run dist
 ```
 
-输出文件：
+**Android 版**（需要 JDK 17、Gradle 8.9、Android SDK 35）：
 
-```text
-desktop/dist/LibreTV-2.19.2-desktop.4-Windows-x64-Portable.exe
+```sh
+gradle -p android testDebugUnitTest assembleDebug
 ```
 
-构建过程需要联网下载依赖。打包使用 Electron 和 electron-builder，源码归档使用 Windows 自带的 `tar.exe`。更多开发与验证说明见 [desktop/README.md](desktop/README.md)。
+发布用签名 APK 由 GitHub Actions 构建，签名密钥不进入仓库也不进入下载附件。更多开发说明见 [desktop/README.md](desktop/README.md) 与 [android/README.md](android/README.md)。
 
-Releases 同时提供与已发布程序对应的源码 ZIP。Windows 下载包中的本地数据属于单独提供的运行数据，不纳入 Git 源码历史。
+## 上游与许可
 
-## 上游与开源许可
+本项目是**非官方衍生项目**，上游项目及原作者的贡献和署名予以保留。
 
-本项目是非官方衍生项目，原项目及原作者的贡献和署名予以保留。
-
-- 上游项目：[LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV)
-- 上游版本：`2.19.2`
-- 基础提交：`dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc`
+- 上游项目：[LibreSpark/LibreTV](https://github.com/LibreSpark/LibreTV) · 版本 `2.19.2` · 基础提交 `dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc`
 - 原项目说明：[README.upstream.md](README.upstream.md)
-- 本仓库增加：Windows 便携封装、系统代理网络适配、Android 手机 / TV 原生客户端、批量测活、构建/验证脚本和发布文档。
-- 桌面封装修改日期：2026-10-17；Android 实机截图与发布文档更新日期：2026-10-25。
+- 本仓库新增：Windows 便携封装、系统代理网络适配、Android 手机 / TV 原生客户端、官方片源清单远程更新、批量测活、构建 / 验证脚本和发布文档
 
 LibreTV 和本项目按 **AGPL-3.0-or-later** 提供，完整条款见 [LICENSE](LICENSE)。Electron、Chromium 及其他第三方组件遵循各自许可证。
 
-本项目提供客户端和播放功能，不制作或托管影视内容。请仅使用有权访问的数据源和内容。
+> 本项目提供客户端和播放功能，**不制作或托管影视内容**。请仅使用有权访问的数据源和内容。
