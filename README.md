@@ -11,14 +11,14 @@
 
 ## 下载 Android 版
 
-安卓应用名：**静观 TV**，版本 **2.0.8**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
+安卓应用名：**静观 TV**，版本 **2.0.9**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
 
 | 安装包 | 适用设备 | 下载 |
 | --- | --- | --- |
-| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-legacy-android5.apk) |
-| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.8/LibreTV-App-Android-v2.0.8-modern-android8.apk) |
+| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.9/LibreTV-App-Android-v2.0.9-legacy-android5.apk) |
+| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.9/LibreTV-App-Android-v2.0.9-modern-android8.apk) |
 
-[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.8)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
+[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.9)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
 
 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录、续播和配置导入导出；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
@@ -26,6 +26,7 @@
 
 **版本要点**
 
+- **2.0.9** 新增官方片源清单：启动时自动获取项目维护的源清单并合并到本地配置——新增的源自动补入、手动停用的源保持停用、你自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。
 - **2.0.8** 连接中的播放页不再是一片黑屏：控制面板会先显示并提示「正在连接…」，开始播放后自动淡出。
 - **2.0.7** 应用更名为静观 TV，图标沿用原来的 LibreTV 渐变字母 L；包名、签名和下载地址不变，可直接覆盖升级。
 - **2.0.6** 直播源中断后自动重新接入直播边缘并继续观看，落后于直播窗口或网络抖动时不需要手动重试。
@@ -56,9 +57,9 @@
 
 ## 下载 Windows 版
 
-**[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.3/LibreTV-App-v2.19.2-desktop.3-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)** · [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
-当前桌面版本：`2.19.2-desktop.3`，应用名 **静观 TV**，基于 LibreTV `2.19.2`。
+当前桌面版本：`2.19.2-desktop.4`，应用名 **静观 TV**，基于 LibreTV `2.19.2`。
 
 ZIP 包包含免安装程序、发布者提供的 `LibreTV-Data` 本地数据快照，以及中文使用说明。数据快照保留源配置、设置和观看记录，已排除浏览器缓存、Cookies、日志和运行锁文件。
 
@@ -138,7 +139,7 @@ npm run dist
 输出文件：
 
 ```text
-desktop/dist/LibreTV-2.19.2-desktop.3-Windows-x64-Portable.exe
+desktop/dist/LibreTV-2.19.2-desktop.4-Windows-x64-Portable.exe
 ```
 
 构建过程需要联网下载依赖。打包使用 Electron 和 electron-builder，源码归档使用 Windows 自带的 `tar.exe`。更多开发与验证说明见 [desktop/README.md](desktop/README.md)。
@@ -154,7 +155,7 @@ Releases 同时提供与已发布程序对应的源码 ZIP。Windows 下载包�
 - 基础提交：`dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc`
 - 原项目说明：[README.upstream.md](README.upstream.md)
 - 本仓库增加：Windows 便携封装、系统代理网络适配、Android 手机 / TV 原生客户端、批量测活、构建/验证脚本和发布文档。
-- 桌面封装修改日期：2026-10-17；Android 实机截图与发布文档更新日期：2026-10-24。
+- 桌面封装修改日期：2026-10-17；Android 实机截图与发布文档更新日期：2026-10-25。
 
 LibreTV 和本项目按 **AGPL-3.0-or-later** 提供，完整条款见 [LICENSE](LICENSE)。Electron、Chromium 及其他第三方组件遵循各自许可证。
 
