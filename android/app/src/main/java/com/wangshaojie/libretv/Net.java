@@ -53,8 +53,8 @@ public final class Net {
             try {
                 return attemptByIpv4(address,headers);
             }catch(IOException retry){
-                // 回退失败时保留最初的错误，它更接近真实原因
-                throw e;
+                // 两段原因都留着，用户才能分清是源的问题还是网络的问题
+                throw new IOException("IPv6 不可达（"+brief(e)+"），IPv4 直连也失败："+brief(retry),retry);
             }
         }
     }
@@ -65,9 +65,16 @@ public final class Net {
             Response second=attemptByIpv4(address,headers);
             if(second.code<400){String host=hostOf(address);if(host!=null)pinnedIpv4.add(host);return second;}
             return first;
-        }catch(Exception ignored){
-            return first;
+        }catch(Exception retry){
+            throw new IOException("服务端返回 "+first.code+"，换 IPv4 重试也失败："+brief(retry),retry);
         }
+    }
+
+    /** 异常原因摘要：太长的堆栈信息只取前面一小段。 */
+    static String brief(Throwable error){
+        String message=error==null?null:error.getMessage();
+        if(message==null||message.isEmpty())message=error==null?"未知原因":error.getClass().getSimpleName();
+        return message.length()>160?message.substring(0,160)+"…":message;
     }
 
     /** 正常请求：交给系统解析域名，SNI 与证书校验保持平台默认。 */

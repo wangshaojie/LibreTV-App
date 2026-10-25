@@ -63,12 +63,14 @@ final class Probe {
             catch(IOException e){
                 // 服务端回了错误状态：换个地址族再试一次，边缘线路有时会回错页
                 if(host!=null&&e.getMessage()!=null&&e.getMessage().startsWith("HTTP ")){
-                    try{Response second=ipv4(address,headers,limit,sample);if(second.code<400){Net.pinnedIpv4.add(host);return second;}}catch(Exception ignored){}
+                    try{Response second=ipv4(address,headers,limit,sample);if(second.code<400){Net.pinnedIpv4.add(host);return second;}}
+                    catch(Exception retry){if(retry.getMessage()==null||!retry.getMessage().startsWith("HTTP "))throw new IOException(e.getMessage()+"，换 IPv4 重试也失败："+Net.brief(retry),retry);}
                     throw e;
                 }
                 if(host==null||!Net.unreachable(e))throw e;
                 Net.pinnedIpv4.add(host);
-                try{return ipv4(address,headers,limit,sample);}catch(IOException retry){throw e;}
+                try{return ipv4(address,headers,limit,sample);}
+                catch(IOException retry){throw new IOException("IPv6 不可达（"+Net.brief(e)+"），IPv4 直连也失败："+Net.brief(retry),retry);}
             }
         }
         /** IPv4 回退：自己连 IPv4 地址，SNI 与证书校验仍按原主机名。 */

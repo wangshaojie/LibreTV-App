@@ -88,4 +88,21 @@ public class NetTest {
     public void ignoresFailureWithoutMessage(){
         assertFalse(Net.unreachable(new ConnectException()));
     }
+
+    @Test
+    public void briefKeepsShortReason(){
+        assertEquals("连接超时",Net.brief(new IOException("连接超时")));
+    }
+
+    @Test
+    public void briefTruncatesLongReason(){
+        StringBuilder long1=new StringBuilder();
+        for(int n=0;n<300;n++)long1.append('x');
+        assertTrue(Net.brief(new IOException(long1.toString())).length()<=161);
+    }
+
+    @Test
+    public void briefFallsBackToTypeName(){
+        assertEquals("IOException",Net.brief(new IOException()));
+    }
 }

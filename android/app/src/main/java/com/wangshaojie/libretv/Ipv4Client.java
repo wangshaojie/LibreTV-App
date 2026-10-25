@@ -34,9 +34,11 @@ final class Ipv4Client {
         if(ipv4==null)throw new IOException("没有可用的 IPv4 地址");
         int port=target.getPort()>0?target.getPort():("https".equals(target.getProtocol())?443:80);
         boolean https="https".equals(target.getProtocol());
-        Socket socket=new Socket();
+        // 与正常路径保持一致：系统配了代理就走代理，没配才直连。
+        Proxy proxy=proxyFor(target);
+        Socket socket=null;
         try{
-            socket.connect(new InetSocketAddress(ipv4,port),12000);
+            socket=open(proxy,ipv4,host,port);
             socket.setSoTimeout(15000);
             InputStream in=socket.getInputStream();OutputStream out=socket.getOutputStream();
             if(https){
@@ -49,7 +51,9 @@ final class Ipv4Client {
                 socket=ssl;in=ssl.getInputStream();out=ssl.getOutputStream();
             }
             String path=target.getFile();if(path==null||path.isEmpty())path="/";
-            StringBuilder head=new StringBuilder("GET ").append(path).append(" HTTP/1.1\r\nHost: ").append(host);
+            // 走 HTTP 代理时，普通 HTTP 请求要用绝对地址
+            String requestPath=proxy!=null&&proxy.type()==Proxy.Type.HTTP&&!https?target.toString():path;
+            StringBuilder head=new StringBuilder("GET ").append(requestPath).append(" HTTP/1.1\r\nHost: ").append(host);
             if(target.getPort()>0)head.append(':').append(target.getPort());
             head.append("\r\nUser-Agent: ").append(userAgent).append("\r\nAccept: */*\r\nConnection: close\r\n");
             if(sample)head.append("Range: bytes=0-").append(Math.max(0,Math.min(limit,8192)-1)).append("\r\n");
@@ -63,8 +67,55 @@ final class Ipv4Client {
             out.write(head.toString().getBytes("ISO-8859-1"));out.flush();
             return read(in,limit,sample);
         }finally{
-            try{socket.close();}catch(Exception ignored){}
+            try{if(socket!=null)socket.close();}catch(Exception ignored){}
         }
+    }
+
+    /** 系统代理：没有配置时返回 null（直连）。 */
+    static Proxy proxyFor(URL target){
+        try{
+            ProxySelector selector=ProxySelector.getDefault();
+            if(selector==null)return null;
+            List<Proxy> proxies=selector.select(new URI(target.toString()));
+            if(proxies==null)return null;
+            // 只认 HTTP 代理：Android 的系统代理就是 HTTP 代理，
+            // 而 SOCKS 在 Android 上没有可用的 SocksSocketFactory。
+            // 用 SOCKS 的人一般开着 VPN，流量本来就整体走隧道。
+            for(Proxy proxy:proxies)if(proxy!=null&&proxy.type()==Proxy.Type.HTTP)return proxy;
+        }catch(Exception ignored){}
+        return null;
+    }
+
+    /** 建立到底层服务器的连接：走代理就连代理，否则直连该主机的 IPv4。 */
+    private static Socket open(Proxy proxy,InetAddress ipv4,String host,int port)throws IOException{
+        if(proxy==null){
+            Socket socket=new Socket();socket.connect(new InetSocketAddress(ipv4,port),12000);return socket;
+        }
+        // HTTP 代理：先 CONNECT 打通隧道，再在隧道里做 TLS，SNI 仍按原主机名
+        InetSocketAddress endpoint=(InetSocketAddress)proxy.address();
+        String proxyHost=endpoint.getHostName()!=null?endpoint.getHostName():endpoint.getAddress().getHostAddress();
+        Socket socket=new Socket();socket.connect(new InetSocketAddress(proxyHost,endpoint.getPort()),12000);socket.setSoTimeout(15000);
+        OutputStream out=socket.getOutputStream();
+        out.write(("CONNECT "+host+":"+port+" HTTP/1.1\r\nHost: "+host+":"+port+"\r\n\r\n").getBytes("ISO-8859-1"));out.flush();
+        String status=readProxyResponse(socket.getInputStream());
+        if(status==null||!status.contains(" 200"))throw new IOException("代理隧道建立失败："+(status==null?"无响应":status));
+        return socket;
+    }
+
+    /** 读完代理的响应头：逐字节读，避免多读进后面的 TLS 握手数据。 */
+    private static String readProxyResponse(InputStream in)throws IOException{
+        String status=null;StringBuilder line=new StringBuilder();
+        while(true){
+            int c=in.read();if(c==-1)break;
+            if(c=='\n'){
+                String text=line.toString().trim();line.setLength(0);
+                if(status==null){status=text;continue;}
+                if(text.isEmpty())break;
+                continue;
+            }
+            if(c!='\r')line.append((char)c);
+        }
+        return status;
     }
 
     /** 解析一次 HTTP 响应；包内可见，方便单测覆盖分块与长度两种正文。 */

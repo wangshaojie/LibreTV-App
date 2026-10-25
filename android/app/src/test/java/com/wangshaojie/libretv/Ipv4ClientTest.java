@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 自建 HTTPS 通道要自己解析 HTTP 响应，这里覆盖两种常见的正文长度：
@@ -59,5 +60,12 @@ public class Ipv4ClientTest {
         Ipv4Client.Response response=Ipv4Client.read(stream(
                 "HTTP/1.1 200 OK\r\nContent-Length: 100000\r\n\r\n0123456789"),4,false);
         assertEquals(4,response.data.length);
+    }
+
+    /** 自建通道与正常路径一样尊重系统代理：查一次代理不能抛异常。 */
+    @Test
+    public void proxyLookupIsSafe() throws Exception {
+        java.net.Proxy proxy=Ipv4Client.proxyFor(new java.net.URL("https://example.com/list.json"));
+        assertTrue(proxy==null||proxy.type()!=null);
     }
 }

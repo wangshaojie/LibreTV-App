@@ -53,4 +53,16 @@ public class OfficialSourcesTest {
         assertFalse(OfficialSources.due(now-OfficialSources.RESYNC_INTERVAL+60_000,now));
         assertTrue(OfficialSources.due(now-OfficialSources.RESYNC_INTERVAL,now));
     }
+
+    /** 清单地址是一串镜像：主地址不通时依次换镜像，任何一个能通就能完成同步。 */
+    @Test public void listHasSeveralMirrorsOfTheSameFile() {
+        assertTrue("应保留多个清单地址",OfficialSources.URLS.length>1);
+        assertEquals("主地址应是列表里的第一个",OfficialSources.URLS[0],OfficialSources.URL);
+        Set<String> seen=new HashSet<>();
+        for(String url:OfficialSources.URLS){
+            assertTrue("清单地址必须是 https："+url,url.startsWith("https://"));
+            assertTrue("清单地址应指向同一份文件："+url,url.contains("sources/latest.json"));
+            assertTrue("清单地址不应重复："+url,seen.add(url));
+        }
+    }
 }

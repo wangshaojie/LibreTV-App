@@ -11,7 +11,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
 
-[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.13/LibreTV-App-Android-v2.0.13-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
 
 </div>
 
@@ -69,11 +69,11 @@ ZIP 内附发布者的数据快照（含初始源配置与设置），升级时�
 
 <div align="center">
 
-**[⬇ 下载 Android APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.13/LibreTV-App-Android-v2.0.13-universal-android5.apk)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[⬇ 下载 Android APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
 </div>
 
-版本 `2.0.13` · 最低 Android 5.0 · 手机与 Android TV 通用 · 只有一个安装包
+版本 `2.0.14` · 最低 Android 5.0 · 手机与 Android TV 通用 · 只有一个安装包
 
 > 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。两端均为**同一安装包覆盖升级**，保留源配置、收藏和观看记录，无需先卸载。
 

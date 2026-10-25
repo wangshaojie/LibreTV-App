@@ -16,8 +16,22 @@ import java.util.*;
  * - 用户手动删过的官方源 → 不再自动加回（用 dismissed 记录）。
  */
 public final class OfficialSources {
-    /** 官方清单地址：仅仓库维护者可改（sources/latest.json）。 */
-    public static final String URL="https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json";
+    /**
+     * 官方清单地址：仅仓库维护者可改（sources/latest.json）。
+     *
+     * 第一个是主地址，后面是同一份文件的镜像。主地址在部分网络（尤其是没有代理、
+     * 直连受限的电视）下拉不到，那时依次尝试镜像；全都失败就沿用本地已有配置。
+     * 顺序即优先级，任何一个能通即可完成同步。
+     */
+    public static final String[] URLS={
+        "https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json",
+        "https://fastly.jsdelivr.net/gh/wangshaojie/LibreTV-App@main/sources/latest.json",
+        "https://gcore.jsdelivr.net/gh/wangshaojie/LibreTV-App@main/sources/latest.json",
+        "https://cdn.jsdelivr.net/gh/wangshaojie/LibreTV-App@main/sources/latest.json",
+        "https://ghproxy.net/https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json"
+    };
+    /** 主地址，供需要单一地址的地方使用。 */
+    public static final String URL=URLS[0];
     /** 距上次成功同步超过该时长才在启动时再拉一次（6 小时）。 */
     public static final long RESYNC_INTERVAL=6*60*60*1000L;
     /** 本地记录上次成功同步时间的键。 */
@@ -63,8 +77,23 @@ public final class OfficialSources {
         return out;
     }
 
-    /** 收拢一个分组里的条目；分组决定类型，组内地址重复只取第一条。 */
-    private static void collect(List<JSONObject> out,JSONArray list,String group,boolean trimSlash) throws Exception {
+    /**
+     * 依次尝试各个清单地址，返回第一个能拉到的内容。
+     *
+     * 主地址在部分网络（尤其是没有代理、直连受限的电视）下可能拉不到，
+     * 那就换下一个镜像；全都失败时抛出异常，本地已配置的源保持不变。
+     */
+    public static String fetch()throws Exception {
+        Exception first=null;
+        for(String url:URLS){
+            try{return Net.get(url);}
+            catch(Exception e){if(first==null)first=e;}
+        }
+        String reason=first==null||first.getMessage()==null?"未知原因":first.getMessage();
+        throw new Exception("已尝试 "+URLS.length+" 个地址仍拉不到："+reason);
+    }
+
+    /** 收拢一个分组里的条目；分组决定类型，组内地址重复只取第一条。 */    private static void collect(List<JSONObject> out,JSONArray list,String group,boolean trimSlash) throws Exception {
         if(list==null)return;
         Set<String> seen=new HashSet<>();
         for(int n=0;n<list.length();n++){

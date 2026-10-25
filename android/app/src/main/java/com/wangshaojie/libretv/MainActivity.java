@@ -162,7 +162,7 @@ public final class MainActivity extends Activity {
         tasks.add(workers.submit(()->{
             String failure="";int added=0,updated=0,total=0;
             try{
-                List<JSONObject> incoming=OfficialSources.parse(Net.get(OfficialSources.URL));
+                List<JSONObject> incoming=OfficialSources.parse(OfficialSources.fetch());
                 JSONArray local=store.array("sources");
                 OfficialSources.Result result=OfficialSources.merge(local,incoming,OfficialSources.readDismissed(store));
                 store.put("sources",local);

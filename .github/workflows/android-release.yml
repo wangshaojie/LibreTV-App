@@ -40,10 +40,10 @@ jobs:
       - name: Verify and package
         run: |
           mkdir -p android-release
-          cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v2.0.13-universal-android5.apk
+          cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v2.0.14-universal-android5.apk
           for apk in android-release/*.apk; do "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk"; done
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android-release/*.apk | grep "sdkVersion:'21'"
-          git archive --format=zip --output=android-release/LibreTV-App-Android-v2.0.13-Source.zip HEAD
+          git archive --format=zip --output=android-release/LibreTV-App-Android-v2.0.14-Source.zip HEAD
           cp android/使用说明.txt android-release/LibreTV-App-Android-Guide.txt
           cd android-release && sha256sum *.apk *.zip > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
@@ -122,5 +122,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create android-v2.0.13 --target "$GITHUB_SHA" --draft --title '静观 TV Android 2.0.13 · 通用版' --notes-file android/RELEASE.md android-release/*
-          gh release edit android-v2.0.13 --draft=false --latest
+          gh release create android-v2.0.14 --target "$GITHUB_SHA" --draft --title '静观 TV Android 2.0.14 · 通用版' --notes-file android/RELEASE.md android-release/*
+          gh release edit android-v2.0.14 --draft=false --latest
