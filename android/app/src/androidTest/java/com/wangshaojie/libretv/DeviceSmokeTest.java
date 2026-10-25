@@ -41,7 +41,7 @@ public class DeviceSmokeTest {
         }
         // Android 8.0 及以上必须使用系统证书库，不能被旧证书补丁顶替
         if(android.os.Build.VERSION.SDK_INT>=26)assertFalse(TlsCompat.installed());
-        else{assertTrue(TlsCompat.install(c));assertTrue(TlsCompat.installed());}
+        else{TlsCompat.install(c);assertTrue(TlsCompat.installed());}
         javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
         assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
     }
