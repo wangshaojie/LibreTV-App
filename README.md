@@ -11,7 +11,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
 
-[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.5/LibreTV-App-v2.19.2-desktop.5-Windows-x64.zip)
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.6/LibreTV-App-v2.19.2-desktop.6-Windows-x64.zip)
 
 </div>
 
@@ -57,15 +57,17 @@
 
 <div align="center">
 
-**[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.5/LibreTV-App-v2.19.2-desktop.5-Windows-x64.zip)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.6/LibreTV-App-v2.19.2-desktop.6-Windows-x64.zip)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
 </div>
 
-版本 `2.19.2-desktop.5` · Windows 10 / 11 x64 · 解压后双击 `静观TV.exe` 即可运行
+版本 `2.19.2-desktop.6` · Windows 10 / 11 x64 · 解压后打开 `LibreTV-App` 文件夹，双击 `静观TV.exe` 即可运行
 
-ZIP 内附发布者的数据快照（含初始源配置与设置），升级时只替换 EXE 即可保留你自己的数据。
+ZIP 内附发布者的数据快照（含初始源配置与设置）。升级时用新版文件夹里的程序文件覆盖旧文件夹（`LibreTV-Data` 除外），即可保留你自己的数据。
 
-> **请认准最新版**：Android **2.0.14**、Windows **2.19.2-desktop.5**。更早的 Android 版本（2.0.10）存在片源搜索失效的问题，不建议使用；其余旧版功能可用，但少了清单多镜像与老系统 TLS 1.2 支持。
+> **2.19.2-desktop.6 起改为目录分发**：早先的单文件 EXE 每次启动都要把约 460 MB 运行时重新解压到临时目录并被杀毒软件逐个扫描，窗口要等近 30 秒；改为目录分发后启动约 **1 秒**。功能完全一致。
+
+> **请认准最新版**：Android **2.0.14**、Windows **2.19.2-desktop.6**。更早的 Android 版本（2.0.10）存在片源搜索失效的问题，不建议使用；其余旧版功能可用，但少了清单多镜像与老系统 TLS 1.2 支持。
 
 ### Android 通用版
 
@@ -113,7 +115,7 @@ ZIP 内附发布者的数据快照（含初始源配置与设置），升级时�
 **Windows**
 
 1. 下载 ZIP 包，**完整解压**到有写入权限的文件夹。
-2. 双击 `静观TV.exe`，首次启动需要解包，请稍等片刻。
+2. 打开解压出来的 `LibreTV-App` 文件夹，双击 `静观TV.exe`（约 1 秒启动）。
 3. 在「设置 → 源管理」中管理自己的片源：M3U 播放列表加到**直播源**，Apple CMS JSON API 加到**点播源**。
 4. 首页用于影片搜索，顶部「直播」用于浏览 M3U 频道和分组。
 
@@ -138,7 +140,7 @@ ZIP 内附发布者的数据快照（含初始源配置与设置），升级时�
 可以。M3U 播放列表填「直播源」，Apple CMS JSON API 填「点播源」，两个端都支持。
 
 **Q：Windows 版怎么升级？**
-关闭旧版，**只替换 EXE**。不要用发布包里的示例数据覆盖你已经使用的数据目录。
+关闭旧版，用新版 `LibreTV-App` 文件夹里的程序文件覆盖旧文件夹中除 `LibreTV-Data` 以外的全部内容。不要用发布包里的示例数据覆盖你已经使用的数据目录。
 
 更多细节见 [Android 说明](android/README.md) · [Windows 说明](desktop/README.md)
 

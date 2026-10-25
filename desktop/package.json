@@ -1,6 +1,6 @@
 {
   "name": "libretv-portable",
-  "version": "2.19.2-desktop.5",
+  "version": "2.19.2-desktop.6",
   "description": "静观 TV Windows portable desktop application",
   "author": "LibreTV contributors",
   "license": "AGPL-3.0-or-later",
@@ -11,7 +11,7 @@
     "start": "electron .",
     "pack": "electron-builder --win --x64 --dir",
     "package:release": "node package-release.cjs",
-    "dist": "npm run prepare:web && electron-builder --win portable --x64"
+    "dist": "npm run prepare:web && electron-builder --win --x64 --dir"
   },
   "devDependencies": {
     "electron": "44.9.0",
@@ -26,10 +26,9 @@
     "extraResources": [{ "from": "resources", "to": "." }],
     "win": {
       "icon": "icon.ico",
-      "target": [{ "target": "portable", "arch": ["x64"] }],
-      "artifactName": "LibreTV-${version}-Windows-x64-Portable.exe",
+      "target": [{ "target": "dir", "arch": ["x64"] }],
+      "artifactName": "静观TV.exe",
       "signExecutable": false
-    },
-    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.5-portable" }
+    }
   }
 }

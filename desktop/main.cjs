@@ -30,6 +30,29 @@ try {
 function log(message) {
   try { fs.appendFileSync(logFile, `${new Date().toISOString()} ${message}\n`); } catch {}
 }
+// 启动打点：用进程存活秒数标记各阶段耗时，便于定位"启动慢"到底卡在哪一步
+function mark(stage) { log(`[boot] ${stage} @${process.uptime().toFixed(2)}s`); }
+
+// Chromium 把海报等资源缓存进数据目录，长期使用能涨到几百 MB。
+// 这些目录全是可再生的缓存（不含源配置、观看记录），超过阈值就清掉，
+// 避免数据目录无限膨胀，也免得每次启动都要读一大坨磁盘缓存。
+const CACHE_DIRS = ['Cache', 'Code Cache', 'GPUCache', 'ShaderCache', 'GrShaderCache', 'DawnWebGPUCache', 'DawnGraphiteCache'];
+const CACHE_LIMIT = 128 * 1024 * 1024;
+function trimCaches() {
+  const browser = path.join(dataDir, 'Browser');
+  let total = 0;
+  for (const name of CACHE_DIRS) {
+    const dir = path.join(browser, name);
+    if (!fs.existsSync(dir)) continue;
+    let size = 0;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true, recursive: true })) {
+      if (entry.isFile()) { try { size += fs.statSync(path.join(entry.parentPath, entry.name)).size; } catch {} }
+    }
+    total += size;
+    if (total > CACHE_LIMIT) { try { fs.rmSync(dir, { recursive: true, force: true }); } catch {} }
+  }
+  if (total > CACHE_LIMIT) log(`trimmed browser cache: ${(total / 1048576).toFixed(1)} MB`);
+}
 
 function fail(error) {
   log(error.stack || String(error));
@@ -109,7 +132,7 @@ function createWindow() {
   });
   mainWindow.webContents.on('will-attach-webview', event => event.preventDefault());
   mainWindow.webContents.on('render-process-gone', (_event, details) => fail(new Error(`页面进程意外退出：${details.reason}`)));
-  mainWindow.once('ready-to-show', () => { if (!smoke) mainWindow.show(); });
+  mainWindow.once('ready-to-show', () => { mark('ready-to-show'); if (!smoke) mainWindow.show(); });
   mainWindow.on('closed', () => { mainWindow = null; });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: '静观 TV', submenu: [
@@ -122,7 +145,10 @@ function createWindow() {
     { label: '编辑', submenu: [{ role: 'undo', label: '撤销' }, { role: 'redo', label: '重做' }, { type: 'separator' }, { role: 'cut', label: '剪切' }, { role: 'copy', label: '复制' }, { role: 'paste', label: '粘贴' }, { role: 'selectAll', label: '全选' }] },
     { label: '视图', submenu: [{ role: 'reload', label: '刷新' }, { role: 'resetZoom', label: '实际大小' }, { role: 'zoomIn', label: '放大' }, { role: 'zoomOut', label: '缩小' }, { role: 'togglefullscreen', label: '全屏' }] },
   ]));
-  return mainWindow.loadURL(origin);
+  mark('window-created');
+  const loaded = mainWindow.loadURL(origin);
+  loaded.then(() => mark('load-url-done'));
+  return loaded;
 }
 
 async function runSmokeTest() {
@@ -181,7 +207,9 @@ if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => { if (mainWindow) { if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.show(); mainWindow.focus(); } });
   app.whenReady().then(async () => {
+    mark('app-ready');
     const port = await selectPort();
+    mark('port-selected');
     origin = `http://127.0.0.1:${port}`;
     password = crypto.randomBytes(32).toString('hex');
     session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => callback(permission === 'fullscreen'));
@@ -194,6 +222,7 @@ else {
       partition: 'libretv-upstream',
       env: { ...process.env, NODE_ENV: 'production', HOSTNAME: '127.0.0.1', PORT: String(port), PASSWORD: password, PROXY_SECRET: crypto.randomBytes(32).toString('hex'), COOKIE_SECURE: 'false', NEXT_TELEMETRY_DISABLED: '1', DEFAULT_SUBSCRIPTIONS: JSON.stringify([{ url: OFFICIAL_SOURCE_LIST, name: '静观 TV 官方源' }]) },
     });
+    mark('server-forked');
     let serverExited = false;
     server.stdout?.on('data', data => log(String(data).trimEnd()));
     server.stderr?.on('data', data => log(String(data).trimEnd()));
@@ -204,10 +233,15 @@ else {
       try { ready = (await request('/api/status')).ok; if (ready) break; } catch {}
       await new Promise(resolve => setTimeout(resolve, 250));
     }
+    mark('server-ready');
     if (quitting) return;
     if (!ready) throw new Error('本地服务启动超时，请查看日志。');
     await login();
+    mark('login-done');
     await createWindow();
+    mark('window-loaded');
+    // 缓存清理放在窗口出现之后，避免拖慢启动
+    setTimeout(trimCaches, 5000);
     log(`Ready ${origin}`);
     if (smoke) await runSmokeTest();
   }).catch(fail);
