@@ -1,6 +1,6 @@
 {
   "name": "libretv-portable",
-  "version": "2.19.2-desktop.4",
+  "version": "2.19.2-desktop.5",
   "description": "静观 TV Windows portable desktop application",
   "author": "LibreTV contributors",
   "license": "AGPL-3.0-or-later",
@@ -30,6 +30,6 @@
       "artifactName": "LibreTV-${version}-Windows-x64-Portable.exe",
       "signExecutable": false
     },
-    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.3-portable" }
+    "portable": { "requestExecutionLevel": "user", "unpackDirName": "LibreTV-2.19.2-desktop.5-portable" }
   }
 }

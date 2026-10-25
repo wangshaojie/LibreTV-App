@@ -11,7 +11,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
 
-[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.5/LibreTV-App-v2.19.2-desktop.5-Windows-x64.zip)
 
 </div>
 
@@ -57,13 +57,15 @@
 
 <div align="center">
 
-**[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.5/LibreTV-App-v2.19.2-desktop.5-Windows-x64.zip)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
 </div>
 
-版本 `2.19.2-desktop.4` · Windows 10 / 11 x64 · 解压后双击 `静观TV.exe` 即可运行
+版本 `2.19.2-desktop.5` · Windows 10 / 11 x64 · 解压后双击 `静观TV.exe` 即可运行
 
 ZIP 内附发布者的数据快照（含初始源配置与设置），升级时只替换 EXE 即可保留你自己的数据。
+
+> **请认准最新版**：Android **2.0.14**、Windows **2.19.2-desktop.5**。更早的 Android 版本（2.0.10）存在片源搜索失效的问题，不建议使用；其余旧版功能可用，但少了清单多镜像与老系统 TLS 1.2 支持。
 
 ### Android 通用版
 
@@ -127,7 +129,7 @@ ZIP 内附发布者的数据快照（含初始源配置与设置），升级时�
 不需要。Windows 版内置本地服务，Android 版完全在设备上运行。数据都存在你自己的设备里。
 
 **Q：为什么我的老电视连不上某些源？**
-部分片源站点已不可用，或需要代理。用「源管理 → 全部测活」检测一遍，把连不上的关掉即可。2.0.11 起还修复了老系统 IPv6 路由缺失导致连不上站点的问题。
+部分片源站点已不可用，或需要代理——这是站点和网络的状况，不是应用的问题。片源之间互不影响：某个源测不通就只是这个源不可用，其他源照常搜索。用「源管理 → 全部测活」检测一遍，把连不上的关掉即可。2.0.13 起修复了老系统 IPv6 路由缺失导致连不上站点的问题（自建 IPv4 通道并保留正确的 SNI 与证书校验），2.0.14 起官方片源清单改为多地址镜像，主地址拉不到会自动换下一个，电视这类没有代理的设备也能持续收到清单更新。
 
 **Q：可以加自己的源吗？**
 可以。M3U 播放列表填「直播源」，Apple CMS JSON API 填「点播源」，两个端都支持。
