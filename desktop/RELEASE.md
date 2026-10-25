@@ -1,6 +1,6 @@
 # 静观 TV Windows 免安装版 v2.19.2-desktop.4
 
-Windows 免安装版更名为 **静观 TV**，与 Android 手机 / TV 通用版同名。2026-10-24 更新下载包中的源配置：现含 **7 个点播源、9 个直播源**。Android 手机 / TV 通用版当前为 2.0.10。
+Windows 免安装版更名为 **静观 TV**，与 Android 手机 / TV 通用版同名。2026-10-24 更新下载包中的源配置：现含 **7 个点播源、9 个直播源**。Android 手机 / TV 通用版当前为 2.0.11。
 
 ## 下载
 
@@ -30,7 +30,7 @@ ZIP 内另附 `LibreTV-Sources.json`，供迁移、托管订阅或导入 Android
 - 保留逐跳目标校验，兼容重定向、Range、流式传输和超时中断。
 - 本地数据随 EXE 保存，便于备份和迁移。
 - 上一版 2.19.2-desktop.2 修复了内置服务没有跟随 Windows 系统代理/PAC、导致部分 M3U 订阅下载失败的问题，本次改动不涉及该逻辑。
-- Android 通用版当前为 2.0.10（静观 TV），兼容手机及 Android TV：https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.10
+- Android 通用版当前为 2.0.11（静观 TV），兼容手机及 Android TV：https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.11
 
 在线内容需要联网，线路是否可播取决于网络、地区、源站和编码。本构建未做数字签名。
 

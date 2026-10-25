@@ -1,6 +1,6 @@
 # 静观 TV（Android）
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.10`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.11`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
 
 Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
@@ -8,9 +8,9 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ## 下载与安装
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.10/LibreTV-App-Android-v2.0.10-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.10/LibreTV-App-Android-v2.0.10-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.10)
+- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-legacy-android5.apk)
+- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-modern-android8.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.11)
 
 手机直接下载安装，电视可用 U 盘或电视文件管理器打开 APK；系统弹出「允许安装未知来源应用」时选择允许即可。手机桌面和电视桌面均有启动入口；手机播放页的控制面板里可切换横 / 竖屏，电视采用横屏和明显的焦点边框。覆盖安装保留数据。
 
@@ -18,7 +18,8 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 版本要点
 
-- **2.0.10** 修复部分老电视连不上网的问题：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。现在连接前会自己挑一个 IPv4 地址建连并带上原主机名，HTTPS 证书仍按原域名校验。
+- **2.0.11** 详情页里直接换片源：影片详情页简介下方新增「片源 · N 个可用」一行，当前片源高亮，点一下即切换，标题行、收藏状态、线路与剧集都跟随更新，不再需要「选择片源」弹窗；只有一个片源时不显示该行，剧集不跨片源合并。同时修正 2.0.10 的连接改动：改为默认按域名连接，仅在确认 IPv6 不可达时才改用 IPv4 重试。
+- **2.0.10** 修复部分老电视连不上网的问题：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。（2.0.11 已改正该做法。）
 - **2.0.9** 新增官方片源清单：启动时自动获取项目维护的源清单并合并到本地配置——新增的源自动补入、手动停用的源保持停用、你自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。
 - **2.0.8** 连接中的播放页不再是一片黑屏：控制面板会先显示并提示「正在连接…」，开始播放后自动淡出。
 - **2.0.7** 应用更名为静观 TV，图标沿用原来的 LibreTV 渐变字母 L；包名、签名和下载地址不变，可直接覆盖升级。
@@ -77,7 +78,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 ## 功能
 
 - **首页**：浏览推荐、最近观看；推荐来源可切换为豆瓣或已启用 CMS 源，推荐失败时使用缓存或片源数据。
-- **点播**：电影 / 剧集分类，Apple CMS JSON 多源搜索、同名影片合并、原生详情与选集、线路切换。
+- **点播**：电影 / 剧集分类，Apple CMS JSON 多源搜索、同名影片合并、原生详情与选集、线路切换；详情页内直接列出全部片源并可一键切换。
 - **直播**：M3U / M3U8 订阅导入、节目搜索、分组筛选、上一台 / 下一台。
 - **我的**：收藏、最近观看、点播续播，源配置 JSON 导入 / 导出与配置备份。
 - **官方源清单**：启动时自动获取项目维护的片源清单（超过 6 小时才再次请求），新增的源自动补入、手动停用的源保持停用、自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。

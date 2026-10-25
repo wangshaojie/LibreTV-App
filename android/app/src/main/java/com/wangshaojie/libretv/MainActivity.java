@@ -133,9 +133,17 @@ public final class MainActivity extends Activity {
     private void saved(String key){reset(key);content.addView(Ui.heading(this,key.equals("history")?"观看记录":"我的收藏"));content.addView(Ui.button(this,"返回我的",this::mine));items.addAll(store.items(key));createGrid();shown.addAll(items);refresh();status.setText((key.equals("history")?"最近观看，点播自动续播":"长按卡片可管理收藏")+" · "+items.size()+" 项");}
     private void open(Catalog.Item item){
         if(!item.url.isEmpty()){if(item.live&&page.equals("live")){play(new ArrayList<>(shown),Math.max(0,shown.indexOf(item)));}else play(Collections.singletonList(item),0);return;}
-        if(item.source.isEmpty()){namedSearch(item.title);return;}List<Catalog.Item> choices=grouped.get(Catalog.titleKey(item.title));if(page.equals("vod")&&choices!=null&&choices.size()>1){String[] names=new String[choices.size()];for(int n=0;n<names.length;n++)names[n]=choices.get(n).sourceName;new AlertDialog.Builder(this).setTitle(item.title+" · 选择片源").setItems(names,(d,n)->detail(choices.get(n))).setNegativeButton("取消",null).show();}else detail(item);
+        if(item.source.isEmpty()){namedSearch(item.title);return;}
+        // 搜索聚合出的同名影片把全部片源带进详情页，由详情页内的片源行直接切换，不再弹窗二次选择
+        List<Catalog.Item> choices=grouped.get(Catalog.titleKey(item.title));
+        if(page.equals("vod")&&choices!=null&&choices.size()>1)detail(choices.get(0),choices);else detail(item,choices);
     }
-    private void detail(Catalog.Item item){startActivity(new Intent(this,DetailActivity.class).putExtra("item",item.json().toString()));}
+    private void detail(Catalog.Item item){detail(item,null);}
+    private void detail(Catalog.Item item,List<Catalog.Item> choices){
+        Intent intent=new Intent(this,DetailActivity.class).putExtra("item",item.json().toString());
+        if(choices!=null&&choices.size()>1){JSONArray array=new JSONArray();for(Catalog.Item choice:choices)array.put(choice.json());intent.putExtra("choices",array.toString());}
+        startActivity(intent);
+    }
     private void episodeList(String title,List<Catalog.Item> episodes){String[] labels=new String[episodes.size()];for(int n=0;n<labels.length;n++)labels[n]=episodes.get(n).title;new AlertDialog.Builder(this).setTitle(title+" · 选集").setItems(labels,(d,p)->play(episodes,p)).setNegativeButton("返回",null).show();}
     private void play(List<Catalog.Item> media,int at){Playback.open(this,media,at);}
     private void itemMenu(Catalog.Item item){if(item.source.isEmpty()&&item.url.isEmpty()){open(item);return;}new AlertDialog.Builder(this).setTitle(item.title).setItems(new String[]{"打开",store.favorite(item)?"取消收藏":"加入收藏"},(d,n)->{if(n==0)open(item);else{store.toggleFavorite(item);Ui.toast(this,"收藏已更新");if(page.equals("favorites"))saved("favorites");else refresh();}}).show();}

@@ -1,5 +1,7 @@
 package com.wangshaojie.libretv;
 
+import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -7,12 +9,13 @@ import java.net.InetAddress;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * 老电视只有链路本地 IPv6、没有 IPv6 路由，底层又不会在 ENETUNREACH 后回退到 IPv4。
- * Net 在连接前自己挑一个 IPv4 地址直接建连，这里验证挑选逻辑。
+ * 老电视只有链路本地 IPv6、没有 IPv6 路由，底层不会在 ENETUNREACH 后回退到 IPv4。
+ * Net 在确认 IPv6 不可达时改用 IPv4 重试，这里验证地址挑选与回退判定。
  *
  * 全部用字面量地址构造，不做 DNS 查询，测试不依赖网络。
  */
@@ -60,5 +63,29 @@ public class NetTest {
     @Test
     public void ipv6AddressIsRecognisedAsInet6()throws Exception{
         assertTrue(v6(0x54) instanceof Inet6Address);
+    }
+
+    @Test
+    public void detectsUnreachableIpv6Failure(){
+        ConnectException error=new ConnectException("failed to connect to raw.githubusercontent.com/2606:50c0:8001::154 (port 443) after 12000ms: connect failed: ENETUNREACH (Network is unreachable)");
+        assertTrue(Net.unreachable(error));
+    }
+
+    @Test
+    public void detectsUnreachableWrappedInCause(){
+        IOException error=new IOException("请求失败",new ConnectException("connect failed: ENETUNREACH (Network is unreachable)"));
+        assertTrue(Net.unreachable(error));
+    }
+
+    @Test
+    public void ignoresUnrelatedFailures(){
+        assertFalse(Net.unreachable(new ConnectException("Connection timed out")));
+        assertFalse(Net.unreachable(new IOException("HTTP 404")));
+        assertFalse(Net.unreachable(new IOException("清单超过 12 MB")));
+    }
+
+    @Test
+    public void ignoresFailureWithoutMessage(){
+        assertFalse(Net.unreachable(new ConnectException()));
     }
 }
