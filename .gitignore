@@ -23,6 +23,10 @@ android/.gradle/
 android/**/build/
 android/local.properties
 android/release-*/
+# 真机调试产物
+android/tv-*.png
+android/tv-logcat*.txt
+android/s[0-9]*.png
 *.jks
 *.keystore
 *.p12
