@@ -47,13 +47,45 @@ final class Probe {
         private Response fetch(String address,Map<String,String> headers,int limit,boolean sample)throws IOException{
             for(int hop=0;hop<6;hop++){
                 if(stopped.get()||Thread.currentThread().isInterrupted())throw new IOException("已停止");if(Catalog.httpUrl(address,null)==null)throw new IOException("仅支持 HTTP/HTTPS");
-                HttpURLConnection c=(HttpURLConnection)new URL(address).openConnection();connections.add(c);c.setConnectTimeout(6000);c.setReadTimeout(6000);c.setInstanceFollowRedirects(false);c.setRequestProperty("User-Agent",Net.BROWSER_UA);if(sample)c.setRequestProperty("Range","bytes=0-"+(Math.min(limit,8192)-1));for(Map.Entry<String,String> header:headers.entrySet())c.setRequestProperty(header.getKey(),header.getValue());
-                try{int code=c.getResponseCode();if(code>=300&&code<400){String location=c.getHeaderField("Location");if(location==null)throw new IOException("跳转地址缺失");address=resolve(address,location);continue;}if(code<200||code>=300)throw new IOException("HTTP "+code);
-                    long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);ByteArrayOutputStream out=new ByteArrayOutputStream();try(InputStream in=c.getInputStream()){byte[] buffer=new byte[4096];int n;boolean playlist=c.getContentType()!=null&&(c.getContentType().contains("mpegurl")||c.getContentType().contains("text/"));while((n=in.read(buffer,0,Math.min(buffer.length,limit-out.size())))!=-1){if(stopped.get()||Thread.currentThread().isInterrupted())throw new IOException("已停止");out.write(buffer,0,n);if(out.size()>=limit)break;if(sample&&!playlist&&out.size()>=8192)break;if(System.nanoTime()>deadline)throw new IOException("请求超时");}}
-                    if(out.size()==0)throw new IOException("返回空数据");if(!sample&&out.size()>=limit)throw new IOException("源列表超过大小限制");Response response=new Response();response.url=address;response.type=c.getContentType()==null?"":c.getContentType();response.data=out.toByteArray();return response;
-                }finally{connections.remove(c);c.disconnect();}
+                Response response=attempt(address,headers,limit,sample);
+                if(response.location!=null){address=response.location;continue;}
+                return response;
             }throw new IOException("跳转次数过多");
         }
+        /**
+         * 与 Net.get 保持一致：默认走系统行为，只有在 IPv6 地址不可达时
+         * 才改用该主机的 IPv4 重试一次，否则老电视会把可用源误判成异常。
+         */
+        private Response attempt(String address,Map<String,String> headers,int limit,boolean sample)throws IOException{
+            String host=Net.hostOf(address);
+            if(host!=null&&Net.pinnedIpv4.contains(host))return ipv4(address,headers,limit,sample);
+            try{return hop(address,headers,limit,sample);}
+            catch(IOException e){
+                // 服务端回了错误状态：换个地址族再试一次，边缘线路有时会回错页
+                if(host!=null&&e.getMessage()!=null&&e.getMessage().startsWith("HTTP ")){
+                    try{Response second=ipv4(address,headers,limit,sample);if(second.code<400){Net.pinnedIpv4.add(host);return second;}}catch(Exception ignored){}
+                    throw e;
+                }
+                if(host==null||!Net.unreachable(e))throw e;
+                Net.pinnedIpv4.add(host);
+                try{return ipv4(address,headers,limit,sample);}catch(IOException retry){throw e;}
+            }
+        }
+        /** IPv4 回退：自己连 IPv4 地址，SNI 与证书校验仍按原主机名。 */
+        private Response ipv4(String address,Map<String,String> headers,int limit,boolean sample)throws IOException{
+            Ipv4Client.Response raw=Ipv4Client.get(new URL(address),headers,Net.BROWSER_UA,limit,sample);
+            if(raw.code>=400)throw new IOException("HTTP "+raw.code);
+            Response response=new Response();response.url=address;response.code=raw.code;response.type=raw.type;response.data=raw.data;
+            if(raw.location!=null)response.location=resolve(address,raw.location);
+            return response;
+        }
+        private Response hop(String address,Map<String,String> headers,int limit,boolean sample)throws IOException{
+            HttpURLConnection c=Net.open(new URL(address),headers,Net.BROWSER_UA,6000,6000);connections.add(c);if(sample)c.setRequestProperty("Range","bytes=0-"+(Math.min(limit,8192)-1));
+            try{int code=c.getResponseCode();if(code>=300&&code<400){String location=c.getHeaderField("Location");if(location==null)throw new IOException("跳转地址缺失");Response redirect=new Response();redirect.url=address;redirect.code=code;redirect.location=resolve(address,location);return redirect;}if(code<200||code>=300)throw new IOException("HTTP "+code);
+                long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);ByteArrayOutputStream out=new ByteArrayOutputStream();try(InputStream in=c.getInputStream()){byte[] buffer=new byte[4096];int n;boolean playlist=c.getContentType()!=null&&(c.getContentType().contains("mpegurl")||c.getContentType().contains("text/"));while((n=in.read(buffer,0,Math.min(buffer.length,limit-out.size())))!=-1){if(stopped.get()||Thread.currentThread().isInterrupted())throw new IOException("已停止");out.write(buffer,0,n);if(out.size()>=limit)break;if(sample&&!playlist&&out.size()>=8192)break;if(System.nanoTime()>deadline)throw new IOException("请求超时");}}
+                if(out.size()==0)throw new IOException("返回空数据");if(!sample&&out.size()>=limit)throw new IOException("源列表超过大小限制");Response response=new Response();response.url=address;response.code=code;response.type=c.getContentType()==null?"":c.getContentType();response.data=out.toByteArray();return response;
+            }finally{connections.remove(c);c.disconnect();}
+        }
     }
-    private static final class Response{String url,type;byte[] data;}
+    private static final class Response{String url,type,location;int code;byte[] data;}
 }

@@ -1,15 +1,15 @@
 # 静观 TV（Android）
 
-原生 Android 客户端，**支持手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.12`。最低 Android 5.0 / API 21，手机与电视使用同一个安装包。
+原生 Android 客户端，**支持手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.13`。最低 Android 5.0 / API 21，手机与电视使用同一个安装包。
 
 Android 8.0 以下的系统会加载内置的 Mozilla / certifi 根证书以补齐旧系统缺失的现代 CA，确保片源站点的 HTTPS 订阅读取成功；Android 8.0 及以上直接使用系统证书库。应用始终验证证书链和主机名，不修改系统证书、不跳过校验。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
-2026-10-23 更新内置源至 7 个点播源、9 个直播源。1.0.0 用户覆盖安装后会自动补入新增 6 个源，按类型与地址去重，仅执行一次，不覆盖个人源、收藏和历史。
+2026-10-25 更新内置源至 9 个点播源（新增「魔都动漫」「樱花资源」）、9 个直播源。1.0.0 用户覆盖安装后会自动补入新增源，按类型与地址去重，仅执行一次，不覆盖个人源、收藏和历史。
 
 ## 下载与安装
 
-- [Android 5.0+ 通用版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.12)
+- [Android 5.0+ 通用版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.13/LibreTV-App-Android-v2.0.13-universal-android5.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.13)
 
 手机直接下载安装，电视可用 U 盘或电视文件管理器打开 APK；系统弹出「允许安装未知来源应用」时选择允许即可。手机桌面和电视桌面均有启动入口；手机播放页的控制面板里可切换横 / 竖屏，电视采用横屏和明显的焦点边框。覆盖安装保留数据。
 
@@ -17,6 +17,7 @@ Android 8.0 以下的系统会加载内置的 Mozilla / certifi 根证书以补�
 
 ### 版本要点
 
+- **2.0.13** 网络层统一走一条通道：老电视只有链路本地 IPv6 时，改为自建连接直连该主机的 IPv4 地址，同时保持正确的 SNI 与证书校验（此前用 IP 直连会丢掉 SNI，Cloudflare 站点会拿默认证书回应）；Android 8.0 以下默认只协商 TLS 1.0，本版补上 TLS 1.1/1.2，服务器支持就用高版本，不支持仍回落 TLS 1.0。测活与海报加载也改用同一条通道，源管理里的「可连接 / 连接异常」不再与应用内实际表现不一致。官方片源清单新增「魔都动漫」「樱花资源」两个动漫向点播源。
 - **2.0.12** 合并为单一通用安装包：此前分发的「兼容版」与「新版」功能完全一致，现合为一个 APK，最低 Android 5.0，手机与电视通用，桌面图标统一为「静观 TV」。证书补丁按系统版本自动启用——Android 8.0 以下补齐根证书库，8.0 及以上用系统证书库。
 - **2.0.11** 详情页里直接换片源：影片详情页简介下方新增「片源 · N 个可用」一行，当前片源高亮，点一下即切换，标题行、收藏状态、线路与剧集都跟随更新，不再需要「选择片源」弹窗；只有一个片源时不显示该行，剧集不跨片源合并。同时修正 2.0.10 的连接改动：改为默认按域名连接，仅在确认 IPv6 不可达时才改用 IPv4 重试。
 - **2.0.10** 修复部分老电视连不上网的问题：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。（2.0.11 已改正该做法。）

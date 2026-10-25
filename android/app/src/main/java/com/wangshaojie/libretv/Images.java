@@ -31,10 +31,32 @@ final class Images {
         }catch(Exception ignored){}catch(OutOfMemoryError e){memory.evictAll();}final Bitmap result=bitmap;main.post(()->{List<WeakReference<ImageView>> views;synchronized(pending){views=pending.remove(url);}if(views!=null)for(WeakReference<ImageView> ref:views){ImageView target=ref.get();if(target!=null&&url.equals(target.getTag())&&result!=null)target.setImageBitmap(result);}});});
     }
     private static byte[] download(String address)throws Exception{
-        for(int hop=0;hop<5;hop++){if(Catalog.httpUrl(address,null)==null)throw new IOException("Invalid image URL");HttpURLConnection c=(HttpURLConnection)new URL(address).openConnection();c.setConnectTimeout(7000);c.setReadTimeout(7000);c.setInstanceFollowRedirects(false);c.setRequestProperty("User-Agent",Net.BROWSER_UA);if(new URL(address).getHost().endsWith("doubanio.com"))c.setRequestProperty("Referer","https://movie.douban.com/");
-            try{int code=c.getResponseCode();if(code>=300&&code<400){address=new URL(new URL(address),c.getHeaderField("Location")).toString();continue;}if(code!=200)throw new IOException("Image HTTP "+code);try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] buffer=new byte[8192];int n;while((n=in.read(buffer))!=-1){if(out.size()+n>3*1024*1024)throw new IOException("Image too large");out.write(buffer,0,n);}return out.toByteArray();}}finally{c.disconnect();}}
+        for(int hop=0;hop<5;hop++){if(Catalog.httpUrl(address,null)==null)throw new IOException("Invalid image URL");Response response=attempt(address);if(response.location!=null){address=response.location;continue;}return response.data;}
         throw new IOException("Image redirects exceeded");
     }
+    /** 与 Net 一致：IPv6 不可达时改用该主机的 IPv4 重试一次，否则海报会整片加载失败。 */
+    private static Response attempt(String address)throws Exception{
+        String host=Net.hostOf(address);
+        if(host!=null&&Net.pinnedIpv4.contains(host))return ipv4(address);
+        try{return hop(address,null);}
+        catch(IOException e){
+            if(host==null||!Net.unreachable(e))throw e;
+            Net.pinnedIpv4.add(host);
+            try{return ipv4(address);}catch(IOException retry){throw e;}
+        }
+    }
+    private static Response ipv4(String address)throws Exception{
+        Ipv4Client.Response raw=Ipv4Client.get(new URL(address),Collections.emptyMap(),Net.BROWSER_UA,3*1024*1024,false);
+        Response response=new Response();response.data=raw.data;response.type=raw.type;
+        if(raw.location!=null)response.location=new URL(new URL(address),raw.location).toString();
+        return response;
+    }
+    private static Response hop(String address,String ipv4Host)throws Exception{
+        URL target=new URL(address);Map<String,String> headers=new HashMap<>();if(target.getHost().endsWith("doubanio.com"))headers.put("Referer","https://movie.douban.com/");
+        HttpURLConnection c=Net.open(target,headers,Net.BROWSER_UA,7000,7000);
+        try{int code=c.getResponseCode();if(code>=300&&code<400){String location=c.getHeaderField("Location");if(location==null)throw new IOException("跳转地址缺失");Response redirect=new Response();redirect.location=new URL(target,location).toString();return redirect;}if(code!=200)throw new IOException("Image HTTP "+code);try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] buffer=new byte[8192];int n;while((n=in.read(buffer))!=-1){if(out.size()+n>3*1024*1024)throw new IOException("Image too large");out.write(buffer,0,n);}Response response=new Response();response.data=out.toByteArray();return response;}}finally{c.disconnect();}
+    }
+    private static final class Response{String location,type;byte[] data;}
     private static String hash(String text)throws Exception{byte[] bytes=MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"));StringBuilder out=new StringBuilder();for(byte b:bytes)out.append(String.format(Locale.ROOT,"%02x",b));return out.toString();}
     private static void trim(File dir){File[] files=dir.listFiles();if(files==null)return;long size=0;for(File f:files)size+=f.length();if(size<48*1024*1024)return;Arrays.sort(files,(a,b)->Long.compare(a.lastModified(),b.lastModified()));for(File f:files){size-=f.length();f.delete();if(size<36*1024*1024)break;}}
 }

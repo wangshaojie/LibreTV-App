@@ -11,7 +11,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
 
-[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.13/LibreTV-App-Android-v2.0.13-universal-android5.apk) · [**下载 Windows 免安装版**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.4/LibreTV-App-v2.19.2-desktop.4-Windows-x64.zip)
 
 </div>
 
@@ -26,7 +26,7 @@
 - **Windows 免安装版** —— 绿色 EXE + 数据目录，解压即用，不需要装 Node.js、Docker 或管理员权限。
 - **Android 原生客户端** —— 一个 APK，手机触屏和电视遥控器都是原生手感，最低支持 Android 5.0 的老电视。
 
-内置 **7 个点播源、9 个直播源**，开箱即用。你的片源配置、收藏和观看记录**全部保存在自己的设备上**——没有账号，没有遥测，没有广告。
+内置 **9 个点播源、9 个直播源**，开箱即用。你的片源配置、收藏和观看记录**全部保存在自己的设备上**——没有账号，没有遥测，没有广告。
 
 ## 和原版有什么不同
 
@@ -69,11 +69,11 @@ ZIP 内附发布者的数据快照（含初始源配置与设置），升级时�
 
 <div align="center">
 
-**[⬇ 下载 Android APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[⬇ 下载 Android APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.13/LibreTV-App-Android-v2.0.13-universal-android5.apk)** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
 </div>
 
-版本 `2.0.12` · 最低 Android 5.0 · 手机与 Android TV 通用 · 只有一个安装包
+版本 `2.0.13` · 最低 Android 5.0 · 手机与 Android TV 通用 · 只有一个安装包
 
 > 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。两端均为**同一安装包覆盖升级**，保留源配置、收藏和观看记录，无需先卸载。
 
