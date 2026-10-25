@@ -35,6 +35,16 @@
     "url": "https://api.guangsuapi.com/api.php/provide/vod"
   },
   {
+    "type": "vod",
+    "name": "魔都动漫",
+    "url": "https://caiji.moduapi.cc/api.php/provide/vod"
+  },
+  {
+    "type": "vod",
+    "name": "樱花资源",
+    "url": "https://m3u8.apiyhzy.com/api.php/provide/vod"
+  },
+  {
     "type": "live",
     "name": "直播源",
     "url": "https://iptv-org.github.io/iptv/countries/cn.m3u"
