@@ -22,6 +22,7 @@ generated-images/
 android/.gradle/
 android/**/build/
 android/local.properties
+android/release-*/
 *.jks
 *.keystore
 *.p12

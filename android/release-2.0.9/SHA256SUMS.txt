@@ -1,3 +1,0 @@
-c65ff7fa839adae66aa476fe16176fc49192c3c1375274b748ff9e912be13eba  LibreTV-App-Android-v2.0.9-legacy-android5.apk
-4cef1cb6402edabe78dca542ab3623dbf4ec593e43b9d753e0c932d6a9d627a7  LibreTV-App-Android-v2.0.9-modern-android8.apk
-3c1d7791c8e72e1f88d3ae8964f84fcaada59d224a1aad39dce38ba54ddcd048  LibreTV-App-Android-v2.0.9-Source.zip
