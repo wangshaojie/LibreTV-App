@@ -101,8 +101,8 @@ const dataFiles = [
 ];
 fs.copyFileSync(path.join(root, 'LICENSE'), path.join(appDir, 'LICENSE.txt'));
 fs.copyFileSync(path.join(root, 'sources/latest.json'), path.join(appDir, 'LibreTV-Sources.json'));
-fs.writeFileSync(path.join(appDir, '使用说明.txt'), `静观 TV Windows 免安装版 ${version}\n\nWindows 和 Android 手机 / TV 通用版均已发布。本包源配置更新于 2026-10-25：9 个点播源、9 个直播源。\n适用于 Windows 10/11 x64。\n\n1. 完整解压 ZIP 到可写入的文件夹，不要在压缩包中直接运行。\n2. 打开解压出来的 LibreTV-App 文件夹，双击 静观TV.exe，无需安装 Node.js、Docker 或其他运行环境。\n3. 本版改为目录分发：解压即用，启动约 1 秒（单文件 EXE 版每次启动都要重新解压约 460 MB，因此慢）。\n4. 静观TV.exe 同级的 LibreTV-Data 带有发布者的源配置、设置及观看记录；保留整个文件夹即可继续使用。\n5. M3U 订阅应添加到「设置 → 源管理 → 直播源」，Apple CMS JSON API 应添加到「点播源」。\n6. 在线内容需要联网；需要代理的地址使用你自己电脑的 Windows 系统代理配置。\n7. 关闭窗口即退出，内置服务同时停止。\n\n官方源清单\n启动时会自动获取项目维护的片源清单并合并到本地配置：新增的源自动补入，你手动停用的源保持停用，你自己添加的源不受影响，删除过的官方源不会被自动加回。拉取失败时静默降级，本地配置保持原样。该请求由本地服务发出，会跟随 Windows 系统代理。包内另附一份清单副本 LibreTV-Sources.json，可在「设置 → 源管理 → 数据源订阅」手动导入。\n\n升级：先关闭旧版，用新版文件夹里的程序文件覆盖旧文件夹（除 LibreTV-Data 外的全部内容），保留自己的 LibreTV-Data。\n迁移：关闭后把整个 LibreTV-App 文件夹和你的 LibreTV-Data 一起复制。\n全新配置：首次运行前将随包 LibreTV-Data 移走备份，程序会重新创建数据目录。\n\n本数据包不含缓存、Cookies、日志、锁文件等运行临时文件。程序启动后会自行生成必要文件。\n程序未做代码签名，Windows 可能显示发布者未知。\n订阅列表可导入不代表每个频道均可播放，线路可用性受网络、地区及编码等因素影响。\n异常日志：LibreTV-Data/desktop.log。已有数据端口被占用时请先关闭占用程序。\n\n仓库：https://github.com/wangshaojie/LibreTV-App\n`);
-fs.writeFileSync(path.join(appDir, '更新日志.txt'), `2.19.2-desktop.6\n- 改为目录分发：解压后打开 LibreTV-App 文件夹，双击 静观TV.exe 即可运行。启动从约 28 秒降到约 1 秒。\n- 保留单文件 EXE 分发的用户可继续使用 2.19.2-desktop.5，功能一致，只是启动较慢。\n- 新增启动阶段打点日志（LibreTV-Data/desktop.log 的 [boot] 行），便于定位启动耗时。\n\n2.19.2-desktop.5\n- 更新随包源配置：9 个点播源、9 个直播源（新增「魔都动漫」「樱花资源」两个动漫向点播源）。\n- 随包附官方片源清单副本 LibreTV-Sources.json，可在「设置 → 源管理 → 数据源订阅」手动导入。\n- Android 通用版同步更新至 2.0.14（清单多镜像、老系统 TLS 1.2、IPv4 回退保留 SNI）。\n\n2.19.2-desktop.4\n- 静观 TV：基于 LibreTV 2.19.2 的 Windows x64 免安装桌面封装。\n- 应用更名为静观 TV，窗口标题、任务栏、菜单和网页界面同步更新；EXE 更名为 静观TV.exe。\n- 数据目录仍为 LibreTV-Data，覆盖升级后原有源配置、设置和观看记录继续可用，无需迁移。\n- 新增：启动时自动获取项目维护的官方片源清单并合并到本地配置，新增源自动补入、手动停用的源保持停用、用户自建源不受影响、删除过的官方源不会被加回。\n- 修复服务端请求不跟随 Windows 系统代理/PAC 的问题。\n- 兼容手动重定向校验、Range、流式传输和超时取消。\n- 随本 ZIP 提供发布者的本地设置、源配置和观看记录。\n`);
+fs.writeFileSync(path.join(appDir, '使用说明.txt'), `静观 TV Windows 免安装版 ${version}\n\nWindows 和 Android 手机 / TV 通用版均已发布。本包源配置更新于 2026-10-25：9 个点播源、9 个直播源。\n适用于 Windows 10/11 x64。\n\n1. 完整解压 ZIP 到可写入的文件夹，不要在压缩包中直接运行。（下载 7z 包的话，用 7-Zip 或 Windows 11 自带的解压功能解到同一个文件夹即可。）\n2. 打开解压出来的 LibreTV-App 文件夹，双击 静观TV.exe，无需安装 Node.js、Docker 或其他运行环境。\n3. 本版改为目录分发：解压即用，启动约 1 秒（单文件 EXE 版每次启动都要重新解压约 460 MB，因此慢）。ZIP 包约 158 MB，7z 包约 109 MB，内容完全相同。\n4. 静观TV.exe 同级的 LibreTV-Data 带有发布者的源配置、设置及观看记录；保留整个文件夹即可继续使用。\n5. M3U 订阅应添加到「设置 → 源管理 → 直播源」，Apple CMS JSON API 应添加到「点播源」。\n6. 在线内容需要联网；需要代理的地址使用你自己电脑的 Windows 系统代理配置。\n7. 关闭窗口即退出，内置服务同时停止。\n\n官方源清单\n启动时会自动获取项目维护的片源清单并合并到本地配置：新增的源自动补入，你手动停用的源保持停用，你自己添加的源不受影响，删除过的官方源不会被自动加回。拉取失败时静默降级，本地配置保持原样。该请求由本地服务发出，会跟随 Windows 系统代理。包内另附一份清单副本 LibreTV-Sources.json，可在「设置 → 源管理 → 数据源订阅」手动导入。\n\n升级：先关闭旧版，用新版文件夹里的程序文件覆盖旧文件夹（除 LibreTV-Data 外的全部内容），保留自己的 LibreTV-Data。\n迁移：关闭后把整个 LibreTV-App 文件夹和你的 LibreTV-Data 一起复制。\n全新配置：首次运行前将随包 LibreTV-Data 移走备份，程序会重新创建数据目录。\n\n本数据包不含缓存、Cookies、日志、锁文件等运行临时文件。程序启动后会自行生成必要文件。\n程序未做代码签名，Windows 可能显示发布者未知。\n订阅列表可导入不代表每个频道均可播放，线路可用性受网络、地区及编码等因素影响。\n异常日志：LibreTV-Data/desktop.log。已有数据端口被占用时请先关闭占用程序。\n\n仓库：https://github.com/wangshaojie/LibreTV-App\n`);
+fs.writeFileSync(path.join(appDir, '更新日志.txt'), `2.19.2-desktop.7\n- 新增 7z 格式下载包（约 109 MB），比 ZIP（约 158 MB）小近三分之一；Windows 11 22H2 以后资源管理器可直接解压 7z，Windows 10 用户仍可下载 ZIP。\n- 内容与 ZIP 包完全一致，程序文件、随包源配置与数据快照都相同。\n\n2.19.2-desktop.6\n- 改为目录分发：解压后打开 LibreTV-App 文件夹，双击 静观TV.exe 即可运行。启动从约 28 秒降到约 1 秒。\n- 保留单文件 EXE 分发的用户可继续使用 2.19.2-desktop.5，功能一致，只是启动较慢。\n- 新增启动阶段打点日志（LibreTV-Data/desktop.log 的 [boot] 行），便于定位启动耗时。\n\n2.19.2-desktop.5\n- 更新随包源配置：9 个点播源、9 个直播源（新增「魔都动漫」「樱花资源」两个动漫向点播源）。\n- 随包附官方片源清单副本 LibreTV-Sources.json，可在「设置 → 源管理 → 数据源订阅」手动导入。\n- Android 通用版同步更新至 2.0.14（清单多镜像、老系统 TLS 1.2、IPv4 回退保留 SNI）。\n\n2.19.2-desktop.4\n- 静观 TV：基于 LibreTV 2.19.2 的 Windows x64 免安装桌面封装。\n- 应用更名为静观 TV，窗口标题、任务栏、菜单和网页界面同步更新；EXE 更名为 静观TV.exe。\n- 数据目录仍为 LibreTV-Data，覆盖升级后原有源配置、设置和观看记录继续可用，无需迁移。\n- 新增：启动时自动获取项目维护的官方片源清单并合并到本地配置，新增源自动补入、手动停用的源保持停用、用户自建源不受影响、删除过的官方源不会被加回。\n- 修复服务端请求不跟随 Windows 系统代理/PAC 的问题。\n- 兼容手动重定向校验、Range、流式传输和超时取消。\n- 随本 ZIP 提供发布者的本地设置、源配置和观看记录。\n`);
 fs.writeFileSync(path.join(appDir, '来源与许可.txt'), `静观 TV（LibreTV-App）是基于 LibreSpark/LibreTV 的非官方客户端。\n上游：https://github.com/LibreSpark/LibreTV\n基础提交：dd1c744c40d60ee553bd9f7eb3df55dd79a8f7dc\n桌面封装及网络适配修改日期：2026-10-17\n改名与品牌更新日期：2026-10-24\n应用及桌面封装按 AGPL-3.0-or-later 提供，完整许可证见 LICENSE.txt。\n原作者署名与上游代码保留于源码仓库及源码 ZIP。\nElectron/Chromium 等第三方组件遵循各自许可证，其许可随程序内置资源提供。\n`);
 fs.writeFileSync(path.join(appDir, '源码说明.txt'), `完整源码：https://github.com/wangshaojie/LibreTV-App\n当前版本：https://github.com/wangshaojie/LibreTV-App/tree/v${version}\n对应源码 ZIP：https://github.com/wangshaojie/LibreTV-App/releases/download/v${version}/${sourceAsset}\n构建步骤见源码内 README.md 和 desktop/README.md。\nEXE 内也包含应用对应源码，可通过 静观 TV 菜单中的「开源许可与源代码」打开。\n本地运行数据单独附在 Windows ZIP 中，不写入 Git 源码历史。\n`);
 const innerChecksums = filesIn(appDir).map(name => `${sha(path.join(appDir, name))}  ${name.replaceAll('\\', '/')}`).join('\n') + '\n';
@@ -110,10 +110,29 @@ fs.writeFileSync(path.join(appDir, 'SHA256.txt'), innerChecksums);
 
 const archive = spawnSync('tar.exe', ['-a', '-cf', path.join(out, asset), '-C', staging, 'LibreTV-App'], { stdio: 'inherit' });
 if (archive.status !== 0) throw new Error('Windows ZIP packaging failed.');
+
+// 额外产出一个 7z 包：LZMA 压缩比 ZIP 的 deflate 高得多，下载体积能小一大截。
+// Windows 11 22H2 及以后的文件资源管理器原生支持解压 7z，Windows 10 用户仍可用 ZIP。
+const sevenZip = [
+  process.env.SEVENZIP_PATH,
+  'C:\\Program Files\\7-Zip\\7z.exe',
+  'C:\\Program Files (x86)\\7-Zip\\7z.exe',
+].find(p => p && fs.existsSync(p));
+const asset7z = `LibreTV-App-v${version}-Windows-x64.7z`;
+let archive7z = null;
+if (sevenZip) {
+  const result = spawnSync(sevenZip, ['a', '-t7z', '-mx=6', '-m0=lzma2:d=64m', '-mmt=on', path.join(out, asset7z), 'LibreTV-App'], { cwd: staging, stdio: 'inherit' });
+  if (result.status !== 0) throw new Error('7z packaging failed.');
+  archive7z = asset7z;
+} else {
+  console.warn('未找到 7-Zip，跳过 7z 包（设置 SEVENZIP_PATH 可启用）。');
+}
+
 require('./source.cjs');
 fs.copyFileSync(path.join(__dirname, 'resources/LibreTV-Portable-Source.zip'), path.join(out, sourceAsset));
-const checksums = [asset, sourceAsset].map(name => `${sha(path.join(out, name))}  ${name}`).join('\n') + '\n';
+const published = [asset, archive7z, sourceAsset].filter(Boolean);
+const checksums = published.map(name => `${sha(path.join(out, name))}  ${name}`).join('\n') + '\n';
 fs.writeFileSync(path.join(out, 'SHA256SUMS.txt'), checksums);
-const manifest = { version, asset, sourceAsset, layout: 'directory', runtimeFiles: runtime.length, dataFiles: dataFiles.map(name => name.replaceAll('\\', '/')), dataBytes: dataFiles.reduce((sum, name) => sum + fs.statSync(path.join(appDir, 'LibreTV-Data', name)).size, 0), exeSha256: sha(path.join(appDir, '静观TV.exe')) };
+const manifest = { version, asset, asset7z: archive7z, sourceAsset, layout: 'directory', runtimeFiles: runtime.length, dataFiles: dataFiles.map(name => name.replaceAll('\\', '/')), dataBytes: dataFiles.reduce((sum, name) => sum + fs.statSync(path.join(appDir, 'LibreTV-Data', name)).size, 0), exeSha256: sha(path.join(appDir, '静观TV.exe')), sizes: Object.fromEntries(published.map(name => [name, fs.statSync(path.join(out, name)).size])) };
 fs.writeFileSync(path.join(out, 'package-manifest.json'), JSON.stringify(manifest, null, 2));
-console.log(JSON.stringify({ asset: path.join(out, asset), sourceAsset: path.join(out, sourceAsset), runtimeFiles: runtime.length, dataFiles: dataFiles.length, dataBytes: manifest.dataBytes }, null, 2));
+console.log(JSON.stringify({ asset: path.join(out, asset), asset7z: archive7z && path.join(out, archive7z), sourceAsset: path.join(out, sourceAsset), runtimeFiles: runtime.length, dataFiles: dataFiles.length, dataBytes: manifest.dataBytes, sizes: manifest.sizes }, null, 2));

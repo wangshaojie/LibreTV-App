@@ -2,9 +2,11 @@
 
 基于 LibreSpark/LibreTV 2.19.2，增加 Electron 桌面外壳。
 
-桌面修订版：2.19.2-desktop.6。在 2.19.2-desktop.2 修复内置服务不跟随 Windows 系统代理（GitHub Raw 等订阅地址连接重置）的基础上，应用更名为「静观 TV」，窗口标题、菜单、网页界面和包内 EXE 同步更新，数据目录名 `LibreTV-Data` 保持不变。订阅、搜索及服务端媒体请求通过 Chromium 网络模块发出，保留原项目的地址校验与逐跳重定向检查。
+桌面修订版：2.19.2-desktop.7。在 2.19.2-desktop.2 修复内置服务不跟随 Windows 系统代理（GitHub Raw 等订阅地址连接重置）的基础上，应用更名为「静观 TV」，窗口标题、菜单、网页界面和包内 EXE 同步更新，数据目录名 `LibreTV-Data` 保持不变。订阅、搜索及服务端媒体请求通过 Chromium 网络模块发出，保留原项目的地址校验与逐跳重定向检查。
 
-2.19.2-desktop.6 起改为**目录分发**：下载 ZIP 后解压出 `LibreTV-App` 文件夹，双击其中的 `静观TV.exe` 即可运行。上一版是单文件 EXE，每次启动都要把约 460 MB 运行时重新解压到系统临时目录并被杀毒软件逐个扫描，窗口要等约 28 秒才出现；改为目录分发后同一台机器上实测约 1 秒。
+2.19.2-desktop.6 起改为**目录分发**：下载 ZIP 或 7z 后解压出 `LibreTV-App` 文件夹，双击其中的 `静观TV.exe` 即可运行。上一版是单文件 EXE，每次启动都要把约 460 MB 运行时重新解压到系统临时目录并被杀毒软件逐个扫描，窗口要等约 28 秒才出现；改为目录分发后同一台机器上实测约 1 秒。
+
+2.19.2-desktop.7 起同时提供 **7z 包**（约 109 MB）与 **ZIP 包**（约 158 MB），内容完全相同。Windows 11 22H2 以后资源管理器可直接解压 7z；Windows 10 用户下载 ZIP 即可。
 
 ## 使用
 
@@ -49,7 +51,7 @@ npm run dist
 
 需要联网下载依赖及打包工具。输出位于 `desktop/dist/win-unpacked/`，即完整的程序目录。Windows 的 `tar.exe` 用于生成对应源码 ZIP。Next.js 的 standalone 输出会被复制到桌面包，随后由 Electron 自带 Node 运行，不依赖目标机器上的开发环境。
 
-开发运行：先执行 `npm run prepare:web`，再执行 `npm start`。生成发布 ZIP：执行 `npm run package:release`，它会读取 `../LibreTV-免安装版` 目录里的程序文件与 `LibreTV-Data`，输出到 `desktop/dist/github-release/`。
+开发运行：先执行 `npm run prepare:web`，再执行 `npm start`。生成发布 ZIP：执行 `npm run package:release`，它会读取 `../LibreTV-免安装版` 目录里的程序文件与 `LibreTV-Data`，输出到 `desktop/dist/github-release/`。该脚本同时产出 **ZIP**（系统 `tar.exe`，任何系统都能解）和 **7z**（LZMA，体积明显更小，Windows 11 22H2 以后资源管理器可直接解压）；未安装 7-Zip 时会跳过 7z 包，可用 `SEVENZIP_PATH` 指定 `7z.exe` 路径。
 
 冒烟检查：在可写入的测试文件夹执行 EXE 并附带 `--smoke-test` 参数。程序使用隐藏窗口检查页面、静态资源、自动登录、H.264 支持和设置持久化，写出 `LibreTV-Data/smoke-result.json`、`smoke-home.png` 后退出。再次运行时结果的 `page.previous` 应为 `persisted`。测试仅验证程序封装，不保证任意第三方视频源可用。
 
