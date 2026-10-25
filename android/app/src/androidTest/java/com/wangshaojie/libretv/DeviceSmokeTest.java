@@ -30,15 +30,20 @@ public class DeviceSmokeTest {
         PackageInfo info=c.getPackageManager().getPackageInfo(c.getPackageName(),PackageManager.GET_CONFIGURATIONS);for(FeatureInfo f:info.reqFeatures)if("android.hardware.touchscreen".equals(f.name))assertEquals(0,f.flags&FeatureInfo.FLAG_REQUIRED);
     }
     @Test public void favoriteAndHistoryPersist(){Store s=new Store(main.getActivity());Catalog.Item item=new Catalog.Item();item.title="Test";item.url="https://example.com/test.mp4";if(!s.favorite(item))s.toggleFavorite(item);assertTrue(new Store(main.getActivity()).favorite(item));s.remember(item,12345);assertEquals(12345,new Store(main.getActivity()).position(item.url));s.toggleFavorite(item);}
-    @Test public void legacyCaStoreRejectsUntrustedCertificate()throws Exception{
+    @Test public void caStoreRejectsUntrustedCertificate()throws Exception{
         Context c=main.getActivity();javax.net.ssl.X509TrustManager trust;
-        if(BuildConfig.LEGACY_TLS){trust=TlsCompat.trustManager(c);assertTrue(trust.getAcceptedIssuers().length>=100);}
-        else{javax.net.ssl.TrustManagerFactory factory=javax.net.ssl.TrustManagerFactory.getInstance(javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm());factory.init((java.security.KeyStore)null);trust=(javax.net.ssl.X509TrustManager)factory.getTrustManagers()[0];try(InputStream ignored=c.getAssets().open("cacert.pem")){fail("Modern edition must use system CAs without the legacy bundle");}catch(FileNotFoundException expected){}}
+        // 合并版始终携带 Mozilla 证书包；Android 8.0 以下用它补齐系统根证书库
+        try(InputStream in=c.getAssets().open("cacert.pem")){assertTrue(in.read()>=0);}
+        trust=TlsCompat.trustManager(c);assertTrue(trust.getAcceptedIssuers().length>=100);
         try(InputStream in=InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("untrusted.pem")){
             java.security.cert.X509Certificate cert=(java.security.cert.X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509").generateCertificate(in);
             try{trust.checkServerTrusted(new java.security.cert.X509Certificate[]{cert},"RSA");fail("An unknown self-signed certificate must be rejected");}catch(java.security.cert.CertificateException expected){}
         }
-        javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();if(BuildConfig.LEGACY_TLS)TlsCompat.install(c);assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
+        // Android 8.0 及以上必须使用系统证书库，不能被旧证书补丁顶替
+        if(android.os.Build.VERSION.SDK_INT>=26)assertFalse(TlsCompat.installed());
+        else{assertTrue(TlsCompat.install(c));assertTrue(TlsCompat.installed());}
+        javax.net.ssl.HostnameVerifier verifier=javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier();
+        assertSame(verifier,javax.net.ssl.HttpsURLConnection.getDefaultHostnameVerifier());
     }
     @Test public void vodLandingGuidesSearchWithoutDisplayingAnError()throws Exception{
         Instrumentation i=InstrumentationRegistry.getInstrumentation();Activity a=main.getActivity();

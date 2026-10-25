@@ -1,16 +1,15 @@
 # 静观 TV（Android）
 
-原生 Android 客户端，**兼容版和新版均兼容手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.11`。Legacy 兼容版最低 Android 5.0 / API 21，推荐 5–7.1；Modern 新版最低 Android 8.0 / API 26。两版功能一致，使用相同包名及签名，可按设备覆盖升级，不能并存。
+原生 Android 客户端，**支持手机和 Android TV**。应用名 **静观 TV**，包名 `com.wangshaojie.libretv`，版本 `2.0.12`。最低 Android 5.0 / API 21，手机与电视使用同一个安装包。
 
-Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容旧电视缺失新 CA 导致的 HTTPS 订阅读取失败。应用仍验证证书链和主机名，不修改系统证书。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
+Android 8.0 以下的系统会加载内置的 Mozilla / certifi 根证书以补齐旧系统缺失的现代 CA，确保片源站点的 HTTPS 订阅读取成功；Android 8.0 及以上直接使用系统证书库。应用始终验证证书链和主机名，不修改系统证书、不跳过校验。根证书来源、固定提交与许可见 APK 的 assets/ca-bundle-source.txt。
 
 2026-10-23 更新内置源至 7 个点播源、9 个直播源。1.0.0 用户覆盖安装后会自动补入新增 6 个源，按类型与地址去重，仅执行一次，不覆盖个人源、收藏和历史。
 
 ## 下载与安装
 
-- [Android 5.0+ 兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-legacy-android5.apk)
-- [Android 8.0+ 新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-modern-android8.apk)
-- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.11)
+- [Android 5.0+ 通用版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.12)
 
 手机直接下载安装，电视可用 U 盘或电视文件管理器打开 APK；系统弹出「允许安装未知来源应用」时选择允许即可。手机桌面和电视桌面均有启动入口；手机播放页的控制面板里可切换横 / 竖屏，电视采用横屏和明显的焦点边框。覆盖安装保留数据。
 
@@ -18,6 +17,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 版本要点
 
+- **2.0.12** 合并为单一通用安装包：此前分发的「兼容版」与「新版」功能完全一致，现合为一个 APK，最低 Android 5.0，手机与电视通用，桌面图标统一为「静观 TV」。证书补丁按系统版本自动启用——Android 8.0 以下补齐根证书库，8.0 及以上用系统证书库。
 - **2.0.11** 详情页里直接换片源：影片详情页简介下方新增「片源 · N 个可用」一行，当前片源高亮，点一下即切换，标题行、收藏状态、线路与剧集都跟随更新，不再需要「选择片源」弹窗；只有一个片源时不显示该行，剧集不跨片源合并。同时修正 2.0.10 的连接改动：改为默认按域名连接，仅在确认 IPv6 不可达时才改用 IPv4 重试。
 - **2.0.10** 修复部分老电视连不上网的问题：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。（2.0.11 已改正该做法。）
 - **2.0.9** 新增官方片源清单：启动时自动获取项目维护的源清单并合并到本地配置——新增的源自动补入、手动停用的源保持停用、你自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。
@@ -29,7 +29,7 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 
 ### 实机截图
 
-2026-10-24 实机截图（Android 5.0.1 电视，2.0.6 兼容版）。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化：
+2026-10-24 实机截图（Android 5.0.1 电视）。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化：
 
 ![电视首页](../docs/screenshots/android-tv-home.png)
 
@@ -99,12 +99,12 @@ Legacy 兼容版为 Android 5–7 补充 Mozilla / certifi 根证书，以兼容
 使用 JDK 17、Gradle 8.9、Android SDK 35：
 
 ```sh
-gradle -p android testLegacyDebugUnitTest testModernDebugUnitTest assembleLegacyDebug assembleModernDebug
+gradle -p android testDebugUnitTest assembleDebug
 ```
 
 正式包通过 `.github/workflows/android-release.yml` 构建。仓库 Secrets 中保存 `ANDROID_KEYSTORE_BASE64` 和 `ANDROID_KEYSTORE_PASSWORD`，签名别名 `libretv-app`。签名密钥不会提交到 Git 或放入下载附件；必须保留相同密钥才能覆盖安装后续版本。
 
-工作流运行单元测试、Lint，以及 Android 5 手机、Android 15 手机和两个 Android TV 组合的设备测试，覆盖首页、搜索、HTTP 播放、选集收藏、批量测活、取消和数据持久化，并导出截图用于布局检查。通过后发布签名 APK。界面测试使用本地合成片目和视频，测试数据不会进入正式安装包。
+工作流运行单元测试、Lint，以及 Android 5 手机（API 21）和 Android TV（API 28）两组设备测试，覆盖首页、搜索、HTTP 播放、选集收藏、批量测活、取消、数据持久化和证书校验，并导出截图用于布局检查。通过后发布签名 APK。界面测试使用本地合成片目和视频，测试数据不会进入正式安装包。
 
 ## 许可与来源
 

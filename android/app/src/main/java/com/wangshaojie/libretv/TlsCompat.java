@@ -16,12 +16,17 @@ import javax.net.ssl.*;
 /** Supplement old Android CA stores without bypassing chain or hostname verification. */
 final class TlsCompat {
     private TlsCompat(){}
+    /** 是否已把补充证书库装成默认 SSLSocketFactory。 */
+    private static volatile boolean installed;
+    /** 旧系统（Android 8.0 以下）是否已加载补充证书库。 */
+    static boolean installed(){return installed;}
     static void install(Context context)throws Exception{
         SSLContext tls=SSLContext.getInstance("TLS");
         tls.init(null,new TrustManager[]{trustManager(context)},null);
         // HttpURLConnection and Media3's DefaultHttpDataSource share this factory.
         // Leave the platform HostnameVerifier unchanged.
         HttpsURLConnection.setDefaultSSLSocketFactory(tls.getSocketFactory());
+        installed=true;
     }
     static X509TrustManager trustManager(Context context)throws Exception{
         KeyStore roots=KeyStore.getInstance(KeyStore.getDefaultType());roots.load(null,null);

@@ -1,6 +1,6 @@
 # Android 2.0 功能说明
 
-Android 端名为静观 TV，是独立原生客户端，延续 LibreTV 的推荐、全源搜索、直播、源管理和本地数据操作。兼容版最低 Android 5.0，新版最低 Android 8.0；两版功能一致，均适配手机及 Android TV。
+Android 端名为静观 TV，是独立原生客户端，延续 LibreTV 的推荐、全源搜索、直播、源管理和本地数据操作。自 2.0.12 起只分发一个通用安装包，最低 Android 5.0，适配手机及 Android TV；Android 8.0 以下自动补齐根证书库，8.0 及以上使用系统证书库。
 
 | 功能 | Android 2.0 行为 |
 | --- | --- |

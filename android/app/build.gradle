@@ -7,26 +7,12 @@ android {
         applicationId 'com.wangshaojie.libretv'
         minSdk 21
         targetSdk 35
-        versionCode 16
-        versionName '2.0.11'
+        versionCode 17
+        versionName '2.0.12'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        resValue 'string', 'app_name', '静观 TV'
     }
     buildFeatures { buildConfig true }
-    flavorDimensions 'androidVersion'
-    productFlavors {
-        legacy {
-            dimension 'androidVersion'
-            minSdk 21
-            buildConfigField 'boolean', 'LEGACY_TLS', 'true'
-            resValue 'string', 'app_name', '静观 TV 兼容版'
-        }
-        modern {
-            dimension 'androidVersion'
-            minSdk 26
-            buildConfigField 'boolean', 'LEGACY_TLS', 'false'
-            resValue 'string', 'app_name', '静观 TV 新版'
-        }
-    }
     signingConfigs {
         if (System.getenv('ANDROID_KEYSTORE_FILE')) {
             release {

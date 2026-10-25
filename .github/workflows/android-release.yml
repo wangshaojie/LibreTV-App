@@ -1,4 +1,4 @@
-name: Android legacy and modern APKs
+name: Android universal APK
 on:
   workflow_dispatch:
     inputs:
@@ -36,16 +36,14 @@ jobs:
         env:
           ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/libretv-release.p12
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: gradle -p android --no-daemon testLegacyDebugUnitTest testModernDebugUnitTest lintLegacyRelease lintModernRelease assembleLegacyRelease assembleModernRelease
+        run: gradle -p android --no-daemon testDebugUnitTest lintRelease assembleRelease
       - name: Verify and package
         run: |
           mkdir -p android-release
-          cp android/app/build/outputs/apk/legacy/release/app-legacy-release.apk android-release/LibreTV-App-Android-v2.0.11-legacy-android5.apk
-          cp android/app/build/outputs/apk/modern/release/app-modern-release.apk android-release/LibreTV-App-Android-v2.0.11-modern-android8.apk
+          cp android/app/build/outputs/apk/release/app-release.apk android-release/LibreTV-App-Android-v2.0.12-universal-android5.apk
           for apk in android-release/*.apk; do "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk"; done
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android-release/*legacy*.apk | grep "sdkVersion:'21'"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android-release/*modern*.apk | grep "sdkVersion:'26'"
-          git archive --format=zip --output=android-release/LibreTV-App-Android-v2.0.11-Source.zip HEAD
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android-release/*.apk | grep "sdkVersion:'21'"
+          git archive --format=zip --output=android-release/LibreTV-App-Android-v2.0.12-Source.zip HEAD
           cp android/使用说明.txt android-release/LibreTV-App-Android-Guide.txt
           cd android-release && sha256sum *.apk *.zip > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
@@ -63,30 +61,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - device: legacy-phone
+          - device: phone
             api: 21
             profile: Nexus 5
             target: default
             arch: x86
-            task: connectedLegacyDebugAndroidTest
-          - device: legacy-tv
+            task: connectedDebugAndroidTest
+          - device: tv
             api: 28
             profile: tv_1080p
             target: android-tv
             arch: x86
-            task: connectedLegacyDebugAndroidTest
-          - device: modern-phone
-            api: 35
-            profile: pixel_2
-            target: google_apis
-            arch: x86_64
-            task: connectedModernDebugAndroidTest
-          - device: modern-tv
-            api: 28
-            profile: tv_1080p
-            target: android-tv
-            arch: x86
-            task: connectedModernDebugAndroidTest
+            task: connectedDebugAndroidTest
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -136,5 +122,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create android-v2.0.11 --target "$GITHUB_SHA" --draft --title '静观 TV Android 2.0.11 · 详情页直接换片源' --notes-file android/RELEASE.md android-release/*
-          gh release edit android-v2.0.11 --draft=false --latest
+          gh release create android-v2.0.12 --target "$GITHUB_SHA" --draft --title '静观 TV Android 2.0.12 · 通用版' --notes-file android/RELEASE.md android-release/*
+          gh release edit android-v2.0.12 --draft=false --latest

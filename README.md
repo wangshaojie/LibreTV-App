@@ -7,18 +7,17 @@
 | 平台 | 状态 | 说明 |
 | --- | --- | --- |
 | Windows | 已发布 | 应用名静观 TV；Windows 10/11 x64，解压后双击运行 |
-| Android | 已发布 | 应用名静观 TV；兼容版 Android 5.0+；新版 Android 8.0+；两版均支持手机和电视 |
+| Android | 已发布 | 应用名静观 TV；通用版 Android 5.0+；支持手机和电视 |
 
 ## 下载 Android 版
 
-安卓应用名：**静观 TV**，版本 **2.0.11**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
+安卓应用名：**静观 TV**，版本 **2.0.12**。两版都支持手机触屏与 Android TV 遥控器，内置 **7 个点播源、9 个直播源**。
 
 | 安装包 | 适用设备 | 下载 |
 | --- | --- | --- |
-| 兼容版 Legacy | 最低 Android 5.0，推荐 Android 5–7.1 旧设备；包含旧证书库兼容处理 | [下载兼容版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-legacy-android5.apk) |
-| 新版 Modern | Android 8.0 及以上，使用系统 HTTPS 证书库 | [下载新版 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.11/LibreTV-App-Android-v2.0.11-modern-android8.apk) |
+| 通用版 | 最低 Android 5.0，手机与 Android TV 通用 | [下载 APK](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.12/LibreTV-App-Android-v2.0.12-universal-android5.apk) |
 
-[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.11)。两版使用相同包名和签名，选择适合设备的一版覆盖安装即可，保留源配置、收藏和记录；无需先卸载，同一设备不同时安装两版。
+[版本说明与对应源码](https://github.com/wangshaojie/LibreTV-App/releases/tag/android-v2.0.12)。只有一个安装包，覆盖升级保留源配置、收藏和记录；无需先卸载。
 
 手机直接下载安装；电视可用 U 盘或电视文件管理器打开 APK。无需 Windows 程序或自建服务器。支持直播、点播、收藏、记录、续播和配置导入导出；EPG、离线下载与 Spider/网页解析尚未移植。[完整 Android 说明](android/README.md)。
 
@@ -26,6 +25,7 @@
 
 **版本要点**
 
+- **2.0.12** 合并为一个通用安装包：此前分发的「兼容版（Android 5.0+）」与「新版（Android 8.0+）」功能完全一致，差异只在最低系统版本和一份证书补丁，现合并为单个 APK，最低 Android 5.0，桌面图标统一为「静观 TV」。证书补丁按系统版本自动启用：Android 8.0 以下补齐根证书库，8.0 及以上直接用系统证书库。
 - **2.0.11** 详情页里直接换片源：搜到的影片若多个片源都有，简介下方就是「片源 · N 个可用」一行，点一下即切换，线路与剧集随之更新，不必再弹窗二次选择；剧集不跨片源合并。同时修正 2.0.10 的连接改动：改为默认按域名连接，仅在确认 IPv6 不可达时才改用 IPv4 重试，片源站的 HTTPS 不再失败。
 - **2.0.10** 修复部分老电视连不上网：这类电视所在路由器会返回 IPv6 地址，但电视没有 IPv6 路由，Android 5.0 底层又不回退到 IPv4，导致所有带 AAAA 记录的站点都连不上。（2.0.11 已改正该做法。）
 - **2.0.9** 新增官方片源清单：启动时自动获取项目维护的源清单并合并到本地配置——新增的源自动补入、手动停用的源保持停用、你自己添加的源不受影响、删除过的官方源不会被加回；也可在「源管理 → 官方清单」手动刷新。清单地址由维护者控制，用户无法改写。
@@ -39,7 +39,7 @@
 
 ## Android TV 实机截图
 
-以下截图拍摄于 2026-10-24，来自 Android 5.0.1 电视上的 2.0.6 兼容版。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化。海报、频道和视频画面来自使用时的第三方数据源，仅用于展示客户端界面。
+以下截图拍摄于 2026-10-24，来自 Android 5.0.1 电视上的 2.0.6。2.0.7 起应用改名为静观 TV，界面除品牌文字外没有变化。海报、频道和视频画面来自使用时的第三方数据源，仅用于展示客户端界面。
 
 **首页：电影 / 剧集海报、最近观看与遥控器导航**
 
