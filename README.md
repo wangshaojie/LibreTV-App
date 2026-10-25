@@ -62,7 +62,7 @@
 
 ZIP 包包含免安装程序、发布者提供的 `LibreTV-Data` 本地数据快照，以及中文使用说明。数据快照保留源配置、设置和观看记录，已排除浏览器缓存、Cookies、日志和运行锁文件。
 
-Windows ZIP 中的源配置已同步更新。已有 Windows 用户可保留个人数据，在源管理的订阅入口添加[最新源列表](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)。
+Windows 版启动时会自动获取项目维护的官方源清单（[sources/latest.json](https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json)），并与本地配置合并：新增的源会自动补入，你手动停用的源保持停用，你自己添加的源不受影响，你删除过的官方源不会被自动加回。清单地址由项目维护者控制，普通用户只能读取、无法改写。已有 Windows 用户可保留个人数据，直接升级即可。
 
 ```text
 LibreTV-App/

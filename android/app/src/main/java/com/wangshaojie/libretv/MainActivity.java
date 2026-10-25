@@ -48,6 +48,7 @@ public final class MainActivity extends Activity {
         LinearLayout main=Ui.column(this);main.setPadding(Ui.dp(this,tv?28:16),Ui.dp(this,tv?16:6),Ui.dp(this,tv?28:16),0);LinearLayout header=Ui.row(this);TextView brand=Ui.heading(this,tv?"探索放映厅":"静观 TV");brand.setGravity(Gravity.CENTER_VERTICAL);header.addView(brand,new LinearLayout.LayoutParams(0,Ui.dp(this,52),1));header.addView(Ui.button(this,"源管理",this::sources));main.addView(header);
         content=Ui.column(this);main.addView(content,new LinearLayout.LayoutParams(-1,0,1));status=Ui.label(this,"",12,Ui.MUTED);status.setMaxLines(2);status.setPadding(0,Ui.dp(this,6),0,Ui.dp(this,8));main.addView(status);
         root.addView(main,tv?new LinearLayout.LayoutParams(0,-1,1):new LinearLayout.LayoutParams(-1,0,1));if(!tv)root.addView(nav);setContentView(root);channelHealth=store.object("channel-health");restorePage(b);if(tv)navigation.get("home").requestFocus();else{root.setFocusableInTouchMode(true);root.requestFocus();}
+        syncOfficialSources(false);
     }
     private boolean current(int token){return generation==token&&!isFinishing()&&!isDestroyed();}
     private void home(){
@@ -139,10 +140,46 @@ public final class MainActivity extends Activity {
     private void play(List<Catalog.Item> media,int at){Playback.open(this,media,at);}
     private void itemMenu(Catalog.Item item){if(item.source.isEmpty()&&item.url.isEmpty()){open(item);return;}new AlertDialog.Builder(this).setTitle(item.title).setItems(new String[]{"打开",store.favorite(item)?"取消收藏":"加入收藏"},(d,n)->{if(n==0)open(item);else{store.toggleFavorite(item);Ui.toast(this,"收藏已更新");if(page.equals("favorites"))saved("favorites");else refresh();}}).show();}
     @Override public boolean onKeyDown(int key,KeyEvent e){if(key==KeyEvent.KEYCODE_MENU&&list!=null&&list.getSelectedItemPosition()>=0&&list.getSelectedItemPosition()<shown.size()){itemMenu(shown.get(list.getSelectedItemPosition()));return true;}return super.onKeyDown(key,e);}
-    private void sources(){
-        reset("sources");JSONArray array=store.array("sources");JSONObject health=store.object("source-health");content.addView(Ui.heading(this,"我的片源 · "+array.length()));LinearLayout tools=Ui.row(this);tools.addView(Ui.primary(this,"全部测活",()->ProbeActivity.launch(this,"sources")));tools.addView(Ui.button(this,"添加源",()->editSource(-1)));tools.addView(Ui.button(this,"导入导出",this::transfer));HorizontalScrollView scroll=new HorizontalScrollView(this);scroll.setHorizontalScrollBarEnabled(false);scroll.addView(tools);content.addView(scroll);ListView rows=new ListView(this);rows.setDivider(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));rows.setDividerHeight(Ui.dp(this,8));rows.setAdapter(new BaseAdapter(){public int getCount(){return array.length();}public Object getItem(int n){return array.optJSONObject(n);}public long getItemId(int n){return n;}public View getView(int at,View old,ViewGroup parent){JSONObject source=array.optJSONObject(at);JSONObject result=health.optJSONObject(source.optString("url"));LinearLayout card=Ui.panel(MainActivity.this);LinearLayout line=Ui.row(MainActivity.this);TextView name=Ui.label(MainActivity.this,source.optString("name"),17,Ui.TEXT);line.addView(name,new LinearLayout.LayoutParams(0,-2,1));line.addView(Ui.button(MainActivity.this,source.optBoolean("enabled",true)?"已启用":"已停用",()->{try{source.put("enabled",!source.optBoolean("enabled",true));store.put("sources",array);sources();}catch(Exception ignored){}}));card.addView(line);String state=result==null?"未检测":result.optBoolean("ok")?"可连接 · "+result.optLong("millis")+" ms":"连接异常 · "+result.optString("error");card.addView(Ui.label(MainActivity.this,(source.optString("type").equals("live")?"直播 M3U":"点播 CMS")+"  ·  "+state,13,result==null?Ui.MUTED:result.optBoolean("ok")?Ui.ACCENT:Ui.BAD));card.addView(Ui.gap(MainActivity.this,8));TextView address=Ui.label(MainActivity.this,source.optString("url"),11,Ui.MUTED);address.setMaxLines(1);address.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);card.addView(address);LinearLayout actions=Ui.row(MainActivity.this);actions.addView(Ui.button(MainActivity.this,"编辑",()->editSource(at)));actions.addView(Ui.button(MainActivity.this,"更多",()->sourceOptions(at)));card.addView(actions);return card;}});content.addView(rows,new LinearLayout.LayoutParams(-1,0,1));status.setText("停用的源不会参与搜索、推荐或直播列表");
+    /**
+     * 拉取官方片源清单并与本地源合并。
+     *
+     * manual=true 时由用户点击触发，给出明确结果提示；
+     * manual=false 时为启动时的静默同步：失败不打扰用户，本地源保持原样。
+     * 同步成功后若停在源管理页则刷新列表，让用户立刻看到新增的源。
+     */
+    private void syncOfficialSources(boolean manual){
+        // 启动时的静默同步按间隔限流：距上次成功不足 6 小时就不再打网络
+        if(!manual&&!OfficialSources.due(store,System.currentTimeMillis()))return;
+        if(manual)Ui.toast(this,"正在获取官方源…");
+        tasks.add(workers.submit(()->{
+            String failure="";int added=0,updated=0,total=0;
+            try{
+                List<JSONObject> incoming=OfficialSources.parse(Net.get(OfficialSources.URL));
+                JSONArray local=store.array("sources");
+                OfficialSources.Result result=OfficialSources.merge(local,incoming,OfficialSources.readDismissed(store));
+                store.put("sources",local);
+                OfficialSources.markSynced(store,System.currentTimeMillis());
+                added=result.added;updated=result.updated;total=result.total;
+            }catch(Exception e){failure=error(e);}
+            final String issue=failure;final int fresh=added,changed=updated,count=total;
+            runOnUiThread(()->{
+                if(issue!=null&&!issue.isEmpty()){
+                    if(manual)Ui.message(this,"获取官方源失败："+issue+"\n本地已配置的源不受影响。");
+                    else android.util.Log.w("LibreTV-Sources","官方源同步失败："+issue);
+                    return;
+                }
+                if(manual)Ui.message(this,count+" 个源可用"+(fresh>0?"，新增 "+fresh+" 个":"")+(changed>0?"，更新 "+changed+" 个":""));
+                if(page.equals("sources"))sources();
+            });
+        }));
     }
-    private void sourceOptions(int at){JSONObject source=store.array("sources").optJSONObject(at);if(source==null)return;new AlertDialog.Builder(this).setTitle(source.optString("name")).setItems(new String[]{"测试可用性","编辑","删除"},(d,n)->{if(n==0)testSource(source);else if(n==1)editSource(at);else new AlertDialog.Builder(this).setMessage("删除这个源？").setPositiveButton("删除",(x,y)->{JSONArray a=store.array("sources"),next=new JSONArray();for(int k=0;k<a.length();k++)if(k!=at)next.put(a.opt(k));store.put("sources",next);sources();}).setNegativeButton("取消",null).show();}).show();}
+    private void sources(){
+        reset("sources");JSONArray array=store.array("sources");JSONObject health=store.object("source-health");content.addView(Ui.heading(this,"我的片源 · "+array.length()));LinearLayout tools=Ui.row(this);tools.addView(Ui.primary(this,"全部测活",()->ProbeActivity.launch(this,"sources")));tools.addView(Ui.button(this,"添加源",()->editSource(-1)));tools.addView(Ui.button(this,"官方清单",()->syncOfficialSources(true)));tools.addView(Ui.button(this,"导入导出",this::transfer));HorizontalScrollView scroll=new HorizontalScrollView(this);scroll.setHorizontalScrollBarEnabled(false);scroll.addView(tools);content.addView(scroll);ListView rows=new ListView(this);rows.setDivider(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));rows.setDividerHeight(Ui.dp(this,8));rows.setAdapter(new BaseAdapter(){public int getCount(){return array.length();}public Object getItem(int n){return array.optJSONObject(n);}public long getItemId(int n){return n;}public View getView(int at,View old,ViewGroup parent){JSONObject source=array.optJSONObject(at);JSONObject result=health.optJSONObject(source.optString("url"));LinearLayout card=Ui.panel(MainActivity.this);LinearLayout line=Ui.row(MainActivity.this);TextView name=Ui.label(MainActivity.this,source.optString("name"),17,Ui.TEXT);line.addView(name,new LinearLayout.LayoutParams(0,-2,1));line.addView(Ui.button(MainActivity.this,source.optBoolean("enabled",true)?"已启用":"已停用",()->{try{source.put("enabled",!source.optBoolean("enabled",true));store.put("sources",array);sources();}catch(Exception ignored){}}));card.addView(line);String state=result==null?"未检测":result.optBoolean("ok")?"可连接 · "+result.optLong("millis")+" ms":"连接异常 · "+result.optString("error");card.addView(Ui.label(MainActivity.this,(source.optString("type").equals("live")?"直播 M3U":"点播 CMS")+"  ·  "+state,13,result==null?Ui.MUTED:result.optBoolean("ok")?Ui.ACCENT:Ui.BAD));card.addView(Ui.gap(MainActivity.this,8));TextView address=Ui.label(MainActivity.this,source.optString("url"),11,Ui.MUTED);address.setMaxLines(1);address.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);card.addView(address);LinearLayout actions=Ui.row(MainActivity.this);actions.addView(Ui.button(MainActivity.this,"编辑",()->editSource(at)));actions.addView(Ui.button(MainActivity.this,"更多",()->sourceOptions(at)));card.addView(actions);return card;}});content.addView(rows,new LinearLayout.LayoutParams(-1,0,1));status.setText("停用的源不会参与搜索、推荐或直播列表");
+    }
+    private void sourceOptions(int at){JSONObject source=store.array("sources").optJSONObject(at);if(source==null)return;new AlertDialog.Builder(this).setTitle(source.optString("name")).setItems(new String[]{"测试可用性","编辑","删除"},(d,n)->{if(n==0)testSource(source);else if(n==1)editSource(at);else new AlertDialog.Builder(this).setMessage("删除这个源？").setPositiveButton("删除",(x,y)->{JSONArray a=store.array("sources"),next=new JSONArray();for(int k=0;k<a.length();k++)if(k!=at)next.put(a.opt(k));store.put("sources",next);
+            // 官方源被用户删除后不再自动加回；用户自己添加的源不受影响
+            if(source.optBoolean("official",false))OfficialSources.dismiss(store,source.optString("type"),source.optString("url"));
+            sources();}).setNegativeButton("取消",null).show();}).show();}
     private void editSource(int at){
         JSONArray array=store.array("sources");JSONObject old=at>=0?array.optJSONObject(at):null;
         LinearLayout fields=Ui.column(this);int p=Ui.dp(this,18);fields.setPadding(p,p,p,p);EditText name=Ui.input(this,"源名称"),url=Ui.input(this,"https://…（M3U 列表或 CMS API）");url.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_URI);

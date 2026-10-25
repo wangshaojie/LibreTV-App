@@ -6,6 +6,10 @@ const net = require('node:net');
 
 const portableDir = process.env.PORTABLE_EXECUTABLE_DIR || (app.isPackaged ? path.dirname(app.getPath('exe')) : __dirname);
 const dataDir = path.join(portableDir, 'LibreTV-Data');
+// 官方片源清单：由仓库维护者更新，用户端启动时静默拉取并按订阅语义合并
+// （替换同前缀的官方源、保留用户勾选状态、用户删除后不再自动加回）。
+// 地址写死在此：只有仓库协作者能改清单，用户无法改写该地址。
+const OFFICIAL_SOURCE_LIST = 'https://raw.githubusercontent.com/wangshaojie/LibreTV-App/main/sources/latest.json';
 const smoke = app.commandLine.hasSwitch('smoke-test');
 let mainWindow, server, origin, password, quitting = false, logFile;
 let fatalShown = false;
@@ -144,10 +148,31 @@ async function runSmokeTest() {
       result.playlists.push({ url, status: response.status, channels: playlist.channels?.length || 0, groups: playlist.groups?.length || 0, error: playlist.error });
     }
   }
+  // 官方片源清单：验证预置订阅已下发，且服务端能真的把清单拉下来并解析成源
+  result.officialSources = { configured: result.status?.defaultSubscriptions?.length || 0 };
+  if (result.officialSources.configured > 0) {
+    const cookies = await session.defaultSession.cookies.get({ url: origin, name: 'ltv_session' });
+    const target = result.status.defaultSubscriptions[0].url;
+    try {
+      const response = await fetch(origin + '/api/source-list?url=' + encodeURIComponent(target), {
+        headers: { Cookie: 'ltv_session=' + cookies[0].value }, signal: AbortSignal.timeout(35000),
+      });
+      const payload = await response.json();
+      result.officialSources.status = response.status;
+      result.officialSources.vod = payload.sources?.length || 0;
+      result.officialSources.live = payload.liveSources?.length || 0;
+      result.officialSources.error = payload.error;
+    } catch (err) {
+      result.officialSources.status = 0;
+      result.officialSources.error = err.message;
+    }
+  }
   await wc.executeJavaScript(`new Promise(r => setTimeout(r, 1500))`);
   fs.writeFileSync(path.join(dataDir, 'smoke-home.png'), (await wc.capturePage()).toPNG());
   result.success = result.auth.verified === true && !JSON.parse(result.page).nodeExposed && result.assets.length > 0 && result.assets.every(asset => asset.status === 200);
   if (source) result.success = result.success && result.playlists.every(p => p.status === 200 && p.channels > 0);
+  // 官方清单拉不到不判定整体失败：网络不可达时应静默降级，冒烟仍要能通过
+  if (result.officialSources.configured > 0) result.officialSources.reachable = result.officialSources.status === 200 && result.officialSources.vod > 0;
   fs.writeFileSync(path.join(dataDir, 'smoke-result.json'), JSON.stringify(result, null, 2));
   app.quit();
 }
@@ -167,7 +192,7 @@ else {
       // A separate, nonpersistent network session avoids sharing local login
       // cookies with upstream requests, while retaining OS proxy/PAC behavior.
       partition: 'libretv-upstream',
-      env: { ...process.env, NODE_ENV: 'production', HOSTNAME: '127.0.0.1', PORT: String(port), PASSWORD: password, PROXY_SECRET: crypto.randomBytes(32).toString('hex'), COOKIE_SECURE: 'false', NEXT_TELEMETRY_DISABLED: '1' },
+      env: { ...process.env, NODE_ENV: 'production', HOSTNAME: '127.0.0.1', PORT: String(port), PASSWORD: password, PROXY_SECRET: crypto.randomBytes(32).toString('hex'), COOKIE_SECURE: 'false', NEXT_TELEMETRY_DISABLED: '1', DEFAULT_SUBSCRIPTIONS: JSON.stringify([{ url: OFFICIAL_SOURCE_LIST, name: '静观 TV 官方源' }]) },
     });
     let serverExited = false;
     server.stdout?.on('data', data => log(String(data).trimEnd()));
