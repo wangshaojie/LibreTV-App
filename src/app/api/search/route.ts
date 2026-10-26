@@ -36,11 +36,13 @@ const SEARCH_MAX_PAGES = (() => {
 /**
  * 单源总死线（毫秒）：该源所有分页请求必须在时限内完成，到点中断在途请求并标记超时。
  * 没有它时慢源最坏要等「首页 8s + 后续页并行 8s」，拖垮整体响应。
- * 环境变量 SEARCH_SOURCE_TIMEOUT_MS 可配，默认 10s。
+ * 默认 6s：实测多数源站 0.6~1.5s 返回，6s 已足够覆盖慢源；再慢的源与其拖住整轮，
+ * 不如早点标记超时、让其余源的结果先出来，用户可单独重试（客户端「重试失败源」）。
+ * 环境变量 SEARCH_SOURCE_TIMEOUT_MS 可配。
  */
 const SEARCH_SOURCE_TIMEOUT_MS = (() => {
-  const n = parseInt(process.env.SEARCH_SOURCE_TIMEOUT_MS || '10000', 10);
-  if (!Number.isFinite(n)) return 10000;
+  const n = parseInt(process.env.SEARCH_SOURCE_TIMEOUT_MS || '6000', 10);
+  if (!Number.isFinite(n)) return 6000;
   return Math.min(60000, Math.max(3000, n));
 })();
 

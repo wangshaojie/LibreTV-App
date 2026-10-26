@@ -11,7 +11,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4?style=flat-square&logo=windows&logoColor=white)](https://github.com/wangshaojie/LibreTV-App/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--later-blue?style=flat-square)](LICENSE)
 
-[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版（7z · 109 MB）**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.7/LibreTV-App-v2.19.2-desktop.7-Windows-x64.7z) · [**Windows ZIP · 158 MB**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.7/LibreTV-App-v2.19.2-desktop.7-Windows-x64.zip)
+[**下载 Android APK**](https://github.com/wangshaojie/LibreTV-App/releases/download/android-v2.0.14/LibreTV-App-Android-v2.0.14-universal-android5.apk) · [**下载 Windows 免安装版（7z · 109 MB）**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.8/LibreTV-App-v2.19.2-desktop.8-Windows-x64.7z) · [**Windows ZIP · 158 MB**](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.8/LibreTV-App-v2.19.2-desktop.8-Windows-x64.zip)
 
 </div>
 
@@ -57,11 +57,11 @@
 
 <div align="center">
 
-**[⬇ 下载 Windows 7z 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.7/LibreTV-App-v2.19.2-desktop.7-Windows-x64.7z)** · **约 109 MB** &nbsp;·&nbsp; **[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.7/LibreTV-App-v2.19.2-desktop.7-Windows-x64.zip)** · **约 158 MB** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
+**[⬇ 下载 Windows 7z 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.8/LibreTV-App-v2.19.2-desktop.8-Windows-x64.7z)** · **约 109 MB** &nbsp;·&nbsp; **[⬇ 下载 Windows ZIP 包](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.8/LibreTV-App-v2.19.2-desktop.8-Windows-x64.zip)** · **约 158 MB** &nbsp;·&nbsp; [查看所有版本](https://github.com/wangshaojie/LibreTV-App/releases)
 
 </div>
 
-版本 `2.19.2-desktop.7` · Windows 10 / 11 x64 · 解压后打开 `LibreTV-App` 文件夹，双击 `静观TV.exe` 即可运行
+版本 `2.19.2-desktop.8` · Windows 10 / 11 x64 · 解压后打开 `LibreTV-App` 文件夹，双击 `静观TV.exe` 即可运行
 
 两个包内容完全相同，只是压缩方式不同：**7z 包小约三分之一**，Windows 11 22H2 以后资源管理器可直接解压；Windows 10 或习惯 ZIP 的用户下载 ZIP 包即可。
 
@@ -69,7 +69,7 @@ ZIP 内附发布者的数据快照（含初始源配置与设置）。升级时�
 
 > **2.19.2-desktop.6 起改为目录分发**：早先的单文件 EXE 每次启动都要把约 460 MB 运行时重新解压到临时目录并被杀毒软件逐个扫描，窗口要等近 30 秒；改为目录分发后启动约 **1 秒**。功能完全一致。
 
-> **请认准最新版**：Android **2.0.14**、Windows **2.19.2-desktop.7**。更早的 Android 版本（2.0.10）存在片源搜索失效的问题，不建议使用；其余旧版功能可用，但少了清单多镜像与老系统 TLS 1.2 支持。
+> **请认准最新版**：Android **2.0.14**、Windows **2.19.2-desktop.8**。更早的 Android 版本（2.0.10）存在片源搜索失效的问题，不建议使用；其余旧版功能可用，但少了清单多镜像与老系统 TLS 1.2 支持。
 
 ### Android 通用版
 

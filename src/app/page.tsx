@@ -16,6 +16,7 @@ import { useToast } from '@/components/toast';
 import { EmptyState } from '@/components/states';
 import { Icon } from '@/components/icon';
 import { SiteFooter } from '@/components/site-footer';
+import { LazySection } from '@/components/lazy-section';
 
 /**
  * 首页：搜索（URL ?s= 驱动，可后退/分享）+ 豆瓣推荐。
@@ -49,6 +50,9 @@ function HomeContent() {
   const [detailItem, setDetailItem] = useState<SearchResultItem | null>(null);
   /** 流式搜索中已结算的源（data 就绪前用于增量渲染） */
   const [streamedOutcomes, setStreamedOutcomes] = useState<SourceSearchOutcome[]>([]);
+  /** 单独重试失败源后补回的结果（不触发整轮重搜，避免已出的结果闪烁） */
+  const [retriedItems, setRetriedItems] = useState<SearchResultItem[]>([]);
+  const [retryingSources, setRetryingSources] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // URL 驱动搜索：?s= 变化时回填输入框
@@ -146,15 +150,47 @@ function HomeContent() {
     () => streamedOutcomes.flatMap((o) => o.list),
     [streamedOutcomes]
   );
-  const list = useMemo(
-    () => searchQuery.data?.list ?? (isSearching ? streamedList : []),
-    [searchQuery.data, isSearching, streamedList]
-  );
+  const list = useMemo(() => {
+    const base = searchQuery.data?.list ?? (isSearching ? streamedList : []);
+    // 重试补回的结果并入当前列表，按 sourceKey+vodId 去重
+    if (retriedItems.length === 0) return base;
+    const seen = new Set(base.map((item) => `${item.sourceKey}_${item.vodId}`));
+    return [...base, ...retriedItems.filter((item) => !seen.has(`${item.sourceKey}_${item.vodId}`))];
+  }, [searchQuery.data, isSearching, streamedList, retriedItems]);
   const failures =
     searchQuery.data?.failures ??
     streamedOutcomes
       .filter((o) => !o.ok)
       .map((o) => ({ sourceKey: o.sourceKey, error: o.error || '请求失败', timedOut: o.timedOut }));
+  // 换关键词时清掉上一轮的补回结果
+  useEffect(() => setRetriedItems([]), [urlQuery]);
+
+  /**
+   * 只重试失败的源：整轮重搜会让已出的结果消失再重来，代价大且晃眼。
+   * 这里单独打这些源，结果并入现有列表。
+   */
+  const retryFailedSources = async () => {
+    if (retryingSources || failures.length === 0) return;
+    const failedKeys = new Set(failures.map((f) => f.sourceKey));
+    const targets = selectedSources.filter((s) => failedKeys.has(s.key));
+    if (targets.length === 0) return;
+    setRetryingSources(true);
+    try {
+      const res = await api.search(urlQuery.slice(0, 100), targets, yellowFilter);
+      setRetriedItems((prev) => [...prev, ...res.list]);
+      const stillBad = res.failures.length;
+      toast(
+        stillBad > 0
+          ? `重试完成：${res.list.length} 条结果，${stillBad} 个源仍无响应`
+          : `重试完成：补回 ${res.list.length} 条结果`,
+        stillBad > 0 ? 'warning' : 'success'
+      );
+    } catch {
+      toast('重试失败，请稍后再试', 'error');
+    } finally {
+      setRetryingSources(false);
+    }
+  };
   // 跨源同名聚合：同名影片合并为一张卡片，展开后可选择具体来源
   const groups = useMemo(() => aggregateResults(list), [list]);
 
@@ -301,7 +337,7 @@ function HomeContent() {
             </div>
 
             {failures.length > 0 && (
-              <div className="mb-3 text-xs bg-chip rounded-lg px-3 py-2 flex flex-wrap gap-x-3 gap-y-1">
+              <div className="mb-3 text-xs bg-chip rounded-lg px-3 py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="text-faint">{isSearching ? '以下源暂时无响应：' : '部分点播源请求失败：'}</span>
                 {failures.map((f) => (
                   <span key={f.sourceKey} className={f.timedOut ? 'text-warning' : 'text-faint'}>
@@ -309,6 +345,15 @@ function HomeContent() {
                     {f.timedOut ? ' 超时' : ''}
                   </span>
                 ))}
+                {!isSearching && (
+                  <button
+                    className="btn-ghost btn-sm ml-auto"
+                    disabled={retryingSources}
+                    onClick={retryFailedSources}
+                  >
+                    {retryingSources ? '重试中…' : `重试 ${failures.length} 个失败源`}
+                  </button>
+                )}
               </div>
             )}
 
@@ -364,14 +409,16 @@ function HomeContent() {
           </section>
         )}
 
-        {/* 首页推荐（有搜索时隐藏） */}
+        {/* 首页推荐（有搜索时隐藏）：滚近视口才挂载，首屏先让搜索可用 */}
         {!urlQuery && (
-          <RecommendSection
-            onPick={(title) => {
-              setInput(title);
-              runSearch(title);
-            }}
-          />
+          <LazySection minHeight={360}>
+            <RecommendSection
+              onPick={(title) => {
+                setInput(title);
+                runSearch(title);
+              }}
+            />
+          </LazySection>
         )}
       </main>
 

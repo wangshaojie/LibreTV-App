@@ -3,6 +3,7 @@ import { guardRequest, jsonError } from '@/lib/api-guard';
 import { checkLiveUrlAllowed, isBlockedByDNS, isValidProxyUrl } from '@/lib/ssrf';
 import { fetchWithSafeRedirects } from '@/lib/fetch-utils';
 import { rewriteM3u8, LIVE_STREAM_BASE } from '@/lib/m3u8';
+import { getCachedImage, putCachedImage, withImageProxySlot, looksLikeImageTarget } from '@/lib/image-proxy-cache';
 
 /**
  * 代理目标地址的两种传入形式：
@@ -89,23 +90,46 @@ export async function handleProxyRequest(req: Request, targetUrl: string): Promi
   const range = req.headers.get('range');
   if (range) headers.Range = range;
 
+  // 图片走「并发闸门 + 内存缓存」：
+  // 首页一次要拉几十张封面，无节制并发会把本机连接池打满（滚动掉帧），
+  // 同一张图也会被重复转发。命中缓存直接返回，不出网。
+  const cacheable = !range && looksLikeImageTarget(targetUrl);
+  if (cacheable) {
+    const hit = getCachedImage(targetUrl);
+    if (hit) {
+      const cachedHeaders = new Headers({
+        'Content-Type': hit.contentType,
+        'Cache-Control': 'public, max-age=2592000',
+        'Access-Control-Allow-Origin': '*',
+        'X-Proxy-Cache': 'HIT',
+      });
+      if (hit.etag) cachedHeaders.set('ETag', hit.etag);
+      if (hit.lastModified) cachedHeaders.set('Last-Modified', hit.lastModified);
+      return new NextResponse(hit.body, { status: 200, headers: cachedHeaders });
+    }
+  }
+
   let response: Response | undefined;
   let finalUrl = targetUrl;
   let lastError: unknown = null;
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const result = await fetchWithSafeRedirects(targetUrl, {
-        headers,
-        signal: AbortSignal.timeout(TIMEOUT_MS),
-      });
-      response = result.res;
-      finalUrl = result.finalUrl;
-      lastError = null;
-      break;
-    } catch (err) {
-      lastError = err;
+  const doFetch = async () => {
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const result = await fetchWithSafeRedirects(targetUrl, {
+          headers,
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+        });
+        response = result.res;
+        finalUrl = result.finalUrl;
+        lastError = null;
+        break;
+      } catch (err) {
+        lastError = err;
+      }
     }
-  }
+  };
+  if (cacheable) await withImageProxySlot(doFetch);
+  else await doFetch();
   if (!response) {
     return new NextResponse(
       `代理请求失败: ${lastError instanceof Error ? lastError.message : '未知错误'}`,
@@ -144,6 +168,25 @@ export async function handleProxyRequest(req: Request, targetUrl: string): Promi
     contentType.startsWith('image/') ? 'public, max-age=2592000' : 'public, max-age=3600'
   );
   outHeaders.set('Access-Control-Allow-Origin', '*');
+
+  // 图片读进内存并留存一份：体积小、可重复复用，避免同一张封面反复出网
+  if (cacheable && contentType.startsWith('image/') && response.body) {
+    try {
+      // clone 后读取副本：原 body 保留，读取失败还能退回流式透传
+      const buffer = await response.clone().arrayBuffer();
+      putCachedImage(
+        targetUrl,
+        buffer,
+        contentType,
+        response.headers.get('etag'),
+        response.headers.get('last-modified')
+      );
+      outHeaders.set('X-Proxy-Cache', 'MISS');
+      return new NextResponse(buffer, { status: response.status, headers: outHeaders });
+    } catch {
+      // 读取失败就退回流式透传，不影响图片显示
+    }
+  }
 
   return new NextResponse(response.body, {
     status: response.status,
