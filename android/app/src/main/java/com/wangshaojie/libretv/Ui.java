@@ -161,11 +161,20 @@ final class Ui {
         row.addView(input,new LinearLayout.LayoutParams(0,h,1));
 
         // 搜索按钮：青绿实心 + 白色放大镜，紧贴输入区
-        Button go=new Button(c);go.setAllCaps(false);go.setText("");
-        NavIcon glass=new NavIcon("search",dp(c,26),ON_ACCENT);glass.setBounds(0,0,dp(c,26),dp(c,26));
-        go.setCompoundDrawables(glass,null,null,null);go.setGravity(Gravity.CENTER);
-        go.setBackground(searchButton(r));go.setContentDescription("搜索");go.setFocusable(true);
-        go.setOnClickListener(v->action.run());plain(go);
+        //
+        // 用 ImageButton 而不是 Button + compoundDrawables：
+        // Android 5.0 的 Button 即使文本为空、drawable 放在 drawableStart，
+        // 也会在「文本块」前预留 compoundDrawablePadding，图标整体左移近 30px
+        // （实测偏移 -28.5px，明显不在按钮正中）。ImageButton 由 ImageView 自行居中。
+        ImageButton go=new ImageButton(c);
+        NavIcon glass=new NavIcon("search",dp(c,26),ON_ACCENT);
+        go.setImageDrawable(glass);
+        go.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        go.setPadding(0,0,0,0);
+        go.setBackground(searchButton(r));go.setContentDescription("搜索");
+        go.setFocusable(true);go.setFocusableInTouchMode(true);
+        go.setOnClickListener(v->action.run());
+        if(Build.VERSION.SDK_INT>=21)go.setStateListAnimator(null);
         // 负边距：按钮往左压 2dp，盖住输入框描边在交界处的最后一小段竖线，
         // 两块看上去是同一个控件的两半，而不是拼在一起的两个控件
         LinearLayout.LayoutParams goLp=new LinearLayout.LayoutParams(dp(c,tv(c)?64:58),h);
@@ -196,9 +205,11 @@ final class Ui {
      */
     private static android.graphics.drawable.Drawable searchInput(int radius,boolean focused){
         GradientDrawable d=new GradientDrawable();d.setColor(focused?Color.rgb(250,248,244):Color.rgb(238,235,228));
-        // setCornerRadii 顺序是 [左上, 右上, 右下, 左下] × 2：左边两个角圆，右边两个角直，
-        // 右边贴搜索按钮，直角才能严丝合缝
-        d.setCornerRadii(new float[]{radius,0,0,radius,radius,0,0,radius});
+        // setCornerRadii 收的是「每个角两个值」：x 半径、y 半径，顺序为左上、右上、右下、左下。
+        // 按「每角一个值」传会把 x、y 半径错配到相邻的角上，画出来的根本不是圆角
+        // （右上角会变成 (r,0)，纵向不圆，所以按钮顶边看不到缺口）。
+        // 这里左边两个角圆、右边两个角直，右边贴搜索按钮，直角才能严丝合缝。
+        d.setCornerRadii(new float[]{radius,radius,0,0,0,0,radius,radius});
         float density=Resources.getSystem().getDisplayMetrics().density;
         d.setStroke(Math.max(2,Math.round((focused?2f:1.4f)*density)),focused?ACCENT:LINE);
         return d;
@@ -210,8 +221,15 @@ final class Ui {
         s.addState(new int[]{},rounded(0,radius,radius,0,ACCENT,0));
         return s;
     }
+    /**
+     * 四角可分别指定圆角的背景。
+     *
+     * setCornerRadii 的参数是「每角两个值」——x 半径和 y 半径，顺序左上、右上、右下、左下。
+     * 之前按「每角一个值」传，x、y 半径被错配到相邻的角上：右上角拿到 (r,0)，
+     * 纵向半径为 0，渲染出来是直的，整个控件的圆角都是错的。
+     */
     private static GradientDrawable rounded(float tl,float tr,float br,float bl,int color,int stroke){
-        GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadii(new float[]{tl,tr,br,bl,tl,tr,br,bl});
+        GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadii(new float[]{tl,tl,tr,tr,br,br,bl,bl});
         if(stroke!=0){float density=Resources.getSystem().getDisplayMetrics().density;d.setStroke(Math.max(2,Math.round(1.2f*density)),stroke);}
         return d;
     }

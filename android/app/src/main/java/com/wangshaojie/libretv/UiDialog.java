@@ -45,6 +45,19 @@ final class UiDialog {
 
     /** 确认类弹框：取消在左（默认聚焦），确认在右。 */
     static Dialog confirm(Activity a, String title, String message, String cancelLabel, String confirmLabel, Runnable onConfirm) {
+        return confirm(a, title, message, cancelLabel, confirmLabel, onConfirm, false);
+    }
+
+    /**
+     * 确认类弹框：取消在左，确认在右。
+     *
+     * focusConfirm 决定焦点落在哪一按钮上：
+     *   false —— 落在「取消 / 继续浏览」，破坏性操作必须由用户主动选
+     *   true  —— 落在「确认 / 退出应用」，用户按一次 OK 就直接执行
+     * 退出应用这类用户主动发起的收尾动作用 true；
+     * 删除源、清空记录这类不可逆动作仍然用 false。
+     */
+    static Dialog confirm(Activity a, String title, String message, String cancelLabel, String confirmLabel, Runnable onConfirm, boolean focusConfirm) {
         LinearLayout body = shell(a, title);
         if (message != null && !message.isEmpty()) body.addView(Ui.label(a, message, 14, Ui.MUTED));
         body.addView(Ui.gap(a, 20));
@@ -57,8 +70,7 @@ final class UiDialog {
         row.addView(confirm);
         body.addView(row);
         holder[0] = present(a, body);
-        // 焦点落在「取消 / 继续浏览」：破坏性操作必须由用户主动选，不能一按 OK 就中招
-        cancel.requestFocus();
+        (focusConfirm ? confirm : cancel).requestFocus();
         cancel.setOnClickListener(v -> holder[0].dismiss());
         confirm.setOnClickListener(v -> { holder[0].dismiss(); if (onConfirm != null) onConfirm.run(); });
         return holder[0];

@@ -205,6 +205,8 @@ public final class MainActivity extends Activity {
     }
     private void searchBox(String hint,Runnable action){
         query=Ui.input(this,hint);query.setImeOptions(EditorInfo.IME_ACTION_SEARCH);content.addView(Ui.searchField(this,hint,query,action));
+        // 搜索框和下面的内容之间留一段空白：贴着排会显得挤成一团
+        content.addView(Ui.gap(this,16));
     }
     private void createList(){
         ListView rows=new ListView(this);rows.setDivider(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));rows.setDividerHeight(Ui.dp(this,7));rows.setChoiceMode(ListView.CHOICE_MODE_SINGLE);rows.setFocusable(true);list=rows;
@@ -387,7 +389,7 @@ public final class MainActivity extends Activity {
     @Override public void onBackPressed(){
         if(!backStack.isEmpty()){String target=backStack.pop();goTo(target);return;}
         if(!page.equals("home")){goTo("home");return;}
-        UiDialog.confirm(this,"退出 静观 TV？","退出后将停止记录播放进度，正在播放的内容会中断。","继续浏览","退出应用",this::finish);
+        UiDialog.confirm(this,"退出 静观 TV？","退出后将停止记录播放进度，正在播放的内容会中断。","继续浏览","退出应用",this::finish,true);
     }
     @Override protected void onDestroy(){generation++;workers.shutdownNow();super.onDestroy();}
 
