@@ -30,6 +30,9 @@ public final class MainActivity extends Activity {
     private int generation=0;
     private String page="live",group="全部分组";
     private Button backButton;
+    /** 顶栏：一级页面整条隐藏，二级页面才出现（返回按钮 + 页面名） */
+    private LinearLayout headerView;
+    private TextView pageTitle;
     private final Map<String,Button> navigation=new LinkedHashMap<>();
     private final List<Future<?>> tasks=new ArrayList<>();
     private final Map<String,List<Catalog.Item>> grouped=new LinkedHashMap<>();
@@ -84,9 +87,10 @@ public final class MainActivity extends Activity {
         if(tv){LinearLayout.LayoutParams wrapLp=new LinearLayout.LayoutParams(Ui.dp(this,178),-1);wrapLp.setMargins(Ui.dp(this,16),Ui.dp(this,16),0,Ui.dp(this,16));navWrap.addView(nav,new LinearLayout.LayoutParams(-1,-1));root.addView(navWrap,wrapLp);}
         else navWrap.addView(nav,new LinearLayout.LayoutParams(-1,-1));
         LinearLayout main=Ui.column(this);main.setPadding(Ui.dp(this,tv?28:16),Ui.dp(this,tv?16:6),Ui.dp(this,tv?28:16),0);LinearLayout header=Ui.row(this);
+        headerView=header;
         // 二级页面在顶栏左侧给出返回入口：电视遥控器之外的路径也要能回上一级
         backButton=Ui.icon(this,"back","返回上一页",this::goBack);backButton.setVisibility(View.GONE);header.addView(backButton);
-        TextView brandTitle=Ui.heading(this,tv?"探索放映厅":"静观 TV");brandTitle.setGravity(Gravity.CENTER_VERTICAL);header.addView(brandTitle,new LinearLayout.LayoutParams(0,Ui.dp(this,52),1));header.addView(Ui.outline(this,"源管理",this::sources));main.addView(header);
+        pageTitle=Ui.heading(this,"");pageTitle.setGravity(Gravity.CENTER_VERTICAL);header.addView(pageTitle,new LinearLayout.LayoutParams(0,Ui.dp(this,52),1));main.addView(header);
         content=Ui.column(this);main.addView(content,new LinearLayout.LayoutParams(-1,0,1));status=Ui.label(this,"",12,Ui.MUTED);status.setMaxLines(2);status.setPadding(0,Ui.dp(this,6),0,Ui.dp(this,8));main.addView(status);
         root.addView(main,tv?new LinearLayout.LayoutParams(0,-1,1):new LinearLayout.LayoutParams(-1,0,1));
         // 手机端导航在底部，电视端在左侧
@@ -198,10 +202,23 @@ public final class MainActivity extends Activity {
         saveSnapshot();
         generation++;for(Future<?> task:tasks)task.cancel(true);tasks.clear();page=next;content.removeAllViews();items.clear();shown.clear();grouped.clear();list=null;query=null;emptyTitle=null;emptyHint=null;group="全部分组";mainScroll=null;status.setText("");
         String selected=next.equals("live")?"live":next.equals("vod")?"vod":next.equals("home")||next.startsWith("catalog")?"home":"my";for(Map.Entry<String,Button> nav:navigation.entrySet())nav.getValue().setSelected(nav.getKey().equals(selected));
-        // 只有二级页面才显示返回按钮：一级页面返回就是退出，不必再给一个「返回首页」
-        if(backButton!=null)backButton.setVisibility(next.equals("home")||next.equals("vod")||next.equals("live")||next.equals("my")?View.GONE:View.VISIBLE);
+        // 只有二级页面才显示顶栏：一级页面（首页 / 点播 / 直播 / 我的）是主导航，
+        // 顶栏留着只会占掉一整行高度，把内容挤到首屏之外。
+        // 源管理的入口在「我的」里，顶栏不再重复放一个。
+        boolean primary=next.equals("home")||next.equals("vod")||next.equals("live")||next.equals("my");
+        if(headerView!=null)headerView.setVisibility(primary?View.GONE:View.VISIBLE);
+        if(pageTitle!=null)pageTitle.setText(primary?"":titleFor(next));
+        if(backButton!=null)backButton.setVisibility(primary?View.GONE:View.VISIBLE);
         // 页面搭好后把滚动位置、搜索词、焦点位置还原回去
         content.post(this::restoreSnapshot);
+    }
+    /** 二级页面的顶栏标题：一级页面没有顶栏，这里只管二级 */
+    private String titleFor(String key){
+        if(key.startsWith("catalog:"))return key.startsWith("catalog:tv")?"发现剧集":"发现电影";
+        if(key.equals("favorites"))return "我的收藏";
+        if(key.equals("history"))return "观看记录";
+        if(key.equals("sources"))return "源管理";
+        return "静观 TV";
     }
     private void searchBox(String hint,Runnable action){
         query=Ui.input(this,hint);query.setImeOptions(EditorInfo.IME_ACTION_SEARCH);content.addView(Ui.searchField(this,hint,query,action));
