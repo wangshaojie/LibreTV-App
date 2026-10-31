@@ -1,5 +1,6 @@
 package com.wangshaojie.libretv;
 import android.app.*;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.*;
@@ -25,13 +26,14 @@ public final class PlayerActivity extends Activity {
     private ExoPlayer player;private PlayerView video;private Store store;private List<Catalog.Item> items=new ArrayList<>();private int index;
     private FrameLayout root;private LinearLayout titleBar,panel;private TextView title,status,osd,clock;private SeekBar seek;private Button playButton,prevButton,nextButton;
     private long resume;private boolean autoplay=true;private boolean panelOn,titleOn,osdOn,locked,dragging;
+    private float playbackSpeed=1f;
     // Live reconnect bookkeeping: -1 means "never tried", recoverCount is the number of
     // consecutive failed reconnects and is reset as soon as the stream plays again.
     private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting,connecting;
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final Runnable hideTitleTask=()->{if(!panelOn)hideTitle();};
     private final Runnable hidePanelTask=()->hidePanel(360);
-    private final Runnable hideOsdTask=()->{osdOn=false;osd.animate().alpha(0f).setDuration(280).withEndAction(()->{if(!osdOn)osd.setVisibility(View.GONE);}).start();};
+    private final Runnable hideOsdTask=()->{osdOn=false;Ui.fade(osd,0f,280,()->{if(!osdOn)osd.setVisibility(View.GONE);});};
     private final Runnable tickTask=new Runnable(){@Override public void run(){refreshProgress();ui.postDelayed(this,400);}};
 
     @Override public void onCreate(Bundle b){super.onCreate(b);store=new Store(this);if(Ui.tv(this))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -40,35 +42,45 @@ public final class PlayerActivity extends Activity {
     }
 
     private void build(){
-        root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);root.setFocusableInTouchMode(true);
+        // 播放页保持深色沉浸：根容器用深色版 inset（背景 DARK），视频区域仍是主体
+        root=new FrameLayout(this);root.setFocusableInTouchMode(true);Ui.insetDark(this,root);
+        // 视频要铺满整块屏幕，所以不把系统栏内边距加到根容器上（insetDark 默认会加），
+        // 这里把内边距清零，只保留它的深色背景与沉浸式系统栏设置。
+        root.setPadding(0,0,0,0);
+        root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(0,0,0,0);return insets;});
         video=new PlayerView(this);video.setUseController(false);video.setBackgroundColor(Color.BLACK);video.setFocusable(false);
         video.setOnTouchListener((v,e)->{if(e.getAction()==MotionEvent.ACTION_UP)togglePanel();return true;});
         root.addView(video,new FrameLayout.LayoutParams(-1,-1));
 
-        osd=Ui.text(this,"",16);osd.setGravity(Gravity.CENTER);osd.setBackground(Ui.pill(this,0xD90B121C));osd.setVisibility(View.GONE);
+        osd=Ui.text(this,"",16);osd.setGravity(Gravity.CENTER);osd.setBackground(Ui.pill(this,0xD90B121C));osd.setTextColor(0xFFF2F4F3);osd.setVisibility(View.GONE);
         root.addView(osd,new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER));
 
         titleBar=new LinearLayout(this);titleBar.setOrientation(LinearLayout.HORIZONTAL);titleBar.setGravity(Gravity.CENTER_VERTICAL);
         titleBar.setBackground(Ui.fade(this,GradientDrawable.Orientation.TOP_BOTTOM,0xE6000000,0x00000000));
-        titleBar.setPadding(Ui.dp(this,18),0,Ui.dp(this,18),0);
-        title=Ui.text(this,"",14);title.setTextColor(0xD9FFFFFF);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        titleBar.addView(title);
+        titleBar.setPadding(Ui.dp(this,10),Ui.dp(this,6),Ui.dp(this,14),Ui.dp(this,6));
+        // 与详情页同一套返回入口：左箭头回到详情页，房屋直接回首页。
+        // 深底上不能套浅色主题的 Ui.icon（那是一块白方块），改用播放页私有的深底按钮。
+        titleBar.addView(darkIcon("back","返回上一页",this::finish));
+        titleBar.addView(darkIcon("home","回首页",this::goHome));
+        title=Ui.text(this,"",14);title.setTextColor(0xE6F5F5F7);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams titleLp=new LinearLayout.LayoutParams(0,-2,1);titleLp.setMargins(Ui.dp(this,8),0,0,0);titleBar.addView(title,titleLp);
         root.addView(titleBar,new FrameLayout.LayoutParams(-1,Ui.dp(this,60),Gravity.TOP));titleBar.setVisibility(View.GONE);
 
         panel=new LinearLayout(this);panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackground(Ui.fade(this,GradientDrawable.Orientation.BOTTOM_TOP,0xF2000000,0x00000000));
+        // 深色卡片：控制条整体是深底 + 浅字 + 青绿进度，不能用浅色主题的 card 样式
+        panel.setBackground(darkCard());
         panel.setPadding(Ui.dp(this,18),Ui.dp(this,16),Ui.dp(this,18),Ui.dp(this,10));
-        status=Ui.text(this,"",13);status.setTextColor(Ui.MUTED);status.setVisibility(View.GONE);panel.addView(status);
+        status=Ui.text(this,"",13);status.setTextColor(0xCCEDEFF1);status.setVisibility(View.GONE);panel.addView(status);
         LinearLayout bar=new LinearLayout(this);bar.setOrientation(LinearLayout.HORIZONTAL);bar.setGravity(Gravity.CENTER_VERTICAL);
         seek=new SeekBar(this);seek.setMax(1000);seek.setProgressDrawable(progressDrawable());seek.setThumb(thumbDrawable());seek.setKeyProgressIncrement(10000);
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){@Override public void onProgressChanged(SeekBar sb,int value,boolean fromUser){if(fromUser)clock.setText(fmt(value)+" / "+fmt(sb.getMax()));}@Override public void onStartTrackingTouch(SeekBar sb){dragging=true;}@Override public void onStopTrackingTouch(SeekBar sb){dragging=false;if(player!=null)player.seekTo(sb.getProgress());}});
         bar.addView(seek,new LinearLayout.LayoutParams(0,Ui.dp(this,30),1));
-        clock=Ui.text(this,"00:00 / 00:00",12);clock.setTextColor(Ui.MUTED);bar.addView(clock);panel.addView(bar);
+        clock=Ui.text(this,"00:00 / 00:00",12);clock.setTextColor(0x99EDEFF1);bar.addView(clock);panel.addView(bar);
         HorizontalScrollView scroll=new HorizontalScrollView(this);scroll.setHorizontalScrollBarEnabled(false);
         LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);
         prevButton=action("",()->change(-1));nav.addView(prevButton);
         nav.addView(action("后退 10 秒",()->seekBy(-10000)));
-        playButton=action("暂停",this::togglePlay);nav.addView(playButton);
+        playButton=darkPrimary("暂停",this::togglePlay);nav.addView(playButton);
         nav.addView(action("前进 10 秒",()->seekBy(10000)));
         nextButton=action("",()->change(1));nav.addView(nextButton);
         View split=new View(this);split.setBackgroundColor(0x33FFFFFF);LinearLayout.LayoutParams splitLp=new LinearLayout.LayoutParams(Ui.dp(this,1),Ui.dp(this,28));splitLp.setMargins(Ui.dp(this,10),0,Ui.dp(this,10),0);nav.addView(split,splitLp);
@@ -80,15 +92,67 @@ public final class PlayerActivity extends Activity {
         nav.addView(action("收藏",()->{store.toggleFavorite(items.get(index));Ui.toast(this,store.favorite(items.get(index))?"已收藏":"已取消收藏");}));
         nav.addView(action("换线路",this::finish));
         nav.addView(action("重试",this::prepare));
-        nav.addView(action("返回",this::finish));
         scroll.addView(nav);panel.addView(scroll);
         root.addView(panel,new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM));panel.setVisibility(View.GONE);
     }
 
-    private Button action(String label,Runnable run){Button b=Ui.button(this,label,run);b.setTextSize(14);return b;}
+    private Button action(String label,Runnable run){Button b=darkButton(label,run);b.setTextSize(14);return b;}
+    /**
+     * 播放页私有的按钮样式：深底 + 浅字 + 半透明白描边。
+     *
+     * 不能直接套浅色主题的 Ui.focus()／Ui.button —— 那是白卡配深字，
+     * 放在深色画面上是一块刺眼的白方块。焦点态改成青绿描边，
+     * 遥控器移动焦点时依然看得出来停在哪。
+     */
+    private Button darkButton(String label,Runnable run){
+        Button b=new Button(this);b.setAllCaps(false);b.setText(label);b.setTextSize(14);
+        b.setBackground(darkState(0x14FFFFFF,0x59FFFFFF,0x2EFFFFFF,Ui.ACCENT));
+        b.setTextColor(new android.content.res.ColorStateList(new int[][]{{android.R.attr.state_focused},{-android.R.attr.state_focused}},new int[]{0xFFFFFFFF,0xE6EDEFF1}));
+        b.setMinHeight(Ui.dp(this,40));b.setPadding(Ui.dp(this,14),0,Ui.dp(this,14),0);
+        b.setOnClickListener(v->run.run());
+        if(android.os.Build.VERSION.SDK_INT>=21)b.setStateListAnimator(null);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,Ui.dp(this,40));lp.setMargins(Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3));b.setLayoutParams(lp);return b;
+    }
+    /** 深底描边图标按钮：白色线性图标 + 半透明白描边，聚焦时青绿描边。 */
+    private Button darkIcon(String key,String label,Runnable run){
+        Button b=new Button(this);b.setAllCaps(false);b.setText("");b.setMinWidth(Ui.dp(this,44));b.setMinHeight(Ui.dp(this,44));b.setPadding(Ui.dp(this,12),0,Ui.dp(this,12),0);
+        final NavIcon icon=new NavIcon(key,Ui.dp(this,22),0xFFF2F4F3);icon.setBounds(0,0,Ui.dp(this,22),Ui.dp(this,22));
+        b.setCompoundDrawables(icon,null,null,null);b.setGravity(Gravity.CENTER);
+        b.setBackground(darkState(0x1FFFFFFF,0x66FFFFFF,0x33FFFFFF,Ui.ACCENT));
+        b.setContentDescription(label);b.setFocusable(true);b.setOnClickListener(v->run.run());
+        // 图标常态白、聚焦青绿（forced color 模式下 setColor 可直接改色）
+        b.setOnFocusChangeListener((v,focused)->icon.setColor(focused?Ui.ACCENT_LIGHT:0xFFF2F4F3));
+        if(android.os.Build.VERSION.SDK_INT>=21)b.setStateListAnimator(null);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(Ui.dp(this,44),Ui.dp(this,44));lp.setMargins(Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3));b.setLayoutParams(lp);return b;
+    }
+    /** 播放 / 暂停是控制条上最该被看见的按钮，用青绿实心 + 白字；焦点时加深。 */
+    private Button darkPrimary(String label,Runnable run){
+        Button b=new Button(this);b.setAllCaps(false);b.setText(label);b.setTextSize(14);b.setTypeface(null,android.graphics.Typeface.BOLD);
+        android.graphics.drawable.StateListDrawable s=new android.graphics.drawable.StateListDrawable();
+        s.addState(new int[]{android.R.attr.state_focused},round(Ui.ACCENT_DEEP,Ui.ACCENT_LIGHT,Ui.dp(this,12)));
+        s.addState(new int[]{},round(Ui.ACCENT,0,Ui.dp(this,12)));
+        b.setBackground(s);b.setTextColor(Ui.ON_ACCENT);
+        b.setMinHeight(Ui.dp(this,40));b.setPadding(Ui.dp(this,18),0,Ui.dp(this,18),0);
+        b.setOnClickListener(v->run.run());
+        if(android.os.Build.VERSION.SDK_INT>=21)b.setStateListAnimator(null);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,Ui.dp(this,40));lp.setMargins(Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3),Ui.dp(this,3));b.setLayoutParams(lp);return b;
+    }
+    /** 深色卡片：控制条底色，深灰蓝卡片压住画面下沿，上沿留一道淡白细线做层次。 */
+    private Drawable darkCard(){GradientDrawable d=new GradientDrawable();d.setOrientation(GradientDrawable.Orientation.BOTTOM_TOP);d.setColors(new int[]{0xF223272E,0xE60F1216});d.setStroke(Math.max(2,Ui.dp(this,1)),0x1FFFFFFF);return d;}
+    /** 深底按钮的背景：常态半透明填充 + 白描边，聚焦时填充加深 + 青绿描边。 */
+    private android.graphics.drawable.Drawable darkState(int fill,int stroke,int focusFill,int focusStroke){
+        android.graphics.drawable.StateListDrawable s=new android.graphics.drawable.StateListDrawable();
+        s.addState(new int[]{android.R.attr.state_focused},round(focusFill,focusStroke,Ui.dp(this,12)));
+        s.addState(new int[]{},round(fill,stroke,Ui.dp(this,12)));return s;
+    }
+    /** 回首页：复用栈里的主界面实例，不重建（重建会丢掉当前浏览位置） */
+    private void goHome(){Intent intent=new Intent(this,MainActivity.class);intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);startActivity(intent);finish();}
     private Drawable progressDrawable(){LayerDrawable l=new LayerDrawable(new Drawable[]{round(0x33FFFFFF,Ui.dp(this,2)),round(Ui.ACCENT,Ui.dp(this,2))});l.setId(0,android.R.id.background);l.setId(1,android.R.id.progress);return l;}
     private Drawable round(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(radius);return d;}
-    private Drawable thumbDrawable(){GradientDrawable d=new GradientDrawable();d.setShape(GradientDrawable.OVAL);d.setColor(Ui.ACCENT);d.setSize(Ui.dp(this,14),Ui.dp(this,14));d.setStroke(Ui.dp(this,2),0x99000000);return d;}
+    /** 深底按钮底：填充 + 描边 + 圆角。 */
+    private Drawable round(int color,int stroke,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(radius);if(stroke!=0)d.setStroke(Math.max(2,Ui.dp(this,1)),stroke);return d;}
+    // 进度条：青绿进度 + 半透明白轨道，滑块描边用半透明白（深底上黑描边会糊成一团）
+    private Drawable thumbDrawable(){GradientDrawable d=new GradientDrawable();d.setShape(GradientDrawable.OVAL);d.setColor(Ui.ACCENT);d.setSize(Ui.dp(this,14),Ui.dp(this,14));d.setStroke(Ui.dp(this,2),0x99FFFFFF);return d;}
 
     // One player instance is reused for every episode, channel and route. Releasing the
     // player re-creates the vendor MediaCodec, and on older MStar TV firmware that teardown
@@ -147,22 +211,39 @@ public final class PlayerActivity extends Activity {
     }
     private void setStatus(String text){status.setText(text);status.setVisibility(text==null||text.isEmpty()?View.GONE:View.VISIBLE);}
 
-    private void showTitle(){if(titleOn)return;titleOn=true;titleBar.setAlpha(0f);titleBar.setVisibility(View.VISIBLE);titleBar.animate().alpha(1f).setDuration(220).start();ui.removeCallbacks(hideTitleTask);ui.postDelayed(hideTitleTask,2800);}
-    private void hideTitle(){if(!titleOn)return;titleOn=false;ui.removeCallbacks(hideTitleTask);titleBar.animate().alpha(0f).setDuration(220).withEndAction(()->{if(titleOn)return;titleBar.setVisibility(View.GONE);titleBar.setAlpha(1f);}).start();}
+    private void showTitle(){if(titleOn&&titleVisible())return;titleOn=true;titleBar.setAlpha(0f);titleBar.setVisibility(View.VISIBLE);Ui.fade(titleBar,1f,220,null);ui.removeCallbacks(hideTitleTask);ui.postDelayed(hideTitleTask,2800);}
+    private void hideTitle(){if(!titleOn)return;titleOn=false;ui.removeCallbacks(hideTitleTask);Ui.fade(titleBar,0f,220,()->{if(titleOn)return;titleBar.setVisibility(View.GONE);titleBar.setAlpha(1f);});}
     private void showPanel(boolean lock){
-        if(panelOn){if(lock){locked=true;ui.removeCallbacks(hidePanelTask);}return;}
-        panelOn=true;locked=lock;panel.setAlpha(0f);panel.setVisibility(View.VISIBLE);panel.animate().alpha(1f).setDuration(220).start();
+        // 状态位与实际可见性必须一致：只要面板已经不可见了，就重新弹一次，
+        // 否则一次失败的显示会让 panelOn 永远停在 true，之后所有按键都被挡住。
+        if(panelOn&&panel.getVisibility()==View.VISIBLE&&panel.getAlpha()>0f){if(lock){locked=true;ui.removeCallbacks(hidePanelTask);}return;}
+        panelOn=true;locked=lock;panel.setAlpha(0f);panel.setVisibility(View.VISIBLE);Ui.fade(panel,1f,220,null);
         showTitle();ui.removeCallbacks(tickTask);ui.postDelayed(tickTask,300);refreshProgress();
         ui.removeCallbacks(hidePanelTask);if(!locked&&!connecting)ui.postDelayed(hidePanelTask,4200);
         if(Ui.tv(this))playButton.requestFocus();
     }
     private void hidePanel(){hidePanel(220);}
     private void hidePanel(int duration){
-        if(!panelOn||connecting)return;panelOn=false;locked=false;ui.removeCallbacks(hidePanelTask);ui.removeCallbacks(tickTask);
-        panel.animate().alpha(0f).setDuration(duration).withEndAction(()->{if(panelOn)return;panel.setVisibility(View.GONE);panel.setAlpha(1f);root.requestFocus();}).start();
+        // 这里不能用 connecting 当拦截条件：直播源连不上时 connecting 会一直停在 true，
+        // 面板就再也收不起来，返回键被吞掉，用户被困在播放页里。
+        // 自动隐藏的时机本来就已经由 showPanel 里的「connecting 时不排 hidePanelTask」控制，
+        // 这里只管「被显式要求收起」，一律照做。
+        if(!panelOn)return;panelOn=false;locked=false;ui.removeCallbacks(hidePanelTask);ui.removeCallbacks(tickTask);
+        Ui.fade(panel,0f,duration,()->{if(panelOn)return;panel.setVisibility(View.GONE);panel.setAlpha(1f);if(root.isShown())root.requestFocus();});
         hideTitle();
     }
-    private void togglePanel(){if(panelOn)hidePanel();else showPanel(false);}
+    private void togglePanel(){if(panelVisible())hidePanel();else showPanel(false);}
+    /**
+     * 面板是否真的在屏幕上。
+     *
+     * 状态位（panelOn/titleOn）必须和实际可见性一致，否则一次失败的显示会让
+     * panelOn 永远停在 true，之后所有按键都被挡住。
+     * 判断用「可见 + 不透明」，不用 getWindowVisibility() —— 刚 setVisibility(VISIBLE)
+     * 的那一帧窗口还没完成绘制，用窗口可见性会把正在显示的面板误判成隐藏。
+     */
+    private boolean panelVisible(){return panel.getVisibility()==View.VISIBLE&&panel.getAlpha()>0f;}
+    /** 标题条是否真的在屏幕上：可见 + 不透明（不用 getWindowVisibility 那一套）。 */
+    private boolean titleVisible(){return titleBar.getVisibility()==View.VISIBLE&&titleBar.getAlpha()>0f;}
     private void showOsd(String text){osdOn=true;osd.setText(text);osd.setVisibility(View.VISIBLE);osd.setAlpha(1f);ui.removeCallbacks(hideOsdTask);ui.postDelayed(hideOsdTask,1500);}
     private void refreshProgress(){
         if(player==null)return;long d=player.getDuration(),p=player.getCurrentPosition();
@@ -172,9 +253,12 @@ public final class PlayerActivity extends Activity {
     private void seekBy(long ms){if(player==null)return;long d=player.getDuration(),p=player.getCurrentPosition();long t=Math.max(0,p+ms);if(d>0)t=Math.min(t,d);player.seekTo(t);showOsd((ms>0?"快进 ":"快退 ")+(Math.abs(ms)/1000)+" 秒 · "+fmt(t));}
     private static String fmt(long ms){if(ms<0)return "--:--";long s=ms/1000;long h=s/3600,m=(s/60)%60,x=s%60;return h>0?String.format(Locale.getDefault(),"%d:%02d:%02d",h,m,x):String.format(Locale.getDefault(),"%02d:%02d",m,x);}
 
-    private void pickEpisode(){String[] labels=new String[items.size()];for(int n=0;n<labels.length;n++)labels[n]=items.get(n).title;new AlertDialog.Builder(this).setItems(labels,(d,n)->{save();index=n;resume=store.position(items.get(index).url);prepare();}).show();}
-    private void pickSpeed(){new AlertDialog.Builder(this).setTitle("播放速度").setItems(new String[]{"0.75×","1.0×","1.25×","1.5×","2.0×"},(d,n)->{if(player!=null)player.setPlaybackSpeed(new float[]{.75f,1f,1.25f,1.5f,2f}[n]);}).show();}
-    private void pickRatio(){new AlertDialog.Builder(this).setTitle("画面显示").setItems(new String[]{"适应屏幕","填满屏幕","裁切放大"},(d,n)->video.setResizeMode(new int[]{androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM}[n])).show();}
+    // 选集 / 倍速 / 画面比例都用自绘弹框：系统 AlertDialog 是 Material 蓝白样式，
+    // 和播放页的深色沉浸完全是两套东西，焦点反馈也不统一。
+    private void pickEpisode(){String[] labels=new String[items.size()];for(int n=0;n<labels.length;n++)labels[n]=items.get(n).title;UiDialog.list(this,"选集",labels,index,n->{save();index=n;resume=store.position(items.get(index).url);prepare();});}
+    // 当前倍速自己记一份：media3 这个版本的 ExoPlayer 没有 getPlaybackSpeed()，读不到当前值
+    private void pickSpeed(){final float[] speeds={.75f,1f,1.25f,1.5f,2f};String[] labels={"0.75×","1.0×","1.25×","1.5×","2.0×"};int checked=1;for(int n=0;n<speeds.length;n++)if(Math.abs(playbackSpeed-speeds[n])<0.01f)checked=n;UiDialog.list(this,"播放速度",labels,checked,n->{playbackSpeed=speeds[n];if(player!=null)player.setPlaybackSpeed(playbackSpeed);});}
+    private void pickRatio(){String[] labels={"适应屏幕","填满屏幕","裁切放大"};UiDialog.list(this,"画面显示",labels,-1,n->video.setResizeMode(new int[]{androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL,androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM}[n]));}
     private void save(){if(player!=null&&!items.isEmpty()){resume=player.getCurrentPosition();autoplay=player.getPlayWhenReady();store.remember(items.get(index),resume);}}
     private void change(int delta){int next=index+delta;if(next<0||next>=items.size()){Ui.toast(this,"没有更多剧集");return;}save();index=next;resume=store.position(items.get(index).url);autoplay=true;prepare();}
     // Hiding the system bars in an immersive way makes Android 11 and newer raise the
@@ -190,7 +274,10 @@ public final class PlayerActivity extends Activity {
     @Override protected void onStop(){save();releasePlayer();if(video!=null)video.setKeepScreenOn(false);super.onStop();}
     @Override public boolean dispatchKeyEvent(KeyEvent event){
         if(mediaKey(event))return true;
-        if(!panelOn&&event.getAction()==KeyEvent.ACTION_DOWN){switch(event.getKeyCode()){
+        // 用实际可见性判断，而不是只看 panelOn：
+        // 面板若因动画没跑完而停在不可见状态，按键必须仍然能把它唤出来。
+        boolean shown=panelVisible();
+        if(!shown&&event.getAction()==KeyEvent.ACTION_DOWN){switch(event.getKeyCode()){
             case KeyEvent.KEYCODE_DPAD_CENTER:case KeyEvent.KEYCODE_ENTER:case KeyEvent.KEYCODE_SPACE:togglePlay();return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:seekBy(-10000);return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:seekBy(10000);return true;
@@ -219,9 +306,16 @@ public final class PlayerActivity extends Activity {
     private static boolean isMediaKey(int code){return code==KeyEvent.KEYCODE_MUSIC||code==KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE||code==KeyEvent.KEYCODE_MEDIA_PLAY||code==KeyEvent.KEYCODE_MEDIA_PAUSE||code==KeyEvent.KEYCODE_MEDIA_NEXT||code==KeyEvent.KEYCODE_MEDIA_PREVIOUS||code==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD||code==KeyEvent.KEYCODE_MEDIA_REWIND;}
     @Override public boolean onKeyDown(int key,KeyEvent event){
         if(!items.isEmpty()&&items.get(index).live&&(key==KeyEvent.KEYCODE_CHANNEL_UP||key==KeyEvent.KEYCODE_CHANNEL_DOWN)){change(key==KeyEvent.KEYCODE_CHANNEL_UP?1:-1);return true;}
-        if(panelOn&&key==KeyEvent.KEYCODE_BACK)return true;
+        if(panelVisible()&&key==KeyEvent.KEYCODE_BACK)return true;
         return super.onKeyDown(key,event);
     }
-    @Override public boolean onKeyUp(int key,KeyEvent event){if(key==KeyEvent.KEYCODE_BACK){if(panelOn){hidePanel();return true;}finish();return true;}return super.onKeyUp(key,event);}
+    /**
+     * 返回键：先收起控制面板，再按一次才退出播放页。
+     *
+     * 面板收起不能被 connecting 拦住 —— 直播源连不上时 connecting 一直是 true，
+     * 面板就永远收不起来，返回键被吞掉，用户会被困在播放页里出不来。
+     * 所以这里用「面板是否真的可见」判断，connecting 不参与。
+     */
+    @Override public boolean onKeyUp(int key,KeyEvent event){if(key==KeyEvent.KEYCODE_BACK){if(panelVisible()){hidePanel();return true;}finish();return true;}return super.onKeyUp(key,event);}
     @Override protected void onDestroy(){String file=getIntent().getStringExtra("playlistFile");if(isFinishing()&&file!=null&&file.startsWith("play-")&&!file.contains("/"))new java.io.File(getCacheDir(),file).delete();super.onDestroy();}
 }

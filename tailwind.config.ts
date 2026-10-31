@@ -25,6 +25,9 @@ const config: Config = {
         accent: {
           DEFAULT: 'rgb(var(--c-accent) / <alpha-value>)',
           hover: 'rgb(var(--c-accent-hover) / <alpha-value>)',
+          // 文字用（正文小字更稳）与淡青底（选中态）
+          deep: 'rgb(var(--c-accent-deep) / <alpha-value>)',
+          soft: 'rgb(var(--c-accent-soft) / <alpha-value>)',
         },
         // 语义状态色：随亮/暗主题切换，替代直接使用 red/green/amber 等调色板
         danger: {
@@ -35,6 +38,8 @@ const config: Config = {
         warning: 'rgb(var(--c-warning) / <alpha-value>)',
         info: 'rgb(var(--c-info) / <alpha-value>)',
         rating: 'rgb(var(--c-rating) / <alpha-value>)',
+        // 评分徽章实心底上的文字色：琥珀底 + 深字
+        'on-rating': 'rgb(var(--c-on-rating) / <alpha-value>)',
         // accent 实心底上的文字色：亮色=白、暗色=深（霓虹蓝底对白字对比度不足）
         'on-accent': 'rgb(var(--c-on-accent) / <alpha-value>)',
         // 实心状态底色（配白字），比语义色更深一档保证对比度

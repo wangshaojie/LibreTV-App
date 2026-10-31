@@ -68,12 +68,12 @@ export function LiveEpgPanel({ epgUrl, tvgId }: { epgUrl?: string; tvgId?: strin
   return (
     <div className="space-y-3">
       {current ? (
-        <div className="bg-card border border-line rounded-lg p-3">
+        <div className="rounded-lg border border-accent/40 bg-accent/5 p-3">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[10px] font-semibold text-danger bg-danger/10 px-1.5 py-0.5 rounded-full">
               正在播出
             </span>
-            <span className="text-[10px] text-faint">
+            <span className="text-[10px] text-faint tabular-nums">
               {fmtTime(current.start)} - {fmtTime(current.stop)}
             </span>
           </div>
@@ -94,7 +94,7 @@ export function LiveEpgPanel({ epgUrl, tvgId }: { epgUrl?: string; tvgId?: strin
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex justify-between text-[10px] text-faint mt-1">
+          <div className="flex justify-between text-[10px] text-faint mt-1 tabular-nums">
             <span>{fmtTime(current.start)}</span>
             <span>{Math.round(progress)}%</span>
             <span>{fmtTime(current.stop)}</span>
@@ -107,17 +107,19 @@ export function LiveEpgPanel({ epgUrl, tvgId }: { epgUrl?: string; tvgId?: strin
       {upcoming.length > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-content mb-1.5">接下来</h4>
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {upcoming.map((p) => (
               <li
                 key={`${p.start}-${p.title}`}
                 className={cn(
-                  'flex items-center gap-2 text-xs px-2 py-1.5 rounded-md',
+                  'flex items-center gap-3 text-xs px-2.5 py-2 rounded-md',
                   'text-muted hover:bg-hover transition-colors'
                 )}
                 title={p.desc || p.title}
               >
-                <span className="text-faint tabular-nums shrink-0">{fmtTime(p.start)}</span>
+                <span className="text-faint tabular-nums shrink-0 w-[92px]">
+                  {fmtTime(p.start)} - {fmtTime(p.stop)}
+                </span>
                 <span className="text-content truncate">{p.title}</span>
               </li>
             ))}

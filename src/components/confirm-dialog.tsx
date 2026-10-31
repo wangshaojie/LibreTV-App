@@ -62,12 +62,12 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={onCancel} aria-hidden />
+      <div className="absolute inset-0 bg-black/60 animate-fade-in" onClick={onCancel} aria-hidden />
       <div
         role="alertdialog"
         aria-modal="true"
         aria-label={title}
-        className="relative bg-surface-raised rounded-xl w-full max-w-sm shadow-2xl p-5 animate-slide-up"
+        className="relative bg-surface-raised border border-line rounded-xl w-full max-w-sm shadow-2xl p-5 animate-slide-up"
       >
         <h2 className="text-base font-semibold text-content mb-2">{title}</h2>
         {message && <div className="text-sm text-muted leading-relaxed">{message}</div>}
@@ -78,8 +78,11 @@ export function ConfirmDialog({
           <button
             ref={confirmRef}
             className={cn(
-              'btn text-sm text-white',
-              danger ? 'bg-danger hover:bg-danger-hover' : 'bg-accent hover:bg-accent-hover'
+              'btn text-sm',
+              // 前景色必须跟强调色一起换：深色主题下强调色是浅青（#8fbfc9），
+              // 写死 text-white 会变成浅底白字，几乎看不清。
+              // 破坏性操作用固定深档 danger-solid，浅色主题下 --c-danger 是浅红，白字看不清。
+              danger ? 'bg-danger-solid text-white hover:bg-danger-hover' : 'bg-accent text-on-accent hover:bg-accent-hover'
             )}
             onClick={onConfirm}
           >

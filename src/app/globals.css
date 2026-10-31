@@ -3,66 +3,79 @@
 @tailwind utilities;
 
 /*
- * 语义化配色（RGB 三元组，供 Tailwind 以 <alpha-value> 注入透明度）：
- * 深色主题沿用旧版 LibreTV 配色；浅色主题为对应的白底变体。
+ * 语义化配色（RGB 三元组，供 Tailwind 以 <alpha-value> 注入透明度）。
+ *
+ * 设计语言：晨雾白 —— 暖白页底 + 单一克制强调色（雾霭青绿）。
+ * 强调色只出现在图标按钮、主按钮、激活态与评分徽章上，不铺满界面；
+ * 不使用霓虹色与跨色系渐变 —— 这是与高端产品（Apple TV / Netflix / Emby）的共识做法。
+ *
+ * 浅色下的层次靠「白卡 + 极淡描边 + 轻投影」拉开，而不是靠深浅底色区分；
+ * 焦点态一律换成青绿描边，保证键盘操作时始终看得见自己在哪。
  */
 :root {
-  --c-page: 246 247 249;           /* #f6f7f9 */
-  --c-surface: 255 255 255;        /* #ffffff */
+  /* 晨雾白主题：暖白页底（非纯白，避免大屏上刺眼） */
+  --c-page: 242 240 234;            /* #f2f0ea 暖白页底 */
+  --c-surface: 255 255 255;         /* #ffffff */
   --c-surface-raised: 255 255 255;
   --c-card: 255 255 255;
-  --c-chip: 238 240 243;           /* #eef0f3 */
-  --c-hover: 233 236 240;          /* #e9ecf0 */
-  --c-line: 224 227 232;           /* #e0e3e8 */
-  --c-content: 26 26 26;           /* #1a1a1a */
-  --c-muted: 95 99 104;            /* #5f6368 */
-  --c-faint: 107 114 128;          /* #6b7280（原 #8a8f98 对白底仅 3.2:1，加深后达到 AA 4.5:1） */
-  --c-accent: 37 99 235;           /* blue-600 */
-  --c-accent-hover: 29 78 216;     /* blue-700 */
-  --c-on-accent: 255 255 255;      /* accent 实心底上的文字色 */
+  --c-chip: 238 234 226;            /* #eeebe2 输入框 / 次级底 */
+  --c-hover: 228 223 212;           /* #e4dfd4 悬停态 */
+  --c-line: 224 219 208;            /* #e0dbd0 发丝描边 */
+  --c-content: 34 37 43;             /* #22252b 主文本 */
+  --c-muted: 110 116 128;           /* #6e7480 次级文本 */
+  --c-faint: 154 160 166;           /* #9aa0a6 三级文本 */
+  /* 强调色：雾霭青绿。这一档在白底上对白字 4.9:1，文字与填充都能用 */
+  --c-accent: 63 125 119;            /* #3f7d77 雾霭青绿 */
+  --c-accent-hover: 45 94 90;        /* #2d5e5a 更深一档 */
+  --c-accent-deep: 45 94 90;         /* #2d5e5a 文字用（正文小字更稳） */
+  --c-accent-soft: 226 240 237;      /* #e2f0ed 淡青底（选中态） */
+  --c-on-accent: 255 255 255;       /* accent 实心底上的文字色 */
   /* 语义状态色（亮色主题取偏深值，保证浅底上的对比度） */
-  --c-danger: 220 38 38;           /* red-600 */
-  --c-danger-hover: 185 28 28;     /* red-700 */
-  --c-success: 22 163 74;          /* green-600 */
-  --c-warning: 217 119 6;          /* amber-600 */
-  --c-info: 37 99 235;             /* blue-600 */
-  --c-rating: 245 158 11;          /* amber-500 */
+  --c-danger: 185 28 28;            /* red-700 */
+  --c-danger-hover: 153 21 21;       /* red-800 */
+  --c-success: 21 128 61;           /* green-700 */
+  --c-warning: 161 98 7;            /* amber-700 */
+  --c-info: 29 78 216;              /* blue-700 */
+  --c-rating: 184 128 52;           /* #b08034 暖琥珀（白底上加深） */
+  --c-on-rating: 255 255 255;       /* 琥珀底上的文字色 */
   /* 实心状态底色（配白字）：比「文字用」色更深一档，保证白字对比度 ≥ 4.5:1 */
-  --c-danger-solid: 185 28 28;     /* red-700 */
-  --c-success-solid: 21 128 61;    /* green-700 */
-  --c-warning-solid: 180 83 9;     /* amber-700 */
-  --c-info-solid: 29 78 216;       /* blue-700 */
+  --c-danger-solid: 185 28 28;      /* red-700 */
+  --c-success-solid: 21 128 61;     /* green-700 */
+  --c-warning-solid: 161 98 7;      /* amber-700 */
+  --c-info-solid: 29 78 216;        /* blue-700 */
   color-scheme: light;
 }
 
 .dark {
-  /* 旧版 LibreTV（backup-2025）赛博影视主题（整体调深一档）：深蓝黑底 + 霓虹蓝/粉点缀 */
-  --c-page: 11 16 26;              /* #0b101a 深蓝黑页面底色 */
-  --c-surface: 20 28 41;           /* #141c29 弹窗/抽屉底色 */
-  --c-surface-raised: 20 28 41;
-  --c-card: 13 20 31;              /* #0d141f 卡片底色 */
-  --c-chip: 22 32 46;              /* #16202e 卡片/输入框底色 */
-  --c-hover: 29 42 61;             /* #1d2a3d 悬停态（chip 提亮） */
-  --c-line: 34 48 69;              /* #223045 边框（近似旧版 rgba(0,204,255,.15) 观感） */
-  --c-content: 230 242 255;        /* #e6f2ff 蓝白主文本（--text-color） */
-  --c-muted: 133 153 178;          /* #8599b2 次级文本（--text-muted） */
-  --c-faint: 107 127 153;          /* #6b7f99 三级文本 */
-  --c-accent: 0 184 230;           /* #00b8e6 霓虹蓝主色（--primary-color 调深一档） */
-  --c-accent-hover: 51 214 255;    /* #33d6ff 霓虹蓝浅变体（--primary-light） */
-  /* 霓虹蓝底亮度过高（对白字仅 2.35:1），暗色下实心底改用深色文字 */
-  --c-on-accent: 8 19 31;
-  /* 语义状态色（暗色主题取中等明度值，保证深蓝黑底上的对比度） */
-  --c-danger: 239 68 68;           /* red-500 */
-  --c-danger-hover: 248 113 113;   /* red-400 */
-  --c-success: 34 197 94;          /* green-500 */
-  --c-warning: 245 158 11;         /* amber-500 */
-  --c-info: 59 130 246;            /* blue-500 */
-  --c-rating: 251 191 36;          /* amber-400 */
+  /* 柔夜主题：深蓝灰（不是纯黑，留一点空气感）+ 雾青强调色，与浅色同族 */
+  --c-page: 20 22 26;               /* #14161a */
+  --c-surface: 28 31 36;            /* #1c1f24 面板 / 抽屉底 */
+  --c-surface-raised: 30 33 39;
+  --c-card: 24 27 31;               /* #181b1f 卡片底 */
+  --c-chip: 36 40 46;               /* #24282e 输入框 / chip 底 */
+  --c-hover: 46 51 58;              /* #2e333a 悬停态 */
+  --c-line: 44 49 56;               /* #2c3138 发丝描边 */
+  --c-content: 238 241 244;         /* #eef1f4 主文本 */
+  --c-muted: 154 162 171;           /* #9aa2ab 次级文本 */
+  --c-faint: 112 120 129;           /* #70787f 三级文本 */
+  --c-accent: 143 191 201;          /* #8fbfc9 雾青主色 */
+  --c-accent-hover: 168 208 216;    /* #a8d0d8 浅变体 */
+  --c-accent-deep: 178 214 222;     /* #b2d6de 文字用 */
+  --c-accent-soft: 38 56 62;        /* #26383e 淡青底 */
+  --c-on-accent: 14 28 32;          /* #0e1c20 青底上的文字色 */
+  /* 语义状态色（暗色主题取中等明度值，保证深底上的对比度） */
+  --c-danger: 248 113 113;         /* red-400 */
+  --c-danger-hover: 252 165 165;    /* red-300 */
+  --c-success: 74 222 128;         /* green-400 */
+  --c-warning: 251 191 36;         /* amber-400 */
+  --c-info: 96 165 250;            /* blue-400 */
+  --c-rating: 201 162 39;          /* #c9a227 古金 */
+  --c-on-rating: 18 18 20;          /* #121214 古金底上的文字色 */
   /* 实心状态底色（配白字）：与亮色一致取深档，避免琥珀/绿色底白字对比度不足 */
-  --c-danger-solid: 185 28 28;     /* red-700 */
-  --c-success-solid: 21 128 61;    /* green-700 */
-  --c-warning-solid: 180 83 9;     /* amber-700 */
-  --c-info-solid: 29 78 216;       /* blue-700 */
+  --c-danger-solid: 185 28 28;      /* red-700 */
+  --c-success-solid: 21 128 61;     /* green-700 */
+  --c-warning-solid: 161 98 7;      /* amber-700 */
+  --c-info-solid: 29 78 216;        /* blue-700 */
   color-scheme: dark;
 }
 
@@ -71,9 +84,14 @@ body {
   @apply bg-page text-content antialiased;
 }
 
-/* 暗色主题：模拟旧版 .page-bg 的深蓝黑纵向渐变 */
+/* 暗色主题：深蓝灰纵向渐变 */
 .dark body {
-  background: linear-gradient(180deg, rgb(11 16 26), rgb(20 28 41)) fixed;
+  background: linear-gradient(180deg, rgb(20 22 26), rgb(28 31 36)) fixed;
+}
+
+/* 浅色主题：暖白页底的极轻渐变，避免大屏纯色发死 */
+body {
+  background: linear-gradient(180deg, rgb(244 242 237), rgb(242 240 234)) fixed;
 }
 
 body {
@@ -83,10 +101,15 @@ body {
 
 @layer components {
   .card {
-    @apply bg-card border border-line rounded-lg overflow-hidden transition-all duration-200;
+    @apply bg-card border border-line rounded-xl overflow-hidden transition-all duration-200;
+  }
+  /* 玻璃质感面板：用于直播/播放页的侧栏、信息条等「浮在页面之上」的容器 */
+  .panel {
+    @apply bg-surface-raised border border-line rounded-xl;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 8px 24px -12px rgb(0 0 0 / 0.28);
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
     /* 统一焦点环：键盘用户可见，与 .input 同一规格 */
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40;
   }
@@ -96,8 +119,12 @@ body {
   .btn-ghost {
     @apply btn bg-chip text-muted hover:bg-hover hover:text-content border border-line;
   }
+  /* 描边按钮：概念图中的次级操作（下载本集 / 切换资源 / 倒序排列）用这一档 */
+  .btn-outline {
+    @apply btn bg-transparent text-accent border border-accent/45 hover:bg-accent/10;
+  }
   .input {
-    @apply bg-chip border border-line rounded-md px-3 py-2 text-sm text-content placeholder:text-faint;
+    @apply bg-chip border border-line rounded-lg px-3 py-2 text-sm text-content placeholder:text-faint;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent;
   }
   .tag {
@@ -110,6 +137,41 @@ body {
   /* 胶囊控件（筛选、分类标签）：统一内边距与圆角 */
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] transition-colors;
+  }
+  /* 顶栏图标按钮：白卡 + 极淡描边。
+     半透明的 chip 底叠在暖白页底上会泛黄，白卡更干净，也与安卓端的白色悬浮卡片一致。 */
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-9 h-9 rounded-lg border border-line bg-surface text-muted transition-colors;
+    @apply hover:text-content hover:bg-hover focus-visible:outline-none focus-visible:ring-accent/40;
+  }
+  /* 暗色主题下图标按钮用略高一档的面板色，避免和页底糊在一起 */
+  .dark .btn-icon {
+    @apply bg-surface-raised border-line;
+  }
+  /* 分段控件（电影 / 剧集）：胶囊底槽 + 选中项填充 */
+  .seg {
+    @apply inline-flex items-center gap-0.5 p-0.5 rounded-full bg-chip;
+  }
+  .seg-item {
+    @apply inline-flex items-center rounded-full px-3.5 py-1 text-sm transition-colors;
+  }
+  .seg-item-active {
+    @apply bg-accent text-on-accent font-medium;
+  }
+  .seg-item-idle {
+    @apply text-muted hover:text-content;
+  }
+  /* 评分徽章：浅色下用白底胶囊 + 深琥珀字（与安卓端一致），实心琥珀块在海报上太跳 */
+  .rating-badge {
+    @apply absolute top-1.5 right-1.5 inline-flex items-center gap-0.5 rounded-full bg-surface/95 px-1.5 py-0.5 text-[11px] font-semibold leading-none;
+    color: rgb(var(--c-rating));
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
+  }
+  /* 暗色主题下海报整体偏暗，白胶囊会糊掉，改回琥珀实心底 */
+  .dark .rating-badge {
+    @apply bg-rating;
+    color: rgb(var(--c-on-rating));
+    box-shadow: none;
   }
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
@@ -124,23 +186,6 @@ body {
 .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-/* 播放器集数激活态 */
-.episode-active {
-  background: rgb(var(--c-accent)) !important;
-  border-color: rgb(var(--c-accent)) !important;
-  /* 暗色下霓虹蓝底对白字对比度不足，统一用 on-accent（亮色白 / 暗色深） */
-  color: rgb(var(--c-on-accent)) !important;
-}
-
-/* 品牌渐变字（沿用旧版 LibreTV 的霓虹蓝→霓虹粉） */
-.brand-gradient {
-  background: linear-gradient(to right, #00ccff, #ff3c78);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
 
 /* LIVE 呼吸红点（直播页标识） */
 .live-dot {

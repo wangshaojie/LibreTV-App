@@ -74,7 +74,7 @@ export function ThemeToggle() {
 
   return (
     <button
-      className="p-2 rounded-md text-muted hover:text-content hover:bg-hover transition-colors"
+      className="btn-icon"
       title={`主题：${label}，点击切换为${nextLabel}`}
       aria-label={`切换主题，当前 ${label}`}
       onClick={() => setTheme(next)}

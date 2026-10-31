@@ -22,8 +22,8 @@ export default function GlobalError({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 12,
-          background: '#0b101a',
-          color: '#c9d1d9',
+          background: '#0e0e10',
+          color: '#f5f5f7',
           fontFamily: 'system-ui, sans-serif',
           textAlign: 'center',
           padding: 16,
@@ -34,10 +34,10 @@ export default function GlobalError({
           onClick={reset}
           style={{
             padding: '6px 16px',
-            borderRadius: 6,
-            border: '1px solid #2a3441',
-            background: '#151b26',
-            color: '#c9d1d9',
+            borderRadius: 8,
+            border: '1px solid #2a2a2f',
+            background: '#202024',
+            color: '#f5f5f7',
             cursor: 'pointer',
           }}
         >
@@ -45,7 +45,7 @@ export default function GlobalError({
         </button>
         {/* digest 用于线上日志定位，不含敏感信息，展示无妨 */}
         {error.digest && (
-          <p style={{ margin: 0, fontSize: 11, color: '#6b7f99' }}>错误编号：{error.digest}</p>
+          <p style={{ margin: 0, fontSize: 11, color: '#71717a' }}>错误编号：{error.digest}</p>
         )}
       </body>
     </html>

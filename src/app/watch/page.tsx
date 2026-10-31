@@ -31,6 +31,7 @@ import {
   db,
 } from '@/lib/db';
 import { cn } from '@/lib/utils';
+import { BackButton as SharedBackButton, HomeButton as SharedHomeButton } from '@/components/back-button';
 
 /**
  * 播放页（唯一入口，替代旧版 watch.html → player.html 跳转链）。
@@ -198,19 +199,19 @@ function WatchContent() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-line">
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-2.5">
           <BackButton />
           <HomeButton />
-          <div className="min-w-0">
-            <h1 className="text-sm font-medium text-content truncate">{videoTitle}</h1>
-            <p className="text-xs text-faint">
+          <div className="min-w-0 ml-1">
+            <h1 className="text-[15px] font-semibold text-content truncate">{videoTitle}</h1>
+            <p className="text-xs text-faint mt-0.5">
               {source.name}
               {episodes.length > 0 && ` · 第 ${currentIndex + 1}/${episodes.length} 集`}
             </p>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button
-              className="btn-ghost btn-sm"
+              className="btn-outline btn-sm"
               onClick={() => {
                 if (!currentUrl) return;
                 enqueueDownload({
@@ -223,9 +224,11 @@ function WatchContent() {
                 // 这里先提示的话，用户随后取消保存位置会出现「已加入→已取消」的矛盾
               }}
             >
+              <Icon name="download" className="w-3.5 h-3.5" />
               下载本集
             </button>
-            <button className="btn-ghost btn-sm" onClick={() => setSwitchOpen(true)}>
+            <button className="btn-outline btn-sm" onClick={() => setSwitchOpen(true)}>
+              <Icon name="refresh" className="w-3.5 h-3.5" />
               切换资源
             </button>
           </div>
@@ -271,16 +274,16 @@ function WatchContent() {
             </div>
 
             {/* 操作栏 */}
-            <div className="flex flex-wrap items-center gap-2 mt-3">
+            <div className="panel mt-3 px-3.5 py-3 flex flex-wrap items-center gap-2">
               <button
-                className="btn-ghost btn-sm"
+                className="btn-outline btn-sm"
                 disabled={currentIndex <= 0}
                 onClick={() => goEpisode(currentIndex - 1)}
               >
                 上一集
               </button>
               <button
-                className="btn-ghost btn-sm"
+                className="btn-outline btn-sm"
                 disabled={episodes.length === 0 || currentIndex >= episodes.length - 1}
                 onClick={() => goEpisode(currentIndex + 1)}
               >
@@ -289,7 +292,7 @@ function WatchContent() {
               <label className="flex items-center gap-1.5 text-xs text-muted ml-auto cursor-pointer">
                 <input
                   type="checkbox"
-                  className="h-3.5 w-3.5 accent-[#2563eb]"
+                  className="h-3.5 w-3.5 accent-accent"
                   checked={store.autoplayNext}
                   onChange={(e) => store.updateSettings({ autoplayNext: e.target.checked })}
                 />
@@ -299,15 +302,15 @@ function WatchContent() {
           </div>
 
           {/* 剧集侧栏 */}
-          <aside className="bg-surface-raised rounded-lg p-3 h-fit">
-            <div className="flex items-center justify-between gap-2 mb-2.5">
-              <h2 className="text-sm font-semibold text-content">
+          <aside className="panel p-4 h-fit">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h2 className="text-[15px] font-semibold text-content">
                 剧集列表{episodes.length > 0 && `（${episodes.length}）`}
               </h2>
               {/* 排列开关紧贴它所作用的列表：放在这里才看得出它管的是这一栏的顺序 */}
               {episodes.length > 1 && (
                 <button
-                  className="btn-ghost btn-sm shrink-0"
+                  className="btn-outline btn-sm shrink-0"
                   onClick={() => setReversed((v) => !v)}
                   aria-label={reversed ? '切换为正序排列' : '切换为倒序排列'}
                   title="调整剧集列表的排列顺序"
@@ -327,7 +330,7 @@ function WatchContent() {
                 <EmptyState variant="plain" title={detailQuery.isError ? '获取剧集失败' : '暂无剧集信息'} />
               )
             ) : (
-              <div className="grid grid-cols-5 lg:grid-cols-4 gap-1.5 max-h-[65vh] overflow-y-auto scrollbar-thin pr-1">
+              <div className="grid grid-cols-5 lg:grid-cols-4 gap-2 max-h-[65vh] overflow-y-auto scrollbar-thin pr-1">
                 {orderedEpisodes.map((realIndex) => (
                   <EpisodeButton
                     key={realIndex}
@@ -338,7 +341,7 @@ function WatchContent() {
                 ))}
               </div>
             )}
-            <p className="hidden md:block text-[10px] text-faint mt-3 leading-relaxed">
+            <p className="hidden md:block text-[10px] text-faint mt-3.5 leading-relaxed">
               快捷键：空格 播放/暂停 · ←/→ 快退/快进 5s · ↑/↓ 音量 · F 全屏 · Alt+←/→ 切换集数
             </p>
           </aside>
@@ -369,7 +372,12 @@ function EpisodeButton({ index, active, onClick }: { index: number; active: bool
   return (
     <button
       ref={ref}
-      className={cn('btn btn-sm !px-1', active ? 'episode-active' : 'btn-ghost')}
+      className={cn(
+        'h-10 rounded-lg border text-sm transition-colors',
+        active
+          ? 'bg-accent border-accent text-on-accent font-semibold'
+          : 'bg-transparent border-line text-muted hover:border-accent hover:text-accent'
+      )}
       onClick={onClick}
     >
       {index + 1}
@@ -378,33 +386,10 @@ function EpisodeButton({ index, active, onClick }: { index: number; active: bool
 }
 
 function BackButton() {
-  const router = useRouter();
-  return (
-    <button
-      className="p-2 -ml-2 rounded-md text-muted hover:text-content hover:bg-hover transition-colors"
-      onClick={() => {
-        if (window.history.length > 1) router.back();
-        else router.push('/');
-      }}
-      aria-label="返回"
-    >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-  );
+  return <SharedBackButton label="返回上一页" />;
 }
 
-/** 首页按钮：直达首页，避免从外链进入时逐级 back */
+/** 首页按钮：直达首页，避免从外链进入时逐级 back（与详情弹窗同一套按钮） */
 function HomeButton() {
-  return (
-    <Link
-      href="/"
-      className="p-2 rounded-md text-muted hover:text-content hover:bg-hover transition-colors"
-      aria-label="回首页"
-      title="回首页"
-    >
-      <Icon name="home" className="w-5 h-5" />
-    </Link>
-  );
+  return <SharedHomeButton />;
 }

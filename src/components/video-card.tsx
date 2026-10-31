@@ -318,19 +318,25 @@ export function AggregatedCard({
           </div>
         )}
 
-        <div className="p-2.5 flex flex-col flex-grow min-w-0">
+        <div className="p-3.5 flex flex-col flex-grow min-w-0">
           <div className="flex-grow">
-            <h3 className="font-semibold text-sm text-content mb-1.5 line-clamp-2" title={group.name}>
+            <h3 className="font-semibold text-[15px] text-content mb-2 line-clamp-2" title={group.name}>
               {group.name}
             </h3>
-            <div className="flex flex-wrap gap-1 mb-1.5">
-              {group.typeName && <span className="tag bg-accent/15 text-accent">{group.typeName}</span>}
-              {group.year && <span className="tag bg-purple-500/15 text-purple-600 dark:text-purple-300">{group.year}</span>}
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {group.typeName && (
+                <span className="tag bg-accent/15 text-accent">{group.typeName}</span>
+              )}
+              {group.year && (
+                <span className="tag bg-chip text-muted">{group.year}</span>
+              )}
               {adult && <span className="tag bg-pink-500/15 text-pink-600 dark:text-pink-400">(18+)</span>}
             </div>
-            <p className="text-xs text-muted line-clamp-2 mb-2">{group.remarks || '暂无介绍'}</p>
+            <p className="text-xs text-muted line-clamp-2 mb-2.5 leading-relaxed">
+              {group.remarks || '暂无介绍'}
+            </p>
           </div>
-          <div className="flex items-center justify-between mt-auto pt-1.5 border-t border-line">
+          <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-line">
             <span className="tag bg-chip text-muted truncate max-w-[80%]">
               {multi ? `${group.items.length} 个来源` : group.items[0].sourceName}
             </span>
@@ -350,15 +356,15 @@ export function AggregatedCard({
       </div>
 
       {multi && expanded && (
-        <div className="border-t border-line p-2.5 animate-fade-in">
-          <p className="text-[10px] text-faint mb-1.5">选择来源播放</p>
+        <div className="border-t border-line p-3.5 animate-fade-in">
+          <p className="text-[11px] text-faint mb-2">选择来源播放</p>
           {/*
             一行两个源：用 grid 而不是 flex-wrap —— flex 里为了撑满整行必须加 grow，
             而 grow 在源数为奇数时会把最后一行的那个按钮拉满整行，与上一行对不齐。
             grid 的列宽是固定的两等分，落单的按钮自然停在左列。
             348px 是两列的下限（按钮摊不到约 148px 后源名会被截成「36…」），再窄退回单列整行。
           */}
-          <div className="grid grid-cols-1 min-[348px]:grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-1 min-[348px]:grid-cols-2 gap-2">
             {group.items.map((item) => {
               const itemKey = qualityKey(item.sourceKey, item.vodId);
               const remarks = formatRemarks(item.remarks);
@@ -383,7 +389,7 @@ export function AggregatedCard({
                 <button
                   key={`${item.sourceKey}_${item.vodId}`}
                   className={cn(
-                    'group flex w-full min-w-0 flex-col gap-1 rounded-lg border px-2.5 py-1.5',
+                    'group flex w-full min-w-0 flex-col gap-1 rounded-lg border px-3 py-2',
                     'text-xs transition-all cursor-pointer',
                     'border-line bg-chip hover:border-accent hover:bg-accent/10',
                     item.isAdult && 'border-pink-500/30'
@@ -469,7 +475,7 @@ export function VideoCard({ item, onClick }: { item: SearchResultItem; onClick: 
             </h3>
             <div className="flex flex-wrap gap-1 mb-1.5">
               {item.typeName && <span className="tag bg-accent/15 text-accent">{item.typeName}</span>}
-              {item.year && <span className="tag bg-purple-500/15 text-purple-600 dark:text-purple-300">{item.year}</span>}
+              {item.year && <span className="tag bg-chip text-muted">{item.year}</span>}
             </div>
             <p className="text-xs text-muted line-clamp-2 mb-2">{formatRemarks(item.remarks) || '暂无介绍'}</p>
           </div>
@@ -491,7 +497,7 @@ export function DoubanCard({ item, onClick }: { item: { title: string; cover: st
 
   return (
     <div
-      className="card cursor-pointer hover:scale-[1.03] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+      className="cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-xl"
       role="button"
       tabIndex={0}
       onClick={onClick}
@@ -503,7 +509,7 @@ export function DoubanCard({ item, onClick }: { item: { title: string; cover: st
         }
       }}
     >
-      <div className="relative aspect-[2/3] bg-chip">
+      <div className="relative aspect-[2/3] bg-chip rounded-xl overflow-hidden border border-line transition-transform duration-200 group-hover:scale-[1.03]">
         {item.cover && !imgFailed ? (
           <SmartImage
             url={item.cover}
@@ -520,14 +526,10 @@ export function DoubanCard({ item, onClick }: { item: { title: string; cover: st
             </svg>
           </div>
         )}
-        {item.rating && (
-          <span className={cn('absolute top-1.5 right-1.5 tag bg-black/70 text-rating font-medium')}>
-            ★ {item.rating}
-          </span>
-        )}
+        {item.rating && <span className="rating-badge">★ {item.rating}</span>}
       </div>
-      <div className="p-2">
-        <div className="text-xs font-medium text-content truncate" title={item.title}>
+      <div className="mt-2 px-0.5">
+        <div className="text-[13px] font-medium text-content truncate" title={item.title}>
           {item.title}
         </div>
       </div>

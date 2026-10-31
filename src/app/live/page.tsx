@@ -219,7 +219,7 @@ function LiveContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header showSearch />
+      <Header showSearch showBack />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
           {/* 主栏：播放器 + 信息条 + 节目单 */}
@@ -250,8 +250,8 @@ function LiveContent() {
 
             {/* 频道信息条 */}
             {currentChannel && (
-              <div className="bg-surface-raised border border-line rounded-lg p-3 mt-3 flex items-center gap-3">
-                <div className="w-10 h-10 shrink-0 rounded bg-chip flex items-center justify-center overflow-hidden">
+              <div className="panel p-3.5 mt-3 flex items-center gap-3.5">
+                <div className="w-11 h-11 shrink-0 rounded-lg bg-chip border border-line flex items-center justify-center overflow-hidden">
                   {logo && !logoFailed ? (
                     <SmartImage
                       url={logo}
@@ -268,19 +268,19 @@ function LiveContent() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="live-dot shrink-0" />
-                    <h1 className="text-sm font-semibold text-content truncate">{currentChannel.name}</h1>
+                    <h1 className="text-[15px] font-semibold text-content truncate">{currentChannel.name}</h1>
                     {currentChannel.group && (
                       <span className="tag bg-chip text-faint shrink-0">{currentChannel.group}</span>
                     )}
                   </div>
-                  <p className="text-xs text-faint truncate mt-0.5">{currentChannel.url}</p>
+                  <p className="text-xs text-faint truncate mt-1">{currentChannel.url}</p>
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     className={cn(
-                      'rounded-md p-2 transition-colors',
+                      'btn-icon',
                       lastChannelRef.current
-                        ? 'text-muted hover:text-accent hover:bg-hover'
+                        ? 'text-muted hover:text-accent'
                         : 'text-faint/40 cursor-default'
                     )}
                     aria-label="上一个频道"
@@ -297,7 +297,7 @@ function LiveContent() {
                     </svg>
                   </button>
                   <button
-                    className="rounded-md p-2 text-muted hover:text-accent hover:bg-hover transition-colors"
+                    className="btn-icon text-muted hover:text-accent"
                     aria-label="上一台"
                     title="上一台（↑）"
                     onClick={goPrevChannel}
@@ -312,7 +312,7 @@ function LiveContent() {
                     </svg>
                   </button>
                   <button
-                    className="rounded-md p-2 text-muted hover:text-accent hover:bg-hover transition-colors"
+                    className="btn-icon text-muted hover:text-accent"
                     aria-label="下一台"
                     title="下一台（↓）"
                     onClick={goNextChannel}
@@ -328,8 +328,8 @@ function LiveContent() {
                   </button>
                   <button
                     className={cn(
-                      'rounded-md p-2 transition-colors',
-                      isFavorite ? 'text-warning' : 'text-muted hover:text-warning hover:bg-hover'
+                      'btn-icon',
+                      isFavorite ? 'text-warning' : 'text-muted hover:text-warning'
                     )}
                     aria-label={isFavorite ? '取消收藏' : '收藏'}
                     title={isFavorite ? '取消收藏' : '收藏'}
@@ -350,7 +350,7 @@ function LiveContent() {
                     </svg>
                   </button>
                   <button
-                    className="rounded-md p-2 text-muted hover:text-accent hover:bg-hover transition-colors"
+                    className="btn-icon text-muted hover:text-accent"
                     aria-label="复制播放地址"
                     title="复制播放地址"
                     onClick={async () => {
@@ -380,7 +380,7 @@ function LiveContent() {
 
             {/* 节目单 */}
             {currentChannel && (
-              <section className="bg-surface-raised border border-line rounded-lg p-3 mt-3">
+              <section className="panel p-3.5 mt-3">
                 <h2 className="text-sm font-semibold text-content mb-2.5">节目单</h2>
                 <LiveEpgPanel epgUrl={currentChannel.epg} tvgId={currentChannel.tvgId} />
               </section>
@@ -399,10 +399,10 @@ function LiveContent() {
           {/* 侧栏：桌面常驻 sticky；移动端底部抽屉 */}
           <aside
             className={cn(
-              'bg-surface-raised border border-line flex-col overflow-hidden',
+              'panel flex-col overflow-hidden',
               'fixed inset-x-0 bottom-0 z-40 h-[75vh] rounded-t-2xl shadow-2xl',
               listOpen ? 'flex' : 'hidden',
-              'lg:sticky lg:top-20 lg:flex lg:h-[calc(100vh-6.5rem)] lg:rounded-xl lg:shadow-none'
+              'lg:sticky lg:top-20 lg:flex lg:h-[calc(100vh-6.5rem)] lg:shadow-none'
             )}
           >
             {/* 抽屉把手栏（仅移动端） */}

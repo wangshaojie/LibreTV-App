@@ -201,26 +201,29 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header
+        showBack={Boolean(urlQuery)}
+        onBack={() => router.push('/')}
+      />
 
       <main className="relative flex-1 max-w-6xl w-full mx-auto px-4 py-6">
-        {/* 首屏氛围渐变 */}
+        {/* 首屏氛围渐变：香槟金的极淡光晕（不再是霓虹青） */}
         {!urlQuery && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-[420px] -z-10"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[460px] -z-10"
             style={{
               background:
-                'radial-gradient(60% 60% at 50% 0%, rgba(35,173,229,0.10) 0%, rgba(35,173,229,0.03) 45%, transparent 75%)',
+                'radial-gradient(52% 52% at 50% 0%, rgba(212,180,131,0.10) 0%, rgba(212,180,131,0.03) 48%, transparent 78%)',
             }}
           />
         )}
 
         {/* 搜索区 */}
-        <section className={cn('flex flex-col items-center', urlQuery ? 'mb-6' : 'mt-8 mb-8')}>
+        <section className={cn('flex flex-col items-center', urlQuery ? 'mb-6' : 'mt-12 mb-8')}>
           {!urlQuery && (
-            <header className="text-center mb-6">
-              <h1 className="text-4xl sm:text-5xl font-bold brand-gradient">静观 TV</h1>
+            <header className="text-center mb-7">
+              <h1 className="text-5xl sm:text-6xl font-bold text-content tracking-tight">静观 TV</h1>
             </header>
           )}
           {urlQuery && <h1 className="sr-only">静观 TV 视频搜索</h1>}
@@ -233,14 +236,14 @@ function HomeContent() {
                 runSearch(input);
               }}
             >
-              {/* 输入框与搜索按钮合并为一个胶囊：内部无边框，焦点态由容器统一表达；
+              {/* 输入框与搜索按钮合并为一个整体：内部无边框，焦点态由容器统一表达；
                   下拉展开时改为「上圆下直」并隐去底边，与下方浮层拼成同一个面板 */}
               <div
                 className={cn(
                   // 12px 圆角矩形（非胶囊）：收起态与展开态共用同一组上圆角，
                   // 展开时输入框这部分形状完全不发生变化，上下圆角也与下拉保持一致；
                   // 右侧与上下不留内边距，由搜索按钮拉伸填满、与搜索框边缘贴合
-                  'flex items-stretch min-h-12 pl-4 border',
+                  'flex items-stretch min-h-14 pl-4 border',
                   'transition-[background-color,border-color,border-radius] duration-200',
                   searchHistory.visible
                     ? // 展开时：外框（含上圆角）沿用输入框的聚焦样式不变，只把底边改为内部分隔线，
@@ -251,7 +254,7 @@ function HomeContent() {
               >
                 <input
                   ref={inputRef}
-                  className="flex-1 min-w-0 pr-2 bg-transparent text-sm text-content placeholder:text-faint focus:outline-none"
+                  className="flex-1 min-w-0 pr-2 bg-transparent text-[15px] text-content placeholder:text-faint focus:outline-none"
                   placeholder="输入影片名称..."
                   value={input}
                   maxLength={100}
@@ -291,7 +294,7 @@ function HomeContent() {
                 <button
                   type="submit"
                   className={cn(
-                    'btn-primary shrink-0 px-4 font-medium transition-[background-color,filter] active:brightness-90',
+                    'btn-primary shrink-0 px-5 font-medium transition-[background-color,filter] active:brightness-90',
                     '!rounded-l-none',
                     searchHistory.visible ? '!rounded-tr-xl !rounded-br-none' : '!rounded-r-xl'
                   )}
@@ -319,9 +322,9 @@ function HomeContent() {
         {/* 搜索结果 */}
         {urlQuery && (
           <section aria-label="搜索结果" className="mb-10">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm text-muted">
-                “<span className="text-content">{urlQuery}</span>” 的搜索结果
+            <div className="flex items-center justify-between mb-3.5 gap-3">
+              <h2 className="text-sm text-muted truncate">
+                “<span className="text-content font-medium">{urlQuery}</span>” 的搜索结果
                 {isSearching ? (
                   <span className="text-faint">
                     （已就绪 {streamedOutcomes.length}/{selectedSources.length} 个源…）
@@ -337,7 +340,7 @@ function HomeContent() {
             </div>
 
             {failures.length > 0 && (
-              <div className="mb-3 text-xs bg-chip rounded-lg px-3 py-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <div className="mb-3.5 panel px-3.5 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                 <span className="text-faint">{isSearching ? '以下源暂时无响应：' : '部分点播源请求失败：'}</span>
                 {failures.map((f) => (
                   <span key={f.sourceKey} className={f.timedOut ? 'text-warning' : 'text-faint'}>
@@ -347,10 +350,11 @@ function HomeContent() {
                 ))}
                 {!isSearching && (
                   <button
-                    className="btn-ghost btn-sm ml-auto"
+                    className="btn-outline btn-sm ml-auto"
                     disabled={retryingSources}
                     onClick={retryFailedSources}
                   >
+                    <Icon name="refresh" className="w-3.5 h-3.5" />
                     {retryingSources ? '重试中…' : `重试 ${failures.length} 个失败源`}
                   </button>
                 )}
@@ -358,14 +362,14 @@ function HomeContent() {
             )}
 
             {disabledSources.length > 0 && (
-              <div className="mb-3 text-xs text-faint bg-chip rounded-lg px-3 py-2">
+              <div className="mb-3 text-xs text-faint panel px-3.5 py-2.5">
                 {disabledSources.length} 个源因连续超时/失败已暂停参与搜索（临时停用的到期自动恢复，
                 长期停用的需在设置中手动恢复）：{disabledSources.map((key) => sourceName(key)).join('、')}
               </div>
             )}
 
             {offSubscriptionSources.length > 0 && (
-              <div className="mb-3 text-xs text-faint bg-chip rounded-lg px-3 py-2">
+              <div className="mb-3 text-xs text-faint panel px-3.5 py-2.5">
                 {offSubscriptionSources.length} 个源所属的订阅已停用，未参与本次搜索（在设置 → 数据源订阅中可重新启用）：
                 {offSubscriptionSources.map((key) => sourceName(key)).join('、')}
               </div>
@@ -375,7 +379,7 @@ function HomeContent() {
               <NoSourceGuide hasSources={customAPIs.length > 0 || envSources.length > 0} />
             ) : list.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
                   {visibleGroups.map((group) => (
                     <AggregatedCard
                       key={group.key}

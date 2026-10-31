@@ -14,15 +14,23 @@ import java.util.concurrent.*;
 
 /** Bounded image work and caches: no Activity references or full-size poster decoding. */
 final class Images {
-    private static final ExecutorService pool=Executors.newFixedThreadPool(2);
+    // 4 条并发：电视上滚动时几十张海报会同时排队，2 条明显跟不上；
+    // 再多会跟页面自身的网络请求抢 CPU，反而更卡。
+    private static final ExecutorService pool=Executors.newFixedThreadPool(4);
     private static final Handler main=new Handler(Looper.getMainLooper());
     private static final LruCache<String,Bitmap> memory=new LruCache<String,Bitmap>((int)Math.min(12*1024*1024,Runtime.getRuntime().maxMemory()/10)){
         protected int sizeOf(String key,Bitmap value){return value.getByteCount();}
     };
     private static final Map<String,List<WeakReference<ImageView>>> pending=new HashMap<>();
     static void load(Context context,String url,ImageView view){
-        view.setTag(url);view.setImageDrawable(null);if(Catalog.httpUrl(url,null)==null)return;
+        if(url==null||url.isEmpty())return;
+        // 同一张图已经在显示或正在加载：不重复清空。
+        // 列表复用卡片时若每次都先清空再设置，滚动中会看到明显的闪烁。
+        if(url.equals(view.getTag())&&view.getDrawable()!=null)return;
+        view.setTag(url);
+        if(Catalog.httpUrl(url,null)==null){view.setImageDrawable(null);return;}
         Bitmap cached=memory.get(url);if(cached!=null){view.setImageBitmap(cached);return;}
+        view.setImageDrawable(null);
         synchronized(pending){List<WeakReference<ImageView>> waiting=pending.get(url);if(waiting!=null){waiting.add(new WeakReference<>(view));return;}waiting=new ArrayList<>();waiting.add(new WeakReference<>(view));pending.put(url,waiting);}
         File dir=new File(context.getApplicationContext().getCacheDir(),"posters");
         pool.execute(()->{Bitmap bitmap=null;try{dir.mkdirs();File file=new File(dir,hash(url));if(!file.exists()){

@@ -349,7 +349,7 @@ export function PlayerShell({
       playsInline: true,
       airplay: true,
       hotkey: false,
-      theme: '#2563eb',
+      theme: '#d4b483',
       lang: navigator.language.toLowerCase().startsWith('zh') ? 'zh-cn' : 'en',
       moreVideoAttr: { crossOrigin: 'anonymous', playsInline: true },
       customType: {

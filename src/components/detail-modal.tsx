@@ -30,13 +30,18 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
   const [error, setError] = useState('');
   const [reversed, setReversed] = useState(false);
   const [posterFailed, setPosterFailed] = useState(false);
+  /** 简介展开态：默认只显示 3 行 */
+  const [descExpanded, setDescExpanded] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // 打开时把焦点移入弹窗、Tab 圈闭在弹窗内、关闭后归还焦点
   useFocusTrap(Boolean(item), panelRef);
 
-  useEffect(() => setPosterFailed(false), [item?.pic, store.imageProxyMode, store.customImageProxy]);
+  useEffect(() => {
+    setPosterFailed(false);
+    setDescExpanded(false);
+  }, [item?.pic, item?.vodId, store.imageProxyMode, store.customImageProxy]);
 
   // 弹窗打开期间锁定背景滚动
   useEffect(() => {
@@ -116,12 +121,12 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
 
   // 备注与卡片同源，同样归一化，避免同一部剧在两处显示不同文案
   const remarks = formatRemarks(info?.remarks);
+  // 主演单独一行展示（可换行不截断），不放进 metaRows
   const metaRows = [
     info?.typeName && ['类型', info.typeName],
     info?.year && ['年份', info.year],
     info?.area && ['地区', info.area],
     info?.director && ['导演', info.director],
-    info?.actor && ['主演', info.actor],
     remarks && ['备注', remarks],
   ].filter(Boolean) as [string, string][];
 
@@ -135,98 +140,151 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="bg-surface-raised rounded-xl w-full max-w-3xl shadow-2xl animate-slide-up outline-none"
+        className="bg-surface-raised rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up outline-none overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-label={`${item.name} 详情`}
       >
-        <div className="flex items-start justify-between gap-4 p-5 pb-3 border-b border-line">
-          <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-content break-words">{item.name}</h2>
-            <span className="text-sm text-faint">{item.sourceName}</span>
+        {/* 顶部：海报 + 标题 + 来源 + 关闭 */}
+        <div className="flex items-start gap-4 p-5 pb-4">
+          {item?.pic && !posterFailed && (
+            <SmartImage
+              url={item.pic}
+              mode={store.imageProxyMode}
+              customProxy={store.customImageProxy}
+              alt={item.name}
+              className="w-28 sm:w-32 aspect-[2/3] object-cover rounded-xl bg-chip shrink-0 border border-line"
+              loading="eager"
+              onExhausted={() => setPosterFailed(true)}
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-xl font-semibold text-content break-words leading-snug">{item.name}</h2>
+              {/* 与播放页同一套返回入口：左箭头关闭弹窗回到上一层，home 直达首页 */}
+              <div className="flex items-center gap-1.5 shrink-0 -mt-1 -mr-1">
+                <button
+                  className="btn-icon"
+                  onClick={onClose}
+                  aria-label="返回上一页"
+                  title="返回上一页"
+                >
+                  <Icon name="arrowLeft" className="w-5 h-5" />
+                </button>
+                <button
+                  className="btn-icon"
+                  onClick={() => {
+                    onClose();
+                    router.push('/');
+                  }}
+                  aria-label="回首页"
+                  title="回首页"
+                >
+                  <Icon name="home" className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <p className="text-sm text-faint mt-1.5">{item.sourceName}</p>
           </div>
-          <button
-            className="p-1.5 rounded-md text-muted hover:text-content hover:bg-hover shrink-0"
-            onClick={onClose}
-            aria-label="关闭"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
 
-        <div className="p-5 pt-4">
+        <div className="px-5 pb-5">
           {loading && <LoadingState label="正在获取剧集信息..." />}
 
           {!loading && error && <ErrorState message={error || '获取失败'} />}
 
           {!loading && !error && detail && (
             <>
-              <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                {item?.pic && !posterFailed && (
-                  <SmartImage
-                    url={item.pic}
-                    mode={store.imageProxyMode}
-                    customProxy={store.customImageProxy}
-                    alt={item.name}
-                    className="w-24 sm:w-32 aspect-[2/3] object-cover rounded-lg bg-chip shrink-0 self-center sm:self-start"
-                    loading="eager"
-                    onExhausted={() => setPosterFailed(true)}
-                  />
-                )}
-                <div className="min-w-0 space-y-3">
-                  {metaRows.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
-                      {metaRows.map(([k, v]) => (
-                        <div key={k} className="truncate" title={`${k}: ${v}`}>
-                          <span className="text-faint">{k}:</span>{' '}
-                          <span className="text-content">{v}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {info?.desc && (
-                    <p className="text-sm text-muted leading-relaxed line-clamp-3">{info.desc}</p>
+              {/* 元信息：类型/年份/地区/导演 做成 pill，可快速扫读 */}
+              {metaRows.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {metaRows.map(([k, v]) => (
+                    <span key={k} className="tag bg-chip text-muted px-2.5 py-1">
+                      <span className="text-faint mr-1">{k}</span>
+                      {v}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* 主演：单独一行，可换行，不截断 —— 演员名是识别影片的关键信息 */}
+              {info?.actor && (
+                <p className="text-sm text-muted leading-relaxed mb-3">
+                  <span className="text-faint mr-1.5">主演</span>
+                  <span className="text-content">{info.actor}</span>
+                </p>
+              )}
+
+              {/* 简介：默认 3 行，可展开 */}
+              {info?.desc && (
+                <div className="mb-4">
+                  <p
+                    className={cn(
+                      'text-sm text-muted leading-relaxed',
+                      !descExpanded && 'line-clamp-3'
+                    )}
+                  >
+                    {info.desc}
+                  </p>
+                  {info.desc.length > 80 && (
+                    <button
+                      className="text-xs text-accent hover:underline mt-1"
+                      onClick={() => setDescExpanded((v) => !v)}
+                    >
+                      {descExpanded ? '收起' : '展开'}
+                    </button>
                   )}
                 </div>
-              </div>
+              )}
 
               {episodes.length > 0 ? (
                 <>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="btn-ghost btn-sm"
-                        onClick={() => setReversed((v) => !v)}
-                        aria-label={reversed ? '切换为正序排列' : '切换为倒序排列'}
-                        title="调整剧集列表的排列顺序"
-                      >
-                        <Icon
-                          name="arrowDown"
-                          className={cn('w-3.5 h-3.5 transition-transform', reversed && 'rotate-180')}
-                        />
-                        {reversed ? '正序排列' : '倒序排列'}
+                  <div className="border-t border-line pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-sm font-semibold text-content">剧集</h3>
+                        <span className="text-xs text-faint">共 {episodes.length} 集</span>
+                        {episodes.length > 1 && (
+                          <button
+                            className="text-xs text-muted hover:text-content transition-colors"
+                            onClick={() => setReversed((v) => !v)}
+                            aria-label={reversed ? '切换为正序排列' : '切换为倒序排列'}
+                            title="调整剧集列表的排列顺序"
+                          >
+                            {reversed ? '正序' : '倒序'}
+                          </button>
+                        )}
+                      </div>
+                      <button className="btn-outline btn-sm" onClick={copyLinks}>
+                        <Icon name="link" className="w-3.5 h-3.5" />
+                        复制链接
                       </button>
-                      <span className="text-sm text-faint">共 {episodes.length} 集</span>
                     </div>
-                    <button className="btn-primary btn-sm" onClick={copyLinks}>
-                      复制链接
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 gap-2 max-h-[40vh] overflow-y-auto scrollbar-thin pr-1">
-                    {episodes.map((_, i) => {
-                      const realIndex = reversed ? detail.episodes.length - 1 - i : i;
-                      return (
-                        <button
-                          key={realIndex}
-                          className="btn-ghost btn-sm !px-1 text-center"
-                          onClick={() => play(realIndex)}
-                        >
-                          {realIndex + 1}
-                        </button>
-                      );
-                    })}
+                    {/* 单集影片不铺网格：直接一个主按钮，避免「孤零零一个 1」的怪异观感 */}
+                    {episodes.length === 1 ? (
+                      <button
+                        className="btn-primary w-full h-11 font-medium"
+                        onClick={() => play(0)}
+                      >
+                        <Icon name="bolt" className="w-4 h-4" />
+                        立即播放
+                      </button>
+                    ) : (
+                      <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-[40vh] overflow-y-auto scrollbar-thin pr-1">
+                        {episodes.map((_, i) => {
+                          const realIndex = reversed ? detail.episodes.length - 1 - i : i;
+                          return (
+                            <button
+                              key={realIndex}
+                              className="h-10 rounded-lg border border-line bg-chip text-muted text-sm transition-colors hover:border-accent hover:text-accent"
+                              onClick={() => play(realIndex)}
+                            >
+                              {realIndex + 1}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
