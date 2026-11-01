@@ -2,11 +2,19 @@
 
 基于 LibreSpark/LibreTV 2.19.2，增加 Electron 桌面外壳。
 
-桌面修订版：2.19.2-desktop.7。在 2.19.2-desktop.2 修复内置服务不跟随 Windows 系统代理（GitHub Raw 等订阅地址连接重置）的基础上，应用更名为「静观 TV」，窗口标题、菜单、网页界面和包内 EXE 同步更新，数据目录名 `LibreTV-Data` 保持不变。订阅、搜索及服务端媒体请求通过 Chromium 网络模块发出，保留原项目的地址校验与逐跳重定向检查。
+桌面修订版：2.19.2-desktop.9。在 2.19.2-desktop.2 修复内置服务不跟随 Windows 系统代理（GitHub Raw 等订阅地址连接重置）的基础上，应用更名为「静观 TV」，窗口标题、菜单、网页界面和包内 EXE 同步更新，数据目录名 `LibreTV-Data` 保持不变。订阅、搜索及服务端媒体请求通过 Chromium 网络模块发出，保留原项目的地址校验与逐跳重定向检查。
+
+2.19.2-desktop.9 把桌面端改成与安卓端一致的**浅色主题**：暖白底配单一青绿强调色，层次靠白卡加极淡描边和轻投影拉开；确认类弹框改为自绘，不再出现系统蓝白样式；图标按钮改用白卡底，评分徽章改为浅色白底胶囊。深浅双主题切换保留，默认仍为深色。
 
 2.19.2-desktop.6 起改为**目录分发**：下载 ZIP 或 7z 后解压出 `LibreTV-App` 文件夹，双击其中的 `静观TV.exe` 即可运行。上一版是单文件 EXE，每次启动都要把约 460 MB 运行时重新解压到系统临时目录并被杀毒软件逐个扫描，窗口要等约 28 秒才出现；改为目录分发后同一台机器上实测约 1 秒。
 
-2.19.2-desktop.7 起同时提供 **7z 包**（约 109 MB）与 **ZIP 包**（约 158 MB），内容完全相同。Windows 11 22H2 以后资源管理器可直接解压 7z；Windows 10 用户下载 ZIP 即可。
+2.19.2-desktop.7 起同时提供 **7z 包**（约 110 MB）与 **ZIP 包**（约 159 MB），内容完全相同。Windows 11 22H2 以后资源管理器可直接解压 7z；Windows 10 用户下载 ZIP 即可。
+
+## 下载
+
+- [Windows 7z 包（110 MB）](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.9/LibreTV-App-v2.19.2-desktop.9-Windows-x64.7z)
+- [Windows ZIP 包（159 MB）](https://github.com/wangshaojie/LibreTV-App/releases/download/v2.19.2-desktop.9/LibreTV-App-v2.19.2-desktop.9-Windows-x64.zip)
+- [发布说明、源码和校验文件](https://github.com/wangshaojie/LibreTV-App/releases/tag/v2.19.2-desktop.9)
 
 ## 使用
 
