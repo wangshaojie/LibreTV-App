@@ -32,6 +32,13 @@ final class Ui {
         RATING=Color.rgb(184,128,52),WARN=Color.rgb(184,128,52),BAD=Color.rgb(192,82,79),
         DARK=Color.rgb(20,22,26),DARK_CARD=Color.rgb(28,31,36);
     static int dp(Context c,int n){return Math.round(c.getResources().getDisplayMetrics().density*n);}
+    /**
+     * 判断是不是电视。
+     *
+     * 只认系统的 UI_MODE_TYPE_TELEVISION —— 电视装 TV 版、手机装手机版，
+     * 界面按各自的形态来排。没有额外的调试开关：调试用的「在电视上强制手机布局」
+     * 一旦留在发布包里，电视用户就会看到手机版的底部导航。
+     */
     static boolean tv(Context c){return ((UiModeManager)c.getSystemService(Context.UI_MODE_SERVICE)).getCurrentModeType()==Configuration.UI_MODE_TYPE_TELEVISION;}
     static GradientDrawable shape(int color,int stroke){GradientDrawable d=new GradientDrawable();d.setColor(color);float density=Resources.getSystem().getDisplayMetrics().density;d.setCornerRadius(14*density);if(stroke!=0)d.setStroke(Math.max(2,Math.round(1.4f*density)),stroke);return d;}
     /** 自定义圆角（侧边栏卡片、弹框面板这类需要更大圆角的地方） */
@@ -53,9 +60,20 @@ final class Ui {
     static StateListDrawable focus(){StateListDrawable d=new StateListDrawable();for(int state:new int[]{android.R.attr.state_focused,android.R.attr.state_selected,android.R.attr.state_activated,android.R.attr.state_pressed})d.addState(new int[]{state},shape(CARD,ACCENT));d.addState(new int[]{},shape(CARD,LINE));return d;}
     static TextView text(Context c,String value,int size){TextView t=new TextView(c);t.setText(value);t.setTextSize(size);t.setTextColor(TEXT);t.setPadding(dp(c,8),dp(c,8),dp(c,8),dp(c,8));return t;}
     static Button button(Context c,String name,Runnable action){Button b=new Button(c);b.setText(name);b.setTextColor(TEXT);b.setTextSize(15);b.setAllCaps(false);b.setBackground(focus());b.setMinHeight(dp(c,48));b.setPadding(dp(c,14),0,dp(c,14),0);b.setOnClickListener(v->action.run());
-        // 电视上系统可能仍处于 touch mode，此时 focusableInTouchMode=false 的控件
-        // requestFocus 会静默失败 —— 焦点怎么都抢不到导航栏。按钮必须显式允许。
-        b.setFocusableInTouchMode(true);plain(b);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dp(c,48));lp.setMargins(dp(c,3),dp(c,3),dp(c,3),dp(c,3));b.setLayoutParams(lp);return b;}
+        focusable(b,c);plain(b);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dp(c,48));lp.setMargins(dp(c,3),dp(c,3),dp(c,3),dp(c,3));b.setLayoutParams(lp);return b;}
+    /**
+     * 焦点能力按端区分。
+     *
+     * 电视端：系统可能仍处于 touch mode，此时 focusableInTouchMode=false 的控件
+     * requestFocus 会静默失败 —— 焦点怎么都抢不到导航栏。所以电视端必须显式允许。
+     *
+     * 手机端：必须反过来关掉。框架 View.onTouchEvent 在 ACTION_UP 时的逻辑是
+     * 「若控件 focusableInTouchMode 且当前没有焦点，就先 requestFocus 抢焦点，
+     * 抢到了就不走 performClick」—— 于是第一次点按钮只会让它获得焦点、
+     * 不触发点击，用户体感就是「点了没反应」，每个控件都得点两次。
+     * 遥控器路径不受影响（按下时按钮早已持有焦点），所以这个问题只在触摸设备上出现。
+     */
+    static void focusable(View v,Context c){v.setFocusable(true);v.setFocusableInTouchMode(tv(c));}
     /**
      * 去掉 Material 按钮自带的抬升动画。
      *
@@ -101,7 +119,7 @@ final class Ui {
      * 描边方块图标按钮：返回 / 回首页等二级页面入口统一用它。
      * 电视端没有浏览器地址栏，返回必须是显式可见的实体按钮。
      */
-    static Button icon(Context c,String key,String label,Runnable action){Button b=new Button(c);b.setBackground(focus());b.setMinWidth(dp(c,48));b.setMinHeight(dp(c,48));b.setPadding(dp(c,12),0,dp(c,12),0);NavIcon icon=new NavIcon(key,dp(c,22));icon.setBounds(0,0,dp(c,22),dp(c,22));b.setCompoundDrawables(icon,null,null,null);b.setGravity(Gravity.CENTER);b.setContentDescription(label);b.setFocusable(true);b.setFocusableInTouchMode(true);b.setOnClickListener(v->action.run());plain(b);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(c,48),dp(c,48));lp.setMargins(dp(c,3),dp(c,3),dp(c,3),dp(c,3));b.setLayoutParams(lp);return b;}
+    static Button icon(Context c,String key,String label,Runnable action){Button b=new Button(c);b.setBackground(focus());b.setMinWidth(dp(c,48));b.setMinHeight(dp(c,48));b.setPadding(dp(c,12),0,dp(c,12),0);NavIcon icon=new NavIcon(key,dp(c,22));icon.setBounds(0,0,dp(c,22),dp(c,22));b.setCompoundDrawables(icon,null,null,null);b.setGravity(Gravity.CENTER);b.setContentDescription(label);focusable(b,c);b.setOnClickListener(v->action.run());plain(b);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(c,48),dp(c,48));lp.setMargins(dp(c,3),dp(c,3),dp(c,3),dp(c,3));b.setLayoutParams(lp);return b;}
     /** 元信息标签：类型 / 年份 / 地区 */
     static TextView tag(Context c,String value){TextView t=text(c,value,13);t.setTextColor(MUTED);t.setBackground(shape(CHIP,LINE));t.setPadding(dp(c,10),dp(c,5),dp(c,10),dp(c,5));t.setSingleLine(true);return t;}
     /** 胶囊标签：键 + 值（类型 欧美剧） */
@@ -172,7 +190,7 @@ final class Ui {
         go.setScaleType(ImageView.ScaleType.FIT_CENTER);
         go.setPadding(0,0,0,0);
         go.setBackground(searchButton(r));go.setContentDescription("搜索");
-        go.setFocusable(true);go.setFocusableInTouchMode(true);
+        focusable(go,c);
         go.setOnClickListener(v->action.run());
         if(Build.VERSION.SDK_INT>=21)go.setStateListAnimator(null);
         // 负边距：按钮往左压 2dp，盖住输入框描边在交界处的最后一小段竖线，
@@ -235,11 +253,70 @@ final class Ui {
     }
     /** 统一顶栏：左箭头返回 + 标题（+ 右侧动作） */
     static LinearLayout topBar(Context c,String title,Runnable back,Runnable home){LinearLayout bar=row(c);bar.setPadding(dp(c,10),dp(c,8),dp(c,10),dp(c,8));if(back!=null)bar.addView(icon(c,"back","返回上一页",back));TextView titleView=heading(c,title);titleView.setSingleLine(true);titleView.setEllipsize(android.text.TextUtils.TruncateAt.END);bar.addView(titleView,new LinearLayout.LayoutParams(0,-2,1));if(home!=null)bar.addView(icon(c,"home","回首页",home));return bar;}
-    static void inset(android.app.Activity a,View root){root.setBackgroundColor(BG);root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets.consumeSystemWindowInsets();});if(tv(a))a.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    static void inset(android.app.Activity a,View root){root.setBackgroundColor(BG);root.setOnApplyWindowInsetsListener((v,insets)->{safeInsets(v,insets);return insets;});if(tv(a))a.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);else lightBars(a);}
     /** 播放页用深色底：视频观看需要沉浸感，浅色边框非常刺眼 */
-    static void insetDark(android.app.Activity a,View root){root.setBackgroundColor(DARK);root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets.consumeSystemWindowInsets();});if(tv(a))a.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    static void insetDark(android.app.Activity a,View root){root.setBackgroundColor(DARK);root.setOnApplyWindowInsetsListener((v,insets)->{safeInsets(v,insets);return insets;});if(tv(a))a.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+    /**
+     * 系统栏避让的兜底入口。
+     *
+     * 系统栏数值只影响留白，不影响功能，所以任何异常都不能让它把应用带崩 ——
+     * 数值算不出来时保持原样（不设内边距），页面照样能用。
+     */
+    private static void safeInsets(View v,android.view.WindowInsets insets){try{applyInsets(v,insets);}catch(Throwable ignored){}}
+    /**
+     * 系统栏避让。
+     *
+     * Android 15（API 35）对 targetSdk 35 的应用强制全面屏：窗口不再被系统栏内缩，
+     * 内容会一直画到屏幕边缘，必须自己把系统栏的高度让出来。
+     *
+     * 只有 Android 15 需要改口径。API 21~34 上窗口仍由系统内缩，
+     * 内容拿到的旧接口数值就是当前已生效的内边距，再加一次会变成双重内边距。
+     * API 35 起旧接口在全面屏下取不到真实的状态栏/导航栏高度，
+     * 必须换成 getInsets(Type.systemBars())，否则底部导航会被压在系统手势条下面、点不到。
+     */
+    private static void applyInsets(View v,android.view.WindowInsets insets){
+        int left,top,right,bottom;
+        if(Build.VERSION.SDK_INT>=35){
+            android.graphics.Insets bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()|android.view.WindowInsets.Type.displayCutout());
+            left=bars.left;top=bars.top;right=bars.right;bottom=bars.bottom;
+            // 键盘弹出时也要让开：全面屏下窗口不再为键盘缩高，
+            // 不主动避让的话软键盘会正好盖住底部的导航栏，导航按钮又点不到了。
+            //
+            // 但 IME 的 inset 只能在键盘可见时取 —— 官方约定 getInsets(Type.ime())
+            // 在键盘不可见时会抛 IllegalArgumentException（键盘高度取决于当前
+            // EditorInfo 与输入法状态，不可见时拿不到）。
+            // onApplyWindowInsets 的第一次回调恰好就发生在键盘还没弹出的时刻，
+            // 所以这里必须先用 isVisible(Type.ime()) 判断，否则应用一打开就崩。
+            if(insets.isVisible(android.view.WindowInsets.Type.ime()))bottom=Math.max(bottom,insets.getInsets(android.view.WindowInsets.Type.ime()).bottom);
+        }else{
+            left=insets.getSystemWindowInsetLeft();top=insets.getSystemWindowInsetTop();
+            right=insets.getSystemWindowInsetRight();bottom=insets.getSystemWindowInsetBottom();
+        }
+        v.setPadding(left,top,right,bottom);
+    }
+    /**
+     * 浅色系统栏图标。
+     *
+     * 只在 Android 15 起生效：targetSdk 35 的应用在 Android 15 上系统栏强制透明，
+     * 底下就是我们的暖白底 —— 默认的白色图标压在暖白底上几乎看不见，必须换成深色。
+     * Android 11~14 的系统栏仍是主题里的深色底（#0B101A），白色图标本来就对，
+     * 那几版维持原样，不做改动。
+     *
+     * 整段包 try/catch：系统栏外观只是「好不好看」，算不出来就保持系统默认，
+     * 绝不能因为它把应用带崩 —— 这条路径只在 API 35 上执行，出错就是白屏闪退。
+     */
+    private static void lightBars(android.app.Activity a){
+        if(Build.VERSION.SDK_INT<35)return;
+        try{
+            android.view.WindowInsetsController controller=a.getWindow().getInsetsController();
+            if(controller==null)return;
+            int mask=android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS;
+            if(Build.VERSION.SDK_INT>=26)mask|=android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            controller.setSystemBarsAppearance(mask,mask);
+        }catch(Throwable ignored){}
+    }
     static View poster(Context c,Catalog.Item item,int width,Runnable click){
-        LinearLayout card=column(c);card.setBackground(focus());card.setPadding(dp(c,3),dp(c,3),dp(c,3),dp(c,8));card.setFocusable(true);card.setFocusableInTouchMode(true);card.setClickable(true);card.setContentDescription(item.title);card.setOnClickListener(v->click.run());
+        LinearLayout card=column(c);card.setBackground(focus());card.setPadding(dp(c,3),dp(c,3),dp(c,3),dp(c,8));focusable(card,c);card.setClickable(true);card.setContentDescription(item.title);card.setOnClickListener(v->click.run());
         FrameLayout art=new FrameLayout(c);art.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.rgb(240,238,232),Color.rgb(228,225,216)}));TextView placeholder=label(c,"静观 TV",12,0x55A1A1AA);placeholder.setGravity(Gravity.CENTER);art.addView(placeholder,new FrameLayout.LayoutParams(-1,-1));ImageView image=new ImageView(c);image.setScaleType(ImageView.ScaleType.CENTER_CROP);art.addView(image,new FrameLayout.LayoutParams(-1,-1));
         TextView rating=label(c,item.rating.isEmpty()?item.year:item.rating,12,RATING);rating.setBackground(pill(c,0xF2FFFFFF));rating.setPadding(dp(c,8),dp(c,3),dp(c,8),dp(c,3));FrameLayout.LayoutParams badge=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.RIGHT);badge.setMargins(0,dp(c,5),dp(c,5),0);art.addView(rating,badge);if(rating.getText().length()==0)rating.setVisibility(View.GONE);
         if(!item.poster.isEmpty())Images.load(c,item.poster,image);

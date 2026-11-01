@@ -27,6 +27,9 @@ public final class PlayerActivity extends Activity {
     private FrameLayout root;private LinearLayout titleBar,panel;private TextView title,status,osd,clock;private SeekBar seek;private Button playButton,prevButton,nextButton;
     private long resume;private boolean autoplay=true;private boolean panelOn,titleOn,osdOn,locked,dragging;
     private float playbackSpeed=1f;
+    // 手机端全屏态：横屏 + 收起控制面板与标题栏，只剩画面。
+    // 电视端恒为 false —— 电视本来就是横屏全屏，没有切换的必要。
+    private boolean fullscreen;
     // Live reconnect bookkeeping: -1 means "never tried", recoverCount is the number of
     // consecutive failed reconnects and is reset as soon as the stream plays again.
     private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting,connecting;
@@ -49,7 +52,13 @@ public final class PlayerActivity extends Activity {
         root.setPadding(0,0,0,0);
         root.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(0,0,0,0);return insets;});
         video=new PlayerView(this);video.setUseController(false);video.setBackgroundColor(Color.BLACK);video.setFocusable(false);
-        video.setOnTouchListener((v,e)->{if(e.getAction()==MotionEvent.ACTION_UP)togglePanel();return true;});
+        // 全屏时点屏幕 = 退出全屏；平时点屏幕 = 呼出/收起控制面板。
+        video.setOnTouchListener((v,e)->{
+            if(e.getAction()==MotionEvent.ACTION_UP){
+                if(fullscreen)exitFullscreen();else togglePanel();
+            }
+            return true;
+        });
         root.addView(video,new FrameLayout.LayoutParams(-1,-1));
 
         osd=Ui.text(this,"",16);osd.setGravity(Gravity.CENTER);osd.setBackground(Ui.pill(this,0xD90B121C));osd.setTextColor(0xFFF2F4F3);osd.setVisibility(View.GONE);
@@ -87,7 +96,11 @@ public final class PlayerActivity extends Activity {
         nav.addView(action("选集",this::pickEpisode));
         nav.addView(action("倍速",this::pickSpeed));
         nav.addView(action("画面比例",this::pickRatio));
-        Button rotate=action("横 / 竖屏",()->{if(!Ui.tv(this))setRequestedOrientation(getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE?ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT:ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);});
+        // 「全屏」取代原来的「横 / 竖屏」：
+        // 进入全屏 = 切横屏 + 收起控制面板与标题栏，只留画面；
+        // 再点一次屏幕退出全屏 = 切回竖屏 + 面板照旧。
+        // 电视端本来就是横屏全屏，没有切换的必要，按钮隐藏。
+        Button rotate=action("全屏",this::toggleFullscreen);
         if(Ui.tv(this))rotate.setVisibility(View.GONE);nav.addView(rotate);
         nav.addView(action("收藏",()->{store.toggleFavorite(items.get(index));Ui.toast(this,store.favorite(items.get(index))?"已收藏":"已取消收藏");}));
         nav.addView(action("换线路",this::finish));
@@ -250,6 +263,58 @@ public final class PlayerActivity extends Activity {
         if(!dragging){if(d>0){seek.setMax((int)Math.min(d,Integer.MAX_VALUE));seek.setProgress((int)Math.max(0,Math.min(p,d)));}clock.setText(fmt(p)+" / "+fmt(d));}
     }
     private void togglePlay(){if(player!=null)player.setPlayWhenReady(!player.getPlayWhenReady());}
+
+    // ================= 手机端全屏 =================
+    /**
+     * 全屏 / 退出全屏。
+     *
+     * 全屏 = 横屏 + 收起控制面板与标题栏，画面铺满整屏，什么都不挡。
+     * 退出全屏 = 切回竖屏 + 把面板照旧还回来（不重新呼出，让用户自己点）。
+     *
+     * Manifest 里声明了 configChanges 含 orientation|screenSize，
+     * 所以切方向不会重建 Activity，播放器实例和播放进度都保留着。
+     */
+    private void toggleFullscreen(){
+        if(Ui.tv(this))return;
+        if(fullscreen){exitFullscreen();return;}
+        fullscreen=true;
+        // 先切横屏，等方向稳定后再收面板 —— 反过来的话旋转动画会带着面板一起闪
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        // 面板直接同步收起，不走淡出动画：
+        // 旋转过程中动画帧会被打断，半透明的面板会残留在画面上，
+        // 而且淡出回调里还有 requestFocus()，在方向切换的中间态调用容易出错。
+        collapseChrome();
+        showOsd("全屏 · 再点一次屏幕退出");
+    }
+    /** 退出全屏：切回竖屏，面板与标题栏恢复到退出前的常态。 */
+    private void exitFullscreen(){
+        if(!fullscreen)return;
+        fullscreen=false;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        // 面板不主动呼出：用户退出全屏后画面干干净净，需要控制条时再点一下屏幕
+        collapseChrome();
+    }
+    /** 同步收起控制面板与标题栏：直接改状态，不走动画，避免旋转时留下残影。 */
+    private void collapseChrome(){
+        ui.removeCallbacks(hidePanelTask);ui.removeCallbacks(hideTitleTask);
+        panelOn=false;locked=false;
+        panel.setVisibility(View.GONE);panel.setAlpha(1f);
+        titleOn=false;
+        titleBar.setVisibility(View.GONE);titleBar.setAlpha(1f);
+    }
+    /**
+     * 切回竖屏时系统可能重建 Activity（某些 ROM 不吃 configChanges），
+     * 或者用户自己旋转了手机 —— 这两种情况下全屏态必须跟着走，
+     * 否则退出全屏后又停在横屏，跟按钮说的「退出全屏」对不上。
+     */
+    @Override public void onConfigurationChanged(android.content.res.Configuration config){
+        super.onConfigurationChanged(config);
+        if(Ui.tv(this))return;
+        boolean landscape=config.orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        // 用户手动转屏也算全屏：面板收起来，只留画面
+        if(landscape&&!fullscreen){fullscreen=true;collapseChrome();}
+        else if(!landscape&&fullscreen){fullscreen=false;collapseChrome();}
+    }
     private void seekBy(long ms){if(player==null)return;long d=player.getDuration(),p=player.getCurrentPosition();long t=Math.max(0,p+ms);if(d>0)t=Math.min(t,d);player.seekTo(t);showOsd((ms>0?"快进 ":"快退 ")+(Math.abs(ms)/1000)+" 秒 · "+fmt(t));}
     private static String fmt(long ms){if(ms<0)return "--:--";long s=ms/1000;long h=s/3600,m=(s/60)%60,x=s%60;return h>0?String.format(Locale.getDefault(),"%d:%02d:%02d",h,m,x):String.format(Locale.getDefault(),"%02d:%02d",m,x);}
 
@@ -310,12 +375,12 @@ public final class PlayerActivity extends Activity {
         return super.onKeyDown(key,event);
     }
     /**
-     * 返回键：先收起控制面板，再按一次才退出播放页。
+     * 返回键：全屏时先退全屏，再收起控制面板，最后才退出播放页。
      *
      * 面板收起不能被 connecting 拦住 —— 直播源连不上时 connecting 一直是 true，
      * 面板就永远收不起来，返回键被吞掉，用户会被困在播放页里出不来。
      * 所以这里用「面板是否真的可见」判断，connecting 不参与。
      */
-    @Override public boolean onKeyUp(int key,KeyEvent event){if(key==KeyEvent.KEYCODE_BACK){if(panelVisible()){hidePanel();return true;}finish();return true;}return super.onKeyUp(key,event);}
+    @Override public boolean onKeyUp(int key,KeyEvent event){if(key==KeyEvent.KEYCODE_BACK){if(fullscreen){exitFullscreen();return true;}if(panelVisible()){hidePanel();return true;}finish();return true;}return super.onKeyUp(key,event);}
     @Override protected void onDestroy(){String file=getIntent().getStringExtra("playlistFile");if(isFinishing()&&file!=null&&file.startsWith("play-")&&!file.contains("/"))new java.io.File(getCacheDir(),file).delete();super.onDestroy();}
 }

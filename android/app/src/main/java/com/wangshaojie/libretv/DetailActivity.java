@@ -19,11 +19,15 @@ import java.util.concurrent.*;
  */
 @androidx.media3.common.util.UnstableApi
 public final class DetailActivity extends Activity {
-    private final ExecutorService worker=Executors.newSingleThreadExecutor();
+    // 切源时新请求要能立刻发出去，不能排在旧请求后面等 ——
+    // 旧请求即使回来也会被 generation 判定为过期丢弃，所以并发是安全的。
+    private final ExecutorService worker=Executors.newFixedThreadPool(3);
     private Catalog.Item item;private LinearLayout body,episodeBox,sourceBox,sourceRow;private TextView state,sourceLine;private Button favorite;
     private ScrollView scroll;private int savedScroll;
     private final List<Catalog.Item> choices=new ArrayList<>();private int active=-1;
     private Store store;private List<Catalog.Item> selected=new ArrayList<>();
+    /** 请求代次：切源时递增，旧请求的结果回来后直接丢弃，避免覆盖新源的线路 */
+    private int generation=0;
     @Override public void onCreate(Bundle saved){super.onCreate(saved);store=new Store(this);if(Ui.tv(this))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         try{item=Catalog.Item.from(new JSONObject(getIntent().getStringExtra("item")));}catch(Exception e){finish();return;}
         try{JSONArray array=new JSONArray(getIntent().getStringExtra("choices"));for(int n=0;n<array.length();n++)if(array.optJSONObject(n)!=null)choices.add(Catalog.Item.from(array.optJSONObject(n)));}catch(Exception ignored){}
@@ -98,16 +102,23 @@ public final class DetailActivity extends Activity {
         if(sourceRow!=null)for(int n=0;n<sourceRow.getChildCount();n++)if(sourceRow.getChildAt(n) instanceof Button)((Button)sourceRow.getChildAt(n)).setSelected(n==active);
         load();
     }
-    private void load(){episodeBox.removeAllViews();selected=new ArrayList<>();state.setText("正在加载线路与剧集…");state.setTextColor(Ui.MUTED);worker.execute(()->{try{
-        String json=Net.get(MainActivity.cmsUrl(item.source,"videolist","ids",item.vodId));LinkedHashMap<String,List<Catalog.Item>> routes=Catalog.episodes(json);
-        runOnUiThread(()->{if(isFinishing()||isDestroyed())return;state.setText("选择线路与剧集");state.setTextColor(Ui.TEXT);String[] names=routes.keySet().toArray(new String[0]);
+    private void load(){
+        // 每次切源都开一个新请求，旧请求回来后必须作废 ——
+        // 否则慢的旧源会把新源的线路和剧集覆盖掉，用户看到的就是「切了源但线路没变」。
+        final int token=++generation;final Catalog.Item target=item;
+        episodeBox.removeAllViews();selected=new ArrayList<>();state.setText("正在加载线路与剧集…");state.setTextColor(Ui.MUTED);worker.execute(()->{try{
+        String json=Net.get(MainActivity.cmsUrl(target.source,"videolist","ids",target.vodId));LinkedHashMap<String,List<Catalog.Item>> routes=Catalog.episodes(json);
+        runOnUiThread(()->{if(token!=generation||isFinishing()||isDestroyed())return;state.setText("选择线路与剧集");state.setTextColor(Ui.TEXT);String[] names=routes.keySet().toArray(new String[0]);
             // 线路选择用胶囊行，不用系统 Spinner：系统下拉是默认蓝白样式，与品牌脱节，遥控器操作也不顺手
             if(names.length>0)selected=routes.get(names[0]);
-            if(names.length>1){LinearLayout pickerRow=Ui.row(this);pickerRow.setGravity(Gravity.START);for(int n=0;n<names.length;n++){final int index=n;String label=names[n]+(Catalog.directRoute(routes.get(names[n]))?" · 直连":"");pickerRow.addView(Ui.chipOutline(this,label,n==0,()->{for(int k=0;k<pickerRow.getChildCount();k++)if(pickerRow.getChildAt(k) instanceof Button)((Button)pickerRow.getChildAt(k)).setSelected(k==index);selected=routes.get(names[index]);renderEpisodes(episodeBox,60);}));}HorizontalScrollView picker=new HorizontalScrollView(this);picker.setHorizontalScrollBarEnabled(false);picker.setClipToPadding(false);picker.addView(pickerRow);episodeBox.addView(picker);episodeBox.addView(Ui.gap(this,12));}
-            LinearLayout episodes=Ui.column(this);episodeBox.addView(episodes);
+            // 剧集容器要先建好：线路选择器里的按钮要往它里面重画剧集，
+            // 如果传 episodeBox 过去，renderEpisodes 会把整个 episodeBox 清空，连线路选择器自己一起抹掉。
+            final LinearLayout episodes=Ui.column(this);
+            if(names.length>1){LinearLayout pickerRow=Ui.row(this);pickerRow.setGravity(Gravity.START);for(int n=0;n<names.length;n++){final int index=n;String label=names[n]+(Catalog.directRoute(routes.get(names[n]))?" · 直连":"");pickerRow.addView(Ui.chipOutline(this,label,n==0,()->{for(int k=0;k<pickerRow.getChildCount();k++)if(pickerRow.getChildAt(k) instanceof Button)((Button)pickerRow.getChildAt(k)).setSelected(k==index);selected=routes.get(names[index]);renderEpisodes(episodes,60);}));}HorizontalScrollView picker=new HorizontalScrollView(this);picker.setHorizontalScrollBarEnabled(false);picker.setClipToPadding(false);picker.addView(pickerRow);episodeBox.addView(picker);episodeBox.addView(Ui.gap(this,12));}
+            episodeBox.addView(episodes);
             renderEpisodes(episodes,60);
         });
-    }catch(Exception e){runOnUiThread(()->{if(isFinishing()||isDestroyed())return;state.setText("暂未获取到可播放线路："+e.getMessage());episodeBox.addView(Ui.outline(this,"重新加载",this::load));});}});}
+    }catch(Exception e){runOnUiThread(()->{if(token!=generation||isFinishing()||isDestroyed())return;state.setText("暂未获取到可播放线路："+e.getMessage());episodeBox.addView(Ui.outline(this,"重新加载",this::load));});}});}
     private void play(int at){for(Catalog.Item episode:selected){episode.source=item.source;episode.sourceName=item.sourceName;episode.poster=item.poster;}Playback.open(this,selected,at);}
     private void renderEpisodes(LinearLayout episodes,int limit){
         int keep=scroll!=null?scroll.getScrollY():0;
