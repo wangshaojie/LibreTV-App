@@ -243,13 +243,13 @@ function HomeContent() {
                   // 12px 圆角矩形（非胶囊）：收起态与展开态共用同一组上圆角，
                   // 展开时输入框这部分形状完全不发生变化，上下圆角也与下拉保持一致；
                   // 右侧与上下不留内边距，由搜索按钮拉伸填满、与搜索框边缘贴合
-                  'flex items-stretch min-h-14 pl-4 border',
-                  'transition-[background-color,border-color,border-radius] duration-200',
+                  'flex items-stretch min-h-14 pl-4',
+                  'transition-colors duration-200',
                   searchHistory.visible
                     ? // 展开时：外框（含上圆角）沿用输入框的聚焦样式不变，只把底边改为内部分隔线，
                       // 使输入区在展开状态下仍是边界清晰的独立输入框，而非与列表糊成一片
-                      'rounded-t-xl rounded-b-none border-accent border-b-line bg-surface-raised'
-                    : 'rounded-xl border-line bg-chip focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/40'
+                      'border-b border-line bg-surface-raised'
+                    : 'bg-chip focus-within:ring-2 focus-within:ring-accent'
                 )}
               >
                 <input
@@ -278,7 +278,7 @@ function HomeContent() {
                 {input && (
                   <button
                     type="button"
-                    className="shrink-0 self-center mr-1 p-1.5 rounded-full text-faint hover:text-content hover:bg-hover transition-colors"
+                    className="shrink-0 self-center mr-1 p-1.5 text-faint hover:text-content hover:bg-hover transition-colors"
                     onClick={() => {
                       setInput('');
                       searchHistory.resetActive();
@@ -289,15 +289,11 @@ function HomeContent() {
                     <Icon name="close" className="w-4 h-4" />
                   </button>
                 )}
-                {/* 主操作按钮：贴合搜索框右端——右侧圆角跟随容器、左侧直角，展开时右下角
-                    跟着容器一起改直角；按压改用亮度反馈（缩放会让贴合边缘露出缝隙） */}
+                {/* 主操作按钮：贴合搜索框右端 —— 扁平化后全部直角，展开与收起形状一致；
+                    按压改用亮度反馈（缩放会让贴合边缘露出缝隙） */}
                 <button
                   type="submit"
-                  className={cn(
-                    'btn-primary shrink-0 px-5 font-medium transition-[background-color,filter] active:brightness-90',
-                    '!rounded-l-none',
-                    searchHistory.visible ? '!rounded-tr-xl !rounded-br-none' : '!rounded-r-xl'
-                  )}
+                  className="btn-primary shrink-0 px-5 font-medium transition-[background-color,filter] active:brightness-90"
                 >
                   <Icon name="search" className="w-4 h-4" />
                   搜索
@@ -454,7 +450,7 @@ function ResultsSkeleton() {
 /** 无点播源 / 未勾选点播源时的引导（替代旧版首屏静默空白） */
 function NoSourceGuide({ hasSources = false }: { hasSources?: boolean }) {
   return (
-    <div className="border border-dashed border-line rounded-xl p-10 text-center max-w-lg mx-auto">
+    <div className="bg-chip p-10 text-center max-w-lg mx-auto">
       <h3 className="text-content font-medium mb-2">{hasSources ? '尚未勾选点播源' : '先添加一个点播源'}</h3>
       <p className="text-sm text-muted leading-relaxed">
         {hasSources ? (

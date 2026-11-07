@@ -2,8 +2,15 @@ import type { NextConfig } from 'next';
 import fs from 'node:fs';
 import path from 'node:path';
 
-/** 版本号以 package.json 为单一来源，构建时注入 process.env.APP_VERSION（/api/status 使用） */
+/**
+ * 版本号以 package.json 为单一来源，构建时注入 process.env.APP_VERSION（/api/status 使用）。
+ *
+ * 桌面封装有自己的一套版本号（desktop/package.json 里的 2.19.2-desktop.N），
+ * 构建时通过 APP_VERSION 环境变量覆盖，否则页脚会显示上游的 2.19.2。
+ */
 function readAppVersion(): string {
+  const override = process.env.APP_VERSION?.trim();
+  if (override) return override;
   try {
     const pkg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')) as {
       version?: string;

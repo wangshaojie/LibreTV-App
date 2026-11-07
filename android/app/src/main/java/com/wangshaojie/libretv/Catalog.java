@@ -61,11 +61,28 @@ public final class Catalog {
         for(int n=0;n<subjects.length();n++){JSONObject s=subjects.getJSONObject(n);Item i=new Item();i.title=s.optString("title");i.poster=s.optString("cover");i.rating=s.optString("rate");i.category=type.equals("tv")?"剧集":"电影";if(!i.title.isEmpty())out.add(i);}return out;
     }
     public static String titleKey(String title){return title.trim().toLowerCase(Locale.ROOT).replaceAll("[\\s·•]","");}
-    public static LinkedHashMap<String,List<Item>> episodes(String json)throws JSONException {
+    /**
+     * 观看记录里的标题是「片名 · 第几集」，这里取片名（第一个「 · 」之前的部分）。
+     *
+     * 老记录没有 vodId，只能靠片名回去搜全集 —— 片名取错就搜不到那部剧。
+     */
+    public static String seriesTitle(Item item){int split=item.title.indexOf(" · ");return split>0?item.title.substring(0,split).trim():item.title.trim();}
+    /** 集名：「片名 · 第几集」里「 · 」之后的部分。 */
+    public static String episodeTitle(Item item){int split=item.title.indexOf(" · ");return split>=0?item.title.substring(split+3).trim():"";}
+    public static LinkedHashMap<String,List<Item>> episodes(String json)throws JSONException {return episodes(json,"","");}
+    /**
+     * 解析剧集列表。
+     *
+     * source / sourceName / vodId 会盖到每一集上：
+     *   vodId 是「这部剧」在源里的编号。观看记录里存的只是看过的那一集，
+     *   带上 vodId，下次从记录打开时才能重新拉回全集 —— 否则播放页只有一集，
+     *   遥控器按「下一集」只会得到「没有更多剧集」。
+     */
+    public static LinkedHashMap<String,List<Item>> episodes(String json,String source,String sourceName)throws JSONException {
         JSONObject data=new JSONObject(json);JSONArray list=data.optJSONArray("list");if(list==null||list.length()==0)throw new JSONException("未获取到影片详情");
         JSONObject v=list.getJSONObject(0);String[] groups=v.optString("vod_play_url").split("\\$\\$\\$");String[] names=v.optString("vod_play_from").split("\\$\\$\\$");
         LinkedHashMap<String,List<Item>> result=new LinkedHashMap<>();
-        for(int g=0;g<groups.length;g++){List<Item> items=new ArrayList<>();for(String ep:groups[g].split("#")){int split=ep.indexOf('$');String u=httpUrl(split>=0?ep.substring(split+1):ep,null);if(u==null)continue;Item i=new Item();i.title=v.optString("vod_name")+" · "+(split>=0?ep.substring(0,split):"正片");i.url=u;i.poster=v.optString("vod_pic");i.summary=v.optString("vod_content");i.year=v.optString("vod_year");items.add(i);if(items.size()==500)break;}if(!items.isEmpty())result.put((g<names.length&&!names[g].isEmpty()?names[g]:"线路 "+(g+1)),items);}
+        for(int g=0;g<groups.length;g++){List<Item> items=new ArrayList<>();for(String ep:groups[g].split("#")){int split=ep.indexOf('$');String u=httpUrl(split>=0?ep.substring(split+1):ep,null);if(u==null)continue;Item i=new Item();i.title=v.optString("vod_name")+" · "+(split>=0?ep.substring(0,split):"正片");i.url=u;i.poster=v.optString("vod_pic");i.summary=v.optString("vod_content");i.year=v.optString("vod_year");i.vodId=v.optString("vod_id");i.source=source;i.sourceName=sourceName;items.add(i);if(items.size()==500)break;}if(!items.isEmpty())result.put((g<names.length&&!names[g].isEmpty()?names[g]:"线路 "+(g+1)),items);}
         if(result.isEmpty())throw new JSONException("此源没有可直接播放的地址（不支持网页解析线路）");
         // CMS providers often put their HTML player before the actual media route.
         // Keep extensionless streams as fallbacks, but never select them ahead of known media.

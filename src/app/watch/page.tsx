@@ -197,8 +197,8 @@ function WatchContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-line">
+    <div className="player-page min-h-screen flex flex-col">
+      <header className="sticky top-0 z-40 bg-surface/90 border-b border-line">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-2.5">
           <BackButton />
           <HomeButton />
@@ -238,7 +238,7 @@ function WatchContent() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
           <div>
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            <div className="player-stage aspect-video bg-black overflow-hidden">
               {currentUrl ? (
                 <PlayerShell
                   url={currentUrl}
@@ -373,10 +373,10 @@ function EpisodeButton({ index, active, onClick }: { index: number; active: bool
     <button
       ref={ref}
       className={cn(
-        'h-10 rounded-lg border text-sm transition-colors',
+        'h-10 text-sm transition-colors',
         active
-          ? 'bg-accent border-accent text-on-accent font-semibold'
-          : 'bg-transparent border-line text-muted hover:border-accent hover:text-accent'
+          ? 'bg-accent text-on-accent font-semibold'
+          : 'bg-chip text-muted hover:bg-hover hover:text-accent'
       )}
       onClick={onClick}
     >

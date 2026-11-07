@@ -85,7 +85,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             // 读屏可见：错误用 alert（立即朗读），其余用 status（礼貌播报）
             role={t.type === 'error' ? 'alert' : 'status'}
             className={cn(
-              'px-4 py-2.5 rounded-lg shadow-lg text-white text-sm max-w-md animate-slide-up',
+              'px-4 py-2.5 text-white text-sm max-w-md animate-slide-up',
               'flex items-center gap-3 pointer-events-auto',
               TYPE_STYLES[t.type]
             )}

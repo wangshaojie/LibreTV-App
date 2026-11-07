@@ -290,7 +290,7 @@ function GridSkeleton() {
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5">
       {Array.from({ length: 16 }).map((_, i) => (
         <div key={i}>
-          <div className="aspect-[2/3] rounded-lg bg-chip animate-pulse" />
+          <div className="aspect-[2/3] bg-chip animate-pulse" />
           <div className="h-3 mt-2 rounded bg-chip animate-pulse" />
         </div>
       ))}

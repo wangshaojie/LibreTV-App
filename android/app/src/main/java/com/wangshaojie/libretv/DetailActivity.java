@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 /**
  * 影片详情页 —— 晨雾白浅色主题。
  *
- * 层次靠「白卡 + 极淡描边 + 轻投影」拉开，不靠深浅底色；
+ * 扁平化：层次靠纯色块（背景色差异）拉开，不靠描边与投影；
  * 强调色只出现在主按钮、当前集和评分上。
  */
 @androidx.media3.common.util.UnstableApi
@@ -34,7 +34,7 @@ public final class DetailActivity extends Activity {
         active=match(item);
         if(active>=0)item=choices.get(active);
         LinearLayout root=Ui.column(this);Ui.inset(this,root);
-        // 顶栏：返回 + 回首页两个图标按钮，白卡 + 淡描边（浅色样式，不是深底样式）
+        // 顶栏：返回 + 回首页两个图标按钮，白块（浅色样式，不是深底样式）
         LinearLayout top=Ui.topBar(this,"影片详情",this::finish,this::goHome);
         root.addView(top);
         body=Ui.column(this);Ui.padding(body,Ui.tv(this)?20:12);
@@ -49,15 +49,15 @@ public final class DetailActivity extends Activity {
     private void renderHeader(Catalog.Item film){
         LinearLayout card=Ui.panel(this);
         LinearLayout header=Ui.row(this);
-        // 封面：浅米灰底 + 淡描边，评分徽章叠在右上角
-        FrameLayout art=new FrameLayout(this);art.setBackground(Ui.shape(Ui.CHIP,Ui.LINE));
+        // 封面：浅米灰底，评分徽章叠在右上角
+        FrameLayout art=new FrameLayout(this);art.setBackground(Ui.shape(Ui.CHIP,0));
         ImageView poster=new ImageView(this);poster.setScaleType(ImageView.ScaleType.CENTER_CROP);art.addView(poster,new FrameLayout.LayoutParams(-1,-1));Images.load(this,film.poster,poster);
-        // 评分徽章：白底胶囊 + 深琥珀字。浅色底上再用黑底压边会变成一块脏斑。
+        // 评分徽章：白底方块 + 深琥珀字。浅色底上再用黑底压边会变成一块脏斑。
         if(!film.rating.isEmpty()){TextView badge=Ui.label(this,film.rating,12,Ui.RATING);badge.setTypeface(null,android.graphics.Typeface.BOLD);badge.setBackground(Ui.pill(this,Ui.CARD));badge.setPadding(Ui.dp(this,8),Ui.dp(this,3),Ui.dp(this,8),Ui.dp(this,3));FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.RIGHT);bp.setMargins(0,Ui.dp(this,5),Ui.dp(this,5),0);art.addView(badge,bp);}
         header.addView(art,new LinearLayout.LayoutParams(Ui.dp(this,Ui.tv(this)?150:104),Ui.dp(this,Ui.tv(this)?220:156)));
         LinearLayout words=Ui.column(this);
         TextView title=Ui.heading(this,film.title);words.addView(title);words.addView(Ui.gap(this,8));
-        // 元信息做成 pill 标签，和桌面端详情弹窗一致
+        // 元信息做成标签，和桌面端详情弹窗一致
         LinearLayout tags=Ui.row(this);tags.setGravity(Gravity.START);
         if(!film.category.isEmpty())tags.addView(Ui.tagPair(this,"类型",film.category));
         if(!film.year.isEmpty())tags.addView(Ui.tagPair(this,"年份",film.year));
@@ -107,7 +107,7 @@ public final class DetailActivity extends Activity {
         // 否则慢的旧源会把新源的线路和剧集覆盖掉，用户看到的就是「切了源但线路没变」。
         final int token=++generation;final Catalog.Item target=item;
         episodeBox.removeAllViews();selected=new ArrayList<>();state.setText("正在加载线路与剧集…");state.setTextColor(Ui.MUTED);worker.execute(()->{try{
-        String json=Net.get(MainActivity.cmsUrl(target.source,"videolist","ids",target.vodId));LinkedHashMap<String,List<Catalog.Item>> routes=Catalog.episodes(json);
+        String json=Net.get(MainActivity.cmsUrl(target.source,"videolist","ids",target.vodId));LinkedHashMap<String,List<Catalog.Item>> routes=Catalog.episodes(json,target.source,target.sourceName);
         runOnUiThread(()->{if(token!=generation||isFinishing()||isDestroyed())return;state.setText("选择线路与剧集");state.setTextColor(Ui.TEXT);String[] names=routes.keySet().toArray(new String[0]);
             // 线路选择用胶囊行，不用系统 Spinner：系统下拉是默认蓝白样式，与品牌脱节，遥控器操作也不顺手
             if(names.length>0)selected=routes.get(names[0]);
@@ -119,7 +119,7 @@ public final class DetailActivity extends Activity {
             renderEpisodes(episodes,60);
         });
     }catch(Exception e){runOnUiThread(()->{if(token!=generation||isFinishing()||isDestroyed())return;state.setText("暂未获取到可播放线路："+e.getMessage());episodeBox.addView(Ui.outline(this,"重新加载",this::load));});}});}
-    private void play(int at){for(Catalog.Item episode:selected){episode.source=item.source;episode.sourceName=item.sourceName;episode.poster=item.poster;}Playback.open(this,selected,at);}
+    private void play(int at){for(Catalog.Item episode:selected){episode.source=item.source;episode.sourceName=item.sourceName;episode.poster=item.poster;if(episode.vodId.isEmpty())episode.vodId=item.vodId;}Playback.open(this,selected,at);}
     private void renderEpisodes(LinearLayout episodes,int limit){
         int keep=scroll!=null?scroll.getScrollY():0;
         episodes.removeAllViews();if(selected.isEmpty())return;

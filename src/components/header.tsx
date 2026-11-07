@@ -50,7 +50,7 @@ export function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-line">
+      <header className="sticky top-0 z-40 bg-surface/90 border-b border-line">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           {/* 二级页面显式返回：桌面端没有浏览器地址栏，只能靠这个回到上一层 */}
           {showBack && <BackButton label="返回上一页" onClick={onBack} />}
@@ -59,7 +59,7 @@ export function Header({
             <img
               src="/icons/icon-512.png"
               alt="静观 TV"
-              className="w-8 h-8 rounded-xl border border-line shadow-sm"
+              className="w-8 h-8"
             />
           </Link>
 
@@ -75,10 +75,10 @@ export function Header({
                 <div
                   className={cn(
                     // 输入框与搜索按钮合并为一个整体：内部无边框，按钮贴住右端
-                    'flex items-stretch min-h-10 rounded-lg border bg-chip transition-colors',
+                    'flex items-stretch min-h-10 bg-chip transition-colors',
                     searchHistory.visible
-                      ? 'rounded-t-lg rounded-b-none border-accent border-b-line bg-surface-raised'
-                      : 'border-line focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/40'
+                      ? 'border-b border-line bg-surface-raised'
+                      : 'focus-within:ring-2 focus-within:ring-accent'
                   )}
                 >
                   <div className="flex items-center pl-3 pr-1">
@@ -108,7 +108,7 @@ export function Header({
                   />
                   <button
                     type="submit"
-                    className="btn-primary shrink-0 !rounded-l-none !rounded-r-lg px-4 font-medium transition-[background-color,filter] active:brightness-90"
+                    className="btn-primary shrink-0 px-4 font-medium transition-[background-color,filter] active:brightness-90"
                   >
                     搜索
                   </button>
@@ -161,7 +161,7 @@ function HeaderLink({ href, active, children }: { href: string; active: boolean;
     <Link
       href={href}
       className={cn(
-        'px-2.5 py-1.5 rounded-lg text-sm transition-colors',
+        'px-2.5 py-1.5 text-sm transition-colors',
         active ? 'text-content font-medium' : 'text-muted hover:text-content'
       )}
     >

@@ -68,7 +68,7 @@ export function LiveEpgPanel({ epgUrl, tvgId }: { epgUrl?: string; tvgId?: strin
   return (
     <div className="space-y-3">
       {current ? (
-        <div className="rounded-lg border border-accent/40 bg-accent/5 p-3">
+        <div className="bg-accent/10 p-3">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-[10px] font-semibold text-danger bg-danger/10 px-1.5 py-0.5 rounded-full">
               正在播出
@@ -112,7 +112,7 @@ export function LiveEpgPanel({ epgUrl, tvgId }: { epgUrl?: string; tvgId?: strin
               <li
                 key={`${p.start}-${p.title}`}
                 className={cn(
-                  'flex items-center gap-3 text-xs px-2.5 py-2 rounded-md',
+                  'flex items-center gap-3 text-xs px-2.5 py-2',
                   'text-muted hover:bg-hover transition-colors'
                 )}
                 title={p.desc || p.title}

@@ -14,4 +14,33 @@ public class CatalogTest {
     @Test(expected=org.json.JSONException.class)public void rejectsWrongCmsResponse()throws Exception {Catalog.search("{\"error\":\"not cms\"}","https://example.com","源");}
     @Test public void splitsEpisodeRoutesAndNames()throws Exception {Map<String,List<Catalog.Item>> groups=Catalog.episodes("{\"list\":[{\"vod_name\":\"节目\",\"vod_play_from\":\"HLS$$$备用\",\"vod_play_url\":\"第一集$https://a.example/1.m3u8#第二集$https://a.example/2.m3u8$$$正片$https://b.example/a.mp4\"}]}");assertEquals(2,groups.size());assertEquals(2,groups.get("HLS").size());assertEquals("节目 · 第一集",groups.get("HLS").get(0).title);assertEquals("https://b.example/a.mp4",groups.get("备用").get(0).url);}
     @Test public void itemRoundTripKeepsHeaders(){Catalog.Item i=new Catalog.Item();i.title="频道";i.url="https://example.com/a.m3u8";i.live=true;i.headers.put("Referer","https://example.com/");Catalog.Item j=Catalog.Item.from(i.json());assertTrue(j.live);assertEquals(i.title,j.title);assertEquals(i.headers,j.headers);}
+    /**
+     * 每一集都要带上「这部剧」的编号与片源。
+     *
+     * 观看记录里存的只是看过的那一集，没有 vodId 就没法在下次打开时
+     * 重新拉回全集 —— 播放页只有一集，遥控器按「下一集」只会得到
+     * 「没有更多剧集」。这是从观看记录打开时必须有全集的原因。
+     */
+    @Test public void stampsSeriesIdAndSourceOnEveryEpisode()throws Exception {
+        Map<String,List<Catalog.Item>> routes=Catalog.episodes("{\"list\":[{\"vod_id\":7788,\"vod_name\":\"剧\",\"vod_play_from\":\"线路\",\"vod_play_url\":\"第1集$https://a.example/1.m3u8#第2集$https://a.example/2.m3u8\"}]}","https://cms.example/api","测试源");
+        List<Catalog.Item> episodes=routes.get("线路");
+        assertEquals(2,episodes.size());
+        for(Catalog.Item episode:episodes){
+            assertEquals("7788",episode.vodId);
+            assertEquals("https://cms.example/api",episode.source);
+            assertEquals("测试源",episode.sourceName);
+        }
+    }
+    /** 老接口保持可用：不传片源时字段留空，而不是抛异常。 */
+    @Test public void episodesWithoutSourceStillParse()throws Exception {
+        Map<String,List<Catalog.Item>> routes=Catalog.episodes("{\"list\":[{\"vod_name\":\"节目\",\"vod_play_from\":\"线路\",\"vod_play_url\":\"正片$https://a.example/1.m3u8\"}]}");
+        assertEquals("https://a.example/1.m3u8",routes.get("线路").get(0).url);
+        assertEquals("",routes.get("线路").get(0).source);
+    }
+    /** 集名与片名的切分：记录里的标题是「片名 · 第几集」。 */
+    @Test public void splitsSeriesAndEpisodeNames(){
+        Catalog.Item episode=new Catalog.Item();episode.title="漫长的季节 · 第 12 集";
+        assertEquals("漫长的季节",Catalog.seriesTitle(episode));
+        assertEquals("第 12 集",Catalog.episodeTitle(episode));
+    }
 }

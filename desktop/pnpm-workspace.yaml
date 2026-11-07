@@ -1,0 +1,9 @@
+allowBuilds:
+  electron-winstaller: true
+  electron: true
+  electron-builder: true
+
+overrides:
+  # app-builder-lib 声明 @electron/get ^3.0.0，但 3.0.0 未导出 ElectronDownloadCacheMode
+  # （resolveCacheMode 读它时抛 TypeError）。3.1.0 才补上该导出。
+  '@electron/get': 3.1.0

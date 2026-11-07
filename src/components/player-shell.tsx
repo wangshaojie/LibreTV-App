@@ -13,6 +13,8 @@ import {
 import { loadCacheSettings } from '@/lib/video-cache';
 import { formatTime } from '@/lib/utils';
 import { prefersTouchPointer } from '@/lib/touch-pointer';
+import { keepControlsWhileHovered } from '@/lib/art-hover';
+import { attachSpeedControl } from '@/lib/art-speed-button';
 import {
   ART_DEFAULT_CONTROL_HIDE_MS,
   DESKTOP_CONTROL_HIDE_MS,
@@ -349,7 +351,8 @@ export function PlayerShell({
       playsInline: true,
       airplay: true,
       hotkey: false,
-      theme: '#d4b483',
+      // 强调色：雾霭青绿（浅档）。播放页是暗色玻璃面板，用亮一档的青绿才能在深底上看见微光
+      theme: '#6fa9a2',
       lang: navigator.language.toLowerCase().startsWith('zh') ? 'zh-cn' : 'en',
       moreVideoAttr: { crossOrigin: 'anonymous', playsInline: true },
       customType: {
@@ -359,6 +362,13 @@ export function PlayerShell({
       },
     });
     artRef.current = art;
+
+    // 指针停在底部控制区时，控制栏保持显示（ArtPlayer 自带的自动隐藏不理这个）
+    const cleanupHover = keepControlsWhileHovered(
+      containerRef.current?.querySelector<HTMLElement>('.art-video-player') ?? null
+    );
+    // 倍速按钮：ArtPlayer 自带的倍速藏在设置面板里，这里直接放进控制栏
+    const cleanupSpeed = attachSpeedControl(art);
 
     /**
      * 读解码后的真实分辨率。
@@ -555,6 +565,8 @@ export function PlayerShell({
       }
       document.removeEventListener('keydown', shortcuts);
       document.removeEventListener('visibilitychange', saveOnHide);
+      cleanupHover();
+      cleanupSpeed();
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
       el?.removeEventListener('touchstart', onTouchStart);
       el?.removeEventListener('touchend', onTouchEnd);
@@ -621,12 +633,12 @@ export function PlayerShell({
         </div>
       )}
       {hint && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-3 py-1.5 rounded-full pointer-events-none animate-fade-in">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none animate-fade-in bg-black/85 px-3.5 py-1.5 text-sm text-white/90">
           {hint}
         </div>
       )}
       {autoplayNext && !error && (
-        <div className="absolute bottom-16 right-3 text-[10px] text-muted bg-black/50 px-2 py-0.5 rounded pointer-events-none">
+        <div className="absolute bottom-24 right-3 pointer-events-none bg-black/80 px-2.5 py-1 text-[10px] text-white/60">
           自动连播已开启
         </div>
       )}

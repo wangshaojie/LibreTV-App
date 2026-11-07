@@ -9,18 +9,21 @@
  * 强调色只出现在图标按钮、主按钮、激活态与评分徽章上，不铺满界面；
  * 不使用霓虹色与跨色系渐变 —— 这是与高端产品（Apple TV / Netflix / Emby）的共识做法。
  *
- * 浅色下的层次靠「白卡 + 极淡描边 + 轻投影」拉开，而不是靠深浅底色区分；
- * 焦点态一律换成青绿描边，保证键盘操作时始终看得见自己在哪。
+ * 2.0.19 起改为彻底扁平：去阴影、去描边、去大圆角、去渐变。
+ * 层次只靠**纯色块**（底色深浅的差异）来区分：
+ *   页底 bg-page → 面板 bg-surface → 卡片 bg-card → 控件底 bg-chip
+ * 四级色阶本身就是层次，不需要描边和投影再叠一层。
+ * 焦点态一律换成强调色纯色块，保证键盘与遥控器操作时始终看得见自己在哪。
  */
 :root {
   /* 晨雾白主题：暖白页底（非纯白，避免大屏上刺眼） */
   --c-page: 242 240 234;            /* #f2f0ea 暖白页底 */
-  --c-surface: 255 255 255;         /* #ffffff */
-  --c-surface-raised: 255 255 255;
-  --c-card: 255 255 255;
-  --c-chip: 238 234 226;            /* #eeebe2 输入框 / 次级底 */
-  --c-hover: 228 223 212;           /* #e4dfd4 悬停态 */
-  --c-line: 224 219 208;            /* #e0dbd0 发丝描边 */
+  --c-surface: 252 251 248;         /* #fcfbf8 面板 */
+  --c-surface-raised: 255 255 255;  /* #ffffff 抽屉 / 弹框 */
+  --c-card: 255 255 255;            /* #ffffff 卡片 */
+  --c-chip: 235 231 222;            /* #ebe7de 输入框 / 次级底 */
+  --c-hover: 226 221 210;           /* #e2ddd2 悬停态 */
+  --c-line: 224 219 208;            /* #e0dbd0 发丝描边（扁平化后仅用于分隔线） */
   --c-content: 34 37 43;             /* #22252b 主文本 */
   --c-muted: 110 116 128;           /* #6e7480 次级文本 */
   --c-faint: 154 160 166;           /* #9aa0a6 三级文本 */
@@ -49,12 +52,12 @@
 .dark {
   /* 柔夜主题：深蓝灰（不是纯黑，留一点空气感）+ 雾青强调色，与浅色同族 */
   --c-page: 20 22 26;               /* #14161a */
-  --c-surface: 28 31 36;            /* #1c1f24 面板 / 抽屉底 */
+  --c-surface: 25 28 33;            /* #191c21 面板 */
   --c-surface-raised: 30 33 39;
-  --c-card: 24 27 31;               /* #181b1f 卡片底 */
-  --c-chip: 36 40 46;               /* #24282e 输入框 / chip 底 */
-  --c-hover: 46 51 58;              /* #2e333a 悬停态 */
-  --c-line: 44 49 56;               /* #2c3138 发丝描边 */
+  --c-card: 28 31 36;               /* #1c1f24 卡片底 */
+  --c-chip: 38 42 48;               /* #262a30 输入框 / chip 底 */
+  --c-hover: 48 53 60;              /* #30353c 悬停态 */
+  --c-line: 44 49 56;               /* #2c3138 发丝描边（扁平化后仅用于分隔线） */
   --c-content: 238 241 244;         /* #eef1f4 主文本 */
   --c-muted: 154 162 171;           /* #9aa2ab 次级文本 */
   --c-faint: 112 120 129;           /* #70787f 三级文本 */
@@ -84,76 +87,72 @@ body {
   @apply bg-page text-content antialiased;
 }
 
-/* 暗色主题：深蓝灰纵向渐变 */
-.dark body {
-  background: linear-gradient(180deg, rgb(20 22 26), rgb(28 31 36)) fixed;
-}
-
-/* 浅色主题：暖白页底的极轻渐变，避免大屏纯色发死 */
+/* 扁平化：页底是纯色，不做渐变。
+   渐变是「有厚度」的暗示，纯色才干净。 */
 body {
-  background: linear-gradient(180deg, rgb(244 242 237), rgb(242 240 234)) fixed;
-}
-
-body {
+  background: rgb(var(--c-page));
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
 @layer components {
+  /* 卡片：纯色块，无描边无投影无圆角。
+     层次靠 bg-card（白）与 bg-page（暖白）的色差拉开。 */
   .card {
-    @apply bg-card border border-line rounded-xl overflow-hidden transition-all duration-200;
+    @apply bg-card overflow-hidden transition-colors duration-200;
   }
-  /* 玻璃质感面板：用于直播/播放页的侧栏、信息条等「浮在页面之上」的容器 */
+  /* 面板：纯色块。与卡片的区别是底色更浅一档（bg-surface）。 */
   .panel {
-    @apply bg-surface-raised border border-line rounded-xl;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 8px 24px -12px rgb(0 0 0 / 0.28);
+    @apply bg-surface;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
-    /* 统一焦点环：键盘用户可见，与 .input 同一规格 */
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40;
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+    /* 统一焦点环：键盘用户可见，与 .input 同一规格。
+       焦点环是「实心青绿块 + 外圈浅色」，扁平化后仍要保留 —— 它是可用性底线。 */
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
   }
   .btn-primary {
     @apply btn bg-accent text-on-accent hover:bg-accent-hover;
   }
+  /* 次级按钮：浅色块（bg-chip）而不是描边 —— 描边是扁平的敌人 */
   .btn-ghost {
-    @apply btn bg-chip text-muted hover:bg-hover hover:text-content border border-line;
+    @apply btn bg-chip text-muted hover:bg-hover hover:text-content;
   }
-  /* 描边按钮：概念图中的次级操作（下载本集 / 切换资源 / 倒序排列）用这一档 */
+  /* 描边按钮的扁平版：实心淡青底 + 青绿字，不再用描边 */
   .btn-outline {
-    @apply btn bg-transparent text-accent border border-accent/45 hover:bg-accent/10;
+    @apply btn bg-accent-soft text-accent-deep hover:bg-accent hover:text-on-accent;
   }
   .input {
-    @apply bg-chip border border-line rounded-lg px-3 py-2 text-sm text-content placeholder:text-faint;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent;
+    @apply bg-chip px-3 py-2 text-sm text-content placeholder:text-faint;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
   }
   .tag {
-    @apply inline-flex items-center text-xs px-1.5 py-0.5 rounded-full;
+    @apply inline-flex items-center text-xs px-1.5 py-0.5;
   }
   /* 小尺寸按钮：定义在 .btn-* 之后，确保尺寸覆盖生效（与 .btn-primary / .btn-ghost 组合使用） */
   .btn-sm {
     @apply btn px-2.5 py-1 text-xs;
   }
-  /* 胶囊控件（筛选、分类标签）：统一内边距与圆角 */
+  /* 胶囊控件（筛选、分类标签）：实心色块 */
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] transition-colors;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-[11px] transition-colors;
   }
-  /* 顶栏图标按钮：白卡 + 极淡描边。
-     半透明的 chip 底叠在暖白页底上会泛黄，白卡更干净，也与安卓端的白色悬浮卡片一致。 */
+  /* 顶栏图标按钮：纯色块。
+     半透明的 chip 底叠在暖白页底上会泛黄，实心 chip 色更干净。 */
   .btn-icon {
-    @apply inline-flex items-center justify-center w-9 h-9 rounded-lg border border-line bg-surface text-muted transition-colors;
-    @apply hover:text-content hover:bg-hover focus-visible:outline-none focus-visible:ring-accent/40;
+    @apply inline-flex items-center justify-center w-9 h-9 bg-chip text-muted transition-colors;
+    @apply hover:text-content hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
   }
   /* 暗色主题下图标按钮用略高一档的面板色，避免和页底糊在一起 */
   .dark .btn-icon {
-    @apply bg-surface-raised border-line;
+    @apply bg-surface-raised;
   }
-  /* 分段控件（电影 / 剧集）：胶囊底槽 + 选中项填充 */
+  /* 分段控件（电影 / 剧集）：底槽 + 选中项填充 */
   .seg {
-    @apply inline-flex items-center gap-0.5 p-0.5 rounded-full bg-chip;
+    @apply inline-flex items-center gap-0.5 p-0.5 bg-chip;
   }
   .seg-item {
-    @apply inline-flex items-center rounded-full px-3.5 py-1 text-sm transition-colors;
+    @apply inline-flex items-center px-3.5 py-1 text-sm transition-colors;
   }
   .seg-item-active {
     @apply bg-accent text-on-accent font-medium;
@@ -161,17 +160,15 @@ body {
   .seg-item-idle {
     @apply text-muted hover:text-content;
   }
-  /* 评分徽章：浅色下用白底胶囊 + 深琥珀字（与安卓端一致），实心琥珀块在海报上太跳 */
+  /* 评分徽章：实心琥珀块，无投影无圆角 */
   .rating-badge {
-    @apply absolute top-1.5 right-1.5 inline-flex items-center gap-0.5 rounded-full bg-surface/95 px-1.5 py-0.5 text-[11px] font-semibold leading-none;
-    color: rgb(var(--c-rating));
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
+    @apply absolute top-1.5 right-1.5 inline-flex items-center gap-0.5 bg-rating px-1.5 py-0.5 text-[11px] font-semibold leading-none;
+    color: rgb(var(--c-on-rating));
   }
   /* 暗色主题下海报整体偏暗，白胶囊会糊掉，改回琥珀实心底 */
   .dark .rating-badge {
     @apply bg-rating;
     color: rgb(var(--c-on-rating));
-    box-shadow: none;
   }
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
@@ -180,6 +177,32 @@ body {
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-line rounded-full;
   }
+
+  /*
+   * 历史记录里的删除按钮：指针设备上默认隐藏、悬停/聚焦才出现；
+   * 触屏设备上常显。
+   *
+   * 为什么触屏必须常显：触屏没有 hover，按钮永远藏起来等于没有删除功能。
+   * pointer:coarse 一并判定 —— 带触摸屏的笔记本主指针仍是鼠标
+   * （hover:hover / pointer:fine），只看 hover 会漏掉这类设备。
+   *
+   * 写成显式类而不是 Tailwind 任意变体：任意变体的选择器里带逗号
+   * （[@media(hover:none),(pointer:coarse)]）不会被 Tailwind 生成出来，
+   * 规则静默消失，很难排查。
+   */
+  .history-remove {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .group:hover .history-remove,
+  .history-remove:focus {
+    opacity: 1;
+  }
+  @media (hover: none), (pointer: coarse) {
+    .history-remove {
+      opacity: 1;
+    }
+  }
 }
 
 /* 行数截断 */
@@ -187,7 +210,8 @@ body {
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* LIVE 呼吸红点（直播页标识） */
+/* LIVE 呼吸红点（直播页标识）
+   呼吸效果用透明度变化实现，不用 box-shadow 光环 —— 扁平化不留投影。 */
 .live-dot {
   width: 8px;
   height: 8px;
@@ -196,6 +220,443 @@ body {
   animation: live-breathe 2s ease-in-out infinite;
 }
 @keyframes live-breathe {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-  50% { opacity: 0.55; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/*
+ * ============================================================================
+ * 播放页视觉系统：暗夜扁平（Flat Nocturne）
+ * ============================================================================
+ *
+ * 播放页始终是暗色的 —— 无论站点是浅色还是暗色主题，视频都要吃掉视线。
+ * 2.0.19 起这一页也彻底扁平：去掉半透明磨砂、毛玻璃模糊、胶片颗粒、
+ * 柔和投影和大圆角，只留纯色块。
+ *
+ * 设计要点：
+ *   - 纯色不透明：控制条是实心深炭块，不靠 backdrop-filter 透出画面
+ *   - 无颗粒无光晕：进度条已播段是实心青绿，不再有发散的光
+ *   - 一根发丝边：视频区与控制条各留一根 rgba(255,255,255,.10) 细线，
+ *     这是唯一保留的「描边」—— 画面内容千变万化，没有这根线控制条会糊进画面
+ *   - 直角：控制条与面板全部直角，与站点其余部分一致
+ *
+ * 覆盖 ArtPlayer 自带样式时统一用 `.art-video-player.art-video-player .xxx` 两级选择器：
+ * ArtPlayer 是运行时注入样式的，选择器比它多一级才能稳定覆盖。
+ */
+.art-video-player {
+  --pg-panel: 22 25 29;
+  --pg-panel-strong: 16 18 21;
+  --pg-stroke: rgba(255, 255, 255, 0.1);
+  --pg-text: rgba(245, 247, 248, 0.94);
+  --pg-muted: rgba(245, 247, 248, 0.52);
+  --pg-glow: 111 169 162;
+}
+
+/* 画面本体：纯炭黑底 */
+.art-video-player.art-video-player .art-video {
+  background: #0b0d10;
+}
+
+/* —— 底部控制层 ——
+ *
+ * 布局参考的是主流流媒体的通行做法（YouTube / Netflix / Jellyfin）：
+ *   进度条单独一行，横跨播放器宽度；
+ *   控件聚成一组居中排开（播放 / 音量 / 时间码 / 倍速 / 设置 / 全屏…），
+ *   而不是把左右两组拉到两端 —— 那样中间会空出一大片，键与键之间也散。
+ */
+.art-video-player.art-video-player .art-bottom {
+  padding-bottom: 18px;
+  align-items: center;
+}
+
+/* 进度条那一行：横跨播放器，与控件组的宽度对齐 */
+.art-video-player.art-video-player .art-progress {
+  align-self: center;
+  width: calc(100% - 48px);
+  max-width: 1180px;
+  box-sizing: border-box;
+  height: auto;
+  background: transparent;
+  /* 往卡片方向贴一点，别让线和控件组之间空出一条 */
+  margin-bottom: -10px;
+}
+
+/* 控制条本体：实心深炭块，直角，只有底边一根发丝线 */
+.art-video-player.art-video-player .art-bottom .art-controls {
+  align-self: center;
+  width: max-content;
+  max-width: calc(100% - 48px);
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--pg-stroke);
+  border-radius: 0;
+  background: rgb(var(--pg-panel));
+}
+
+/* 左右两组不再被 space-between 拉开，收成相邻的两簇 */
+.art-video-player.art-video-player .art-controls-left,
+.art-video-player.art-video-player .art-controls-right {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+.art-video-player.art-video-player .art-controls-center {
+  display: none;
+}
+
+/* 播放键是这一排里最重要的一个，给它更大的图标 */
+.art-video-player.art-video-player .art-control-playAndPause .art-icon {
+  width: 44px;
+  height: 44px;
+}
+.art-video-player.art-video-player .art-control-playAndPause .art-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* 时间码与右侧功能键之间的一条竖分隔 */
+.art-video-player.art-video-player .art-control-time {
+  padding: 0 10px 0 6px;
+  margin-right: 6px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* 进度条：细轨道 + 实心青绿已播段（无光晕） */
+.art-video-player.art-video-player .art-control-progress-inner {
+  padding: 0 2px;
+}
+.art-video-player.art-video-player .art-progress:hover {
+  height: auto;
+}
+.art-video-player.art-video-player .art-progress-loaded {
+  background: rgba(255, 255, 255, 0.2);
+}
+.art-video-player.art-video-player .art-progress-played {
+  border-radius: 999px;
+  background: rgb(var(--pg-glow));
+}
+.art-video-player.art-video-player .art-progress-indicator {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: rgb(var(--pg-glow));
+  border: 2px solid rgba(10, 12, 14, 0.7);
+  transition: transform 0.15s ease;
+}
+.art-video-player.art-video-player .art-progress:hover .art-progress-indicator {
+  transform: scale(1.15);
+}
+.art-video-player.art-video-player .art-progress-tip {
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 0;
+  background: rgb(var(--pg-panel-strong));
+  font-size: 12px;
+}
+
+/* 时间码 */
+.art-video-player.art-video-player .art-time {
+  font-size: 12px;
+  color: var(--pg-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* —— 图标按钮 ——
+ * 常态不画底：满屏一排灰圆圈会把画面压得很脏，底只在指针落上去时出现。
+ */
+.art-video-player.art-video-player .art-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 0;
+  color: var(--pg-text);
+  opacity: 0.85;
+  background: transparent;
+  border: 0;
+  transition: background-color 0.18s ease, opacity 0.18s ease;
+}
+.art-video-player.art-video-player .art-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.art-video-player.art-video-player .art-icon:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+.art-video-player.art-video-player .art-icon:active {
+  opacity: 0.7;
+}
+
+/* 倍速按钮：文字（1.0x），点一下循环下一档 */
+.art-video-player.art-video-player .art-ctl-speed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 10px;
+  margin: 0 2px;
+  border-radius: 0;
+  color: var(--pg-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  opacity: 0.85;
+  user-select: none;
+  transition: background-color 0.18s ease, opacity 0.18s ease, color 0.18s ease;
+}
+.art-video-player.art-video-player .art-ctl-speed:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+.art-video-player.art-video-player .art-ctl-speed.is-fast {
+  color: rgb(var(--pg-glow));
+}
+
+/* 中央大播放键：纯色实心圆（圆形是「按钮」的形状语义，不是圆角装饰） */
+.art-video-player.art-video-player .art-center-play-btn {
+  width: 78px;
+  height: 78px;
+  border-radius: 999px;
+  border: 0;
+  background: rgb(var(--pg-panel-strong));
+  transition: transform 0.2s ease;
+}
+.art-video-player.art-video-player .art-center-play-btn svg {
+  width: 30px;
+  height: 30px;
+  fill: rgb(var(--pg-glow));
+}
+.art-video-player.art-video-player .art-center-play-btn:hover {
+  transform: scale(1.05);
+}
+
+/* —— 音量滑块 —— */
+.art-video-player.art-video-player .art-volume-panel {
+  border: 0;
+  border-radius: 0;
+  background: rgb(var(--pg-panel-strong));
+}
+.art-video-player.art-video-player .art-volume-slider {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+.art-video-player.art-video-player .art-volume-indicator {
+  background: rgb(var(--pg-glow));
+}
+.art-video-player.art-video-player .art-volume-handle {
+  background: rgb(var(--pg-glow));
+  border-color: rgba(10, 12, 14, 0.7);
+}
+
+/* —— 倍速 / 设置面板 —— */
+.art-video-player.art-video-player .art-setting-panel {
+  border: 0;
+  border-radius: 0;
+  background: rgb(var(--pg-panel-strong));
+  color: var(--pg-text);
+}
+.art-video-player.art-video-player .art-setting-item {
+  color: var(--pg-text);
+  transition: background-color 0.16s ease;
+}
+.art-video-player.art-video-player .art-setting-item:hover,
+.art-video-player.art-video-player .art-setting-item-current {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgb(var(--pg-glow));
+}
+
+/* 标题与提示 */
+.art-video-player.art-video-player .art-video-title {
+  color: var(--pg-text);
+}
+.art-video-player.art-video-player .art-notice-inner {
+  border: 0;
+  border-radius: 0;
+  background: rgb(var(--pg-panel-strong));
+  color: var(--pg-text);
+}
+
+/* 海报占位：也是炭黑，不要露出白色底 */
+.art-video-player.art-video-player .art-poster {
+  background-size: cover;
+}
+
+/* 小屏：控制条改为两行，图标缩小，避免挤成一团 */
+@media (max-width: 640px) {
+  .art-video-player.art-video-player .art-controls {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+  }
+  .art-video-player.art-video-player .art-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .art-video-player.art-video-player .art-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  .art-video-player.art-video-player .art-center-play-btn {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+/*
+ * ============================================================================
+ * 播放页外壳：暗夜扁平（Flat Nocturne）
+ * ============================================================================
+ *
+ * 播放页是整个站点唯一「沉下去」的页面 —— 视频要吃掉视线，所以页底换成炭黑，
+ * 面板从白色卡片变成纯色深块，不再有半透明磨砂与投影。
+ *
+ * 实现上不新写一套深色变量，而是就地覆盖语义化变量的值：
+ *   text-content / text-muted / text-faint、bg-surface / bg-chip / bg-card、
+ *   border-line 全部读的是 --c-*，改掉这一层，页面内部的按钮、标签、
+ *   徽章、分隔线会自动跟着走暗色，不需要逐个组件改。
+ */
+.player-page {
+  /* 炭黑而不是纯黑：纯黑在 OLED 上边缘会「发毛」，留一点暖灰更像打磨过的石板 */
+  --c-page: 11 13 16;
+  --c-surface: 19 22 26;
+  --c-surface-raised: 24 27 32;
+  --c-card: 16 18 22;
+  --c-chip: 30 34 39;
+  --c-hover: 40 45 51;
+  --c-line: 255 255 255;
+  --c-content: 240 243 245;
+  --c-muted: 158 165 173;
+  --c-faint: 116 123 132;
+  /* 强调色在深底上要亮一档 */
+  --c-accent: 111 169 162;
+  --c-accent-hover: 138 196 189;
+  --c-accent-deep: 148 205 198;
+  --c-accent-soft: 38 56 62;
+  --c-on-accent: 11 20 22;
+  color-scheme: dark;
+}
+
+/* 页底：纯炭黑，不做渐变 */
+.player-page {
+  background: rgb(var(--c-page));
+}
+
+/* 顶部栏：实心深色 */
+.player-page header {
+  background: rgb(var(--c-page)) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 面板 / 卡片：纯色深块 */
+.player-page .panel,
+.player-page .card {
+  background: rgb(var(--c-card));
+}
+
+/* 视频容器：直角，纯炭黑 */
+.player-page .player-stage {
+  border-radius: 0;
+  border: 0;
+  overflow: hidden;
+  background: #0b0d10;
+}
+
+/* ArtPlayer 根容器 */
+.art-video-player {
+  position: relative;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/*
+ * ============================================================================
+ * 播放页精修：把 ArtPlayer 的内部结构改成扁平控制层
+ * ============================================================================
+ *
+ * ArtPlayer 自己的控制层是「贴边的一排图标 + 一条实色进度条」，跟这套扁平
+ * 的语言是两回事，所以下面这组规则把它的内部结构重新排一遍：
+ *
+ *   .art-progress            是「可点击热区」，不是线本身 —— 它必须透明，
+ *                             否则会在画面下沿压出一条灰白色粗杠
+ *   .art-control-progress-inner  才是那条 3px 的细线
+ *   .art-progress-played     已播部分，实心青绿
+ *   .art-icon                图标按钮，悬停时才出一层浅色底
+ *
+ * 选择器一律写成 .art-video-player.art-video-player —— ArtPlayer 的样式是运行时
+ * 注入的，同特异性时它后插入会赢，重复一次类名才能稳定压住。
+ */
+
+/* 控制条：居中的一组控件，宽度贴合内容（不是一条拉开的窄带） */
+.art-video-player.art-video-player .art-bottom .art-controls {
+  align-self: center !important;
+  width: max-content !important;
+  max-width: calc(100% - 48px) !important;
+  box-sizing: border-box;
+}
+
+/* 进度条热区：透明，线交给 inner。
+   横跨播放器，与控件组对齐 */
+.art-video-player.art-video-player .art-progress {
+  height: auto !important;
+  background: transparent !important;
+  align-self: center !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1180px !important;
+  box-sizing: border-box;
+}
+
+/* 细线本体
+   ArtPlayer 对这一层的选择器比我们的深两级（.art-bottom .art-progress
+   .art-control-progress .art-control-progress-inner），普通写法压不住，
+   这里对高度直接用 !important —— 覆盖运行时注入的第三方样式，没有更干净的做法 */
+.art-video-player.art-video-player .art-control-progress-inner {
+  height: 3px !important;
+  min-height: 3px;
+  padding: 0 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: height 0.18s ease;
+}
+.art-video-player.art-video-player .art-control-progress-inner:hover {
+  height: 5px !important;
+}
+.art-video-player.art-video-player .art-progress-loaded {
+  height: 100% !important;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.art-video-player.art-video-player .art-progress-played {
+  height: 100% !important;
+  border-radius: 999px;
+  background: rgb(var(--pg-glow));
+}
+.art-video-player.art-video-player .art-progress-highlight {
+  height: 100% !important;
+}
+
+/*
+ * 指针停在底部控制区时，控制栏保持显示。
+ *
+ * ArtPlayer 自动隐藏时会把 art-control-show 摘掉、控制层整体淡出，
+ * 哪怕指针就指着控制栏。这个 class 由 src/lib/art-hover.ts 按指针位置挂上，
+ * 把控制层按原样留住（mini-progress-bar 状态下还要补回衬底，
+ * 否则控制栏会浮在亮画面上没地方站）。
+ */
+.art-video-player.art-ctl-hover .art-bottom {
+  opacity: 1 !important;
+  padding: 0 var(--art-padding) 18px !important;
+  background: rgb(var(--pg-panel)) !important;
+}
+.art-video-player.art-ctl-hover .art-bottom .art-controls,
+.art-video-player.art-ctl-hover .art-bottom .art-progress {
+  transform: translateY(0) !important;
 }

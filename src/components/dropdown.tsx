@@ -102,8 +102,8 @@ export function Dropdown({
         onKeyDown={onKeyDown}
         className={cn(
           'input flex items-center justify-between gap-1.5 cursor-pointer text-left',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:border-accent',
-          open && 'border-accent'
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+          open && 'bg-chip'
         )}
       >
         <span className="truncate">{selected?.label ?? value}</span>
@@ -121,7 +121,7 @@ export function Dropdown({
           aria-label={ariaLabel}
           className={cn(
             'absolute right-0 top-full z-50 mt-1.5 min-w-full w-max max-h-60 overflow-y-auto py-1',
-            'rounded-xl border border-line bg-surface-raised shadow-xl animate-fade-in'
+            'bg-surface-raised animate-fade-in'
           )}
         >
           {options.map((o, i) => {

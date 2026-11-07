@@ -179,7 +179,7 @@ function LoginModal({
       }}
     >
       <div
-        className="bg-surface-raised rounded-xl p-6 w-full max-w-sm mx-4 shadow-2xl"
+        className="bg-surface-raised p-6 w-full max-w-sm mx-4"
         role="dialog"
         aria-modal="true"
         aria-label={setupRequired ? '需要配置密码' : '访问验证'}

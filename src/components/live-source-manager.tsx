@@ -187,7 +187,7 @@ export function LiveSourceManager() {
                   <li
                     key={row.url}
                     className={cn(
-                      'bg-card rounded-lg p-3 transition-colors hover:bg-hover/50',
+                      'bg-card p-3 transition-colors hover:bg-hover/50',
                       // 未勾选 = 不参与直播列表：淡显，与点播源面板保持同一套停用观感
                       !enabled && 'opacity-70'
                     )}
@@ -231,7 +231,7 @@ export function LiveSourceManager() {
                         badgeWhenOk={({ count }) => `✓ ${count ?? 0} 频道`}
                       />
                       <button
-                        className="rounded-md p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
+                        className="p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
                         onClick={() => exportM3u(row.url)}
                         aria-label="导出 M3U"
                         title="导出为标准 M3U 文件"
@@ -242,7 +242,7 @@ export function LiveSourceManager() {
                         <>
                           {/* 订阅源由远端列表管理：编辑会被下次同步覆盖、删除会复活，故置为禁用态并指路 */}
                           <button
-                            className="rounded-md p-2 text-muted/30 cursor-not-allowed shrink-0"
+                            className="p-2 text-muted/30 cursor-not-allowed shrink-0"
                             disabled
                             aria-label="订阅源不可单独编辑"
                             title="该源来自数据源订阅，修改会在下次同步时被覆盖；请修改远端订阅内容后重新同步"
@@ -250,7 +250,7 @@ export function LiveSourceManager() {
                             <Icon name="edit" className="w-4 h-4" />
                           </button>
                           <button
-                            className="rounded-md p-2 text-muted/30 cursor-not-allowed shrink-0"
+                            className="p-2 text-muted/30 cursor-not-allowed shrink-0"
                             disabled
                             aria-label="订阅源不可单独删除"
                             title="该源来自数据源订阅；请到「数据源订阅」中删除整个订阅"
@@ -261,7 +261,7 @@ export function LiveSourceManager() {
                       ) : (
                         <>
                           <button
-                            className="rounded-md p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
+                            className="p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
                             onClick={() => setEditing(row.url)}
                             aria-label="编辑"
                             title="编辑名称与节目单地址"
@@ -269,7 +269,7 @@ export function LiveSourceManager() {
                             <Icon name="edit" className="w-4 h-4" />
                           </button>
                           <button
-                            className="rounded-md p-2 text-muted transition-colors hover:bg-hover hover:text-danger shrink-0"
+                            className="p-2 text-muted transition-colors hover:bg-hover hover:text-danger shrink-0"
                             onClick={() => removeWithUndo(row)}
                             aria-label="删除直播源"
                             title="移除（可在提示中撤销）"
@@ -332,7 +332,7 @@ function LiveSourceForm({
   };
 
   return (
-    <div className="space-y-2 border border-line rounded-lg p-3 bg-chip mb-2">
+    <div className="space-y-2 bg-chip p-3 mb-2">
       <input
         className="input w-full disabled:opacity-60"
         aria-label="M3U 订阅地址"

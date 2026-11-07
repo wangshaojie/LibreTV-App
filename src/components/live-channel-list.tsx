@@ -314,10 +314,10 @@ export function LiveChannelList({ channels, groups, currentUrl, onSelect, onFilt
           <>
             <button
               className={cn(
-                'chip shrink-0 px-2.5 py-1 text-[11px] whitespace-nowrap border',
+                'chip shrink-0 px-2.5 py-1 text-[11px] whitespace-nowrap',
                 aliveFilter === 'green'
-                  ? 'bg-accent text-on-accent border-accent font-medium'
-                  : 'bg-chip text-muted border-line hover:text-content hover:bg-hover'
+                  ? 'bg-accent text-on-accent font-medium'
+                  : 'bg-chip text-muted hover:text-content hover:bg-hover'
               )}
               onClick={() => setAliveFilter((v) => (v === 'green' ? 'off' : 'green'))}
               title="只看分片级验证通过的频道"
@@ -327,10 +327,10 @@ export function LiveChannelList({ channels, groups, currentUrl, onSelect, onFilt
             </button>
             <button
               className={cn(
-                'chip shrink-0 px-2.5 py-1 text-[11px] whitespace-nowrap border',
+                'chip shrink-0 px-2.5 py-1 text-[11px] whitespace-nowrap',
                 aliveFilter === 'ok'
-                  ? 'bg-accent text-on-accent border-accent font-medium'
-                  : 'bg-chip text-muted border-line hover:text-content hover:bg-hover'
+                  ? 'bg-accent text-on-accent font-medium'
+                  : 'bg-chip text-muted hover:text-content hover:bg-hover'
               )}
               onClick={() => setAliveFilter((v) => (v === 'ok' ? 'off' : 'ok'))}
               title="看所有验证通过（含直链/清单级弱验证）的频道"
@@ -420,10 +420,10 @@ function GroupChip({ label, active, onClick }: { label: string; active: boolean;
   return (
     <button
       className={cn(
-        'chip shrink-0 px-3 py-1.5 text-xs whitespace-nowrap border',
+        'chip shrink-0 px-3 py-1.5 text-xs whitespace-nowrap',
         active
-          ? 'bg-accent text-on-accent border-accent font-medium'
-          : 'bg-chip text-muted border-line hover:text-content hover:bg-hover'
+          ? 'bg-accent text-on-accent font-medium'
+          : 'bg-chip text-muted hover:text-content hover:bg-hover'
       )}
       onClick={onClick}
     >
@@ -493,7 +493,7 @@ const ChannelRow = memo(function ChannelRow({
           键盘操作由外层列表容器的 ↑↓ 导航提供 */}
       <div
         className={cn(
-          'group flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-colors relative',
+          'group flex items-center gap-2.5 px-2 py-2 cursor-pointer transition-colors relative',
           active ? 'bg-accent/10' : 'hover:bg-hover',
           cursor && 'ring-1 ring-accent/70'
         )}
@@ -507,7 +507,7 @@ const ChannelRow = memo(function ChannelRow({
           )}
         />
         {/* 台标 */}
-        <div className="w-8 h-8 shrink-0 rounded-lg bg-chip border border-line flex items-center justify-center overflow-hidden">
+        <div className="w-8 h-8 shrink-0 bg-chip flex items-center justify-center overflow-hidden">
           {logo && !logoFailed ? (
             <SmartImage
               url={logo}

@@ -69,7 +69,7 @@ export function EmptyState({
     return <p className={cn('text-center text-xs text-faint py-6', className)}>{title}</p>;
   }
   return (
-    <div className={cn('border border-dashed border-line rounded-lg p-6 text-center', className)}>
+    <div className={cn('bg-chip p-6 text-center', className)}>
       <Icon name={icon} className="w-6 h-6 mx-auto text-faint mb-2" />
       <p className="text-sm text-muted">{title}</p>
       {description && <p className="text-xs text-faint mt-1 leading-relaxed">{description}</p>}
@@ -99,7 +99,7 @@ export function ErrorState({
       </p>
       {onRetry && (
         <button
-          className={cn('btn-ghost btn-sm', tone === 'onDark' && '!bg-white/10 !text-white !border-white/20')}
+          className={cn('btn-ghost btn-sm', tone === 'onDark' && '!bg-white/20 !text-white')}
           onClick={onRetry}
         >
           {retryLabel}

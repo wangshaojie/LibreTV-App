@@ -218,13 +218,13 @@ function LiveContent() {
   const isFavorite = currentChannel ? liveFavorites.includes(currentChannel.url) : false;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="player-page min-h-screen flex flex-col">
       <Header showSearch showBack />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
           {/* 主栏：播放器 + 信息条 + 节目单 */}
           <div className="min-w-0">
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            <div className="player-stage aspect-video bg-black overflow-hidden">
               {currentUrl ? (
                 <LivePlayer
                   url={currentUrl}
@@ -251,7 +251,7 @@ function LiveContent() {
             {/* 频道信息条 */}
             {currentChannel && (
               <div className="panel p-3.5 mt-3 flex items-center gap-3.5">
-                <div className="w-11 h-11 shrink-0 rounded-lg bg-chip border border-line flex items-center justify-center overflow-hidden">
+                <div className="w-11 h-11 shrink-0 bg-chip flex items-center justify-center overflow-hidden">
                   {logo && !logoFailed ? (
                     <SmartImage
                       url={logo}
@@ -400,16 +400,16 @@ function LiveContent() {
           <aside
             className={cn(
               'panel flex-col overflow-hidden',
-              'fixed inset-x-0 bottom-0 z-40 h-[75vh] rounded-t-2xl shadow-2xl',
+              'fixed inset-x-0 bottom-0 z-40 h-[75vh] rounded-t-2xl',
               listOpen ? 'flex' : 'hidden',
-              'lg:sticky lg:top-20 lg:flex lg:h-[calc(100vh-6.5rem)] lg:shadow-none'
+              'lg:sticky lg:top-20 lg:flex lg:h-[calc(100vh-6.5rem)]'
             )}
           >
             {/* 抽屉把手栏（仅移动端） */}
             <div className="flex items-center justify-between px-3 pt-3 pb-1 shrink-0 lg:hidden">
               <span className="text-sm font-semibold text-content">频道列表</span>
               <button
-                className="rounded-md p-1.5 text-muted hover:text-content hover:bg-hover transition-colors"
+                className="p-1.5 text-muted hover:text-content hover:bg-hover transition-colors"
                 aria-label="关闭频道列表"
                 onClick={() => setListOpen(false)}
               >
@@ -448,7 +448,7 @@ function LiveContent() {
         {/* 移动端呼出频道列表的悬浮按钮 */}
         {!listOpen && channels.length > 0 && (
           <button
-            className="fixed bottom-4 right-4 z-30 flex items-center gap-1.5 rounded-full bg-accent px-4 py-2.5 text-sm text-on-accent shadow-lg lg:hidden"
+            className="fixed bottom-4 right-4 z-30 flex items-center gap-1.5 rounded-full bg-accent px-4 py-2.5 text-sm text-on-accent lg:hidden"
             onClick={() => setListOpen(true)}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

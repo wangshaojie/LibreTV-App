@@ -163,7 +163,7 @@ function TabRow<T extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={cn('flex w-full gap-1', variant === 'primary' && 'p-0.5 bg-chip rounded-lg')}
+      className={cn('flex w-full gap-1', variant === 'primary' && 'p-0.5 bg-chip')}
       onKeyDown={(e) => {
         if (e.key === 'ArrowRight') {
           e.preventDefault();
@@ -183,11 +183,11 @@ function TabRow<T extends string>({
             aria-selected={active}
             className={cn(
               // 两级导航都等宽撑满一行（原先二级按内容宽度、超宽才横滚，与一级不一致）
-              'flex-1 min-w-0 inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md transition-colors',
+              'flex-1 min-w-0 inline-flex items-center justify-center gap-1 whitespace-nowrap transition-colors',
               variant === 'primary'
                 ? cn(
                     'px-2 py-1.5 text-xs',
-                    active ? 'bg-surface-raised text-accent font-medium shadow-sm' : 'text-muted hover:text-content'
+                    active ? 'bg-surface-raised text-accent font-medium' : 'text-muted hover:text-content'
                   )
                 : cn(
                     'px-2.5 py-1 text-xs',
@@ -457,7 +457,7 @@ function VodSourceRow({
 
   if (editing) {
     return (
-      <li className="bg-card rounded-lg p-3">
+      <li className="bg-card p-3">
         <SourceForm visible initial={api} onCancel={onCancelEdit} onSubmit={onUpdate} />
       </li>
     );
@@ -466,7 +466,7 @@ function VodSourceRow({
   return (
     <li
       className={cn(
-        'bg-card rounded-lg p-3 transition-colors hover:bg-hover/50',
+        'bg-card p-3 transition-colors hover:bg-hover/50',
         // 未勾选 = 不参与搜索：整行淡显，长列表里才能一眼扫出哪些没启用
         !selected && 'opacity-70'
       )}
@@ -513,7 +513,7 @@ function VodSourceRow({
             // 订阅源由远端列表管理：编辑会被下次同步覆盖、删除会复活，故置为禁用态并说明去处
             <>
               <button
-                className="rounded-md p-2 text-muted/30 cursor-not-allowed shrink-0"
+                className="p-2 text-muted/30 cursor-not-allowed shrink-0"
                 disabled
                 aria-label="订阅源不可单独编辑"
                 title="该源来自订阅，修改会在下次同步时被覆盖；请修改远端订阅后重新同步"
@@ -521,7 +521,7 @@ function VodSourceRow({
                 <Icon name="edit" className="w-4 h-4" />
               </button>
               <button
-                className="rounded-md p-2 text-muted/30 cursor-not-allowed shrink-0"
+                className="p-2 text-muted/30 cursor-not-allowed shrink-0"
                 disabled
                 aria-label="订阅源不可单独删除"
                 title="该源来自订阅，单独删除会在下次同步时恢复；请到「数据源订阅」删除整个订阅"
@@ -532,7 +532,7 @@ function VodSourceRow({
           ) : (
             <>
               <button
-                className="rounded-md p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
+                className="p-2 text-muted transition-colors hover:bg-hover hover:text-accent shrink-0"
                 onClick={() => onEdit(api.key)}
                 aria-label="编辑"
                 title="编辑"
@@ -540,7 +540,7 @@ function VodSourceRow({
                 <Icon name="edit" className="w-4 h-4" />
               </button>
               <button
-                className="rounded-md p-2 text-muted transition-colors hover:bg-hover hover:text-danger shrink-0"
+                className="p-2 text-muted transition-colors hover:bg-hover hover:text-danger shrink-0"
                 onClick={remove}
                 aria-label="删除"
                 title="移除（可在提示中撤销）"
@@ -900,7 +900,7 @@ function SourceSubscriptions() {
 
       {/* 发布结果：链接公开可读、粘贴板也可能随时清理，这些风险直接写在这里而不是只在 toast 里闪一下 */}
       {published && (
-        <div className="mb-3 rounded-lg border border-line bg-chip/60 p-2.5">
+        <div className="mb-3 bg-chip/60 p-2.5">
           <div className="flex items-center gap-1.5">
             <input
               readOnly
@@ -962,7 +962,7 @@ function SourceSubscriptions() {
               <li
                 key={sub.url}
                 className={cn(
-                  'bg-card rounded-lg p-3 transition-colors hover:bg-hover/50',
+                  'bg-card p-3 transition-colors hover:bg-hover/50',
                   // 与源列表的「未勾选」用同一套停用观感：淡显 + 徽章说明
                   sub.enabled === false && 'opacity-70'
                 )}
@@ -1008,7 +1008,7 @@ function SourceSubscriptions() {
                     }
                   />
                   <button
-                    className="rounded-md p-2 shrink-0 text-muted transition-colors hover:bg-hover hover:text-accent disabled:opacity-40"
+                    className="p-2 shrink-0 text-muted transition-colors hover:bg-hover hover:text-accent disabled:opacity-40"
                     disabled={isSyncing}
                     onClick={() => sync(sub.url)}
                     aria-label="重新同步"
@@ -1021,7 +1021,7 @@ function SourceSubscriptions() {
                     )}
                   </button>
                   <button
-                    className="rounded-md p-2 shrink-0 text-muted transition-colors hover:bg-hover hover:text-danger"
+                    className="p-2 shrink-0 text-muted transition-colors hover:bg-hover hover:text-danger"
                     onClick={() => setPendingDelete(sub.url)}
                     aria-label="删除订阅"
                     title="删除订阅及其导入的点播源与直播源（保留收藏的频道）"
@@ -1227,7 +1227,7 @@ function SourceForm({
   };
 
   return (
-    <div className="space-y-2 border border-line rounded-lg p-3 bg-chip mb-2">
+    <div className="space-y-2 bg-chip p-3 mb-2">
     <input
       className="input w-full"
       aria-label="点播源名称"

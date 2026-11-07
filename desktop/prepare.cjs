@@ -3,10 +3,13 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
+// 桌面封装有独立版本号（2.19.2-desktop.N），注入构建，
+// 页脚与 /api/status 显示的就是它，而不是上游的 2.19.2
+const desktopVersion = require('./package.json').version;
 const result = spawnSync(process.execPath, [path.join(root, 'node_modules/next/dist/bin/next'), 'build'], {
   cwd: root,
   stdio: 'inherit',
-  env: { ...process.env, DOCKER_BUILD: '1', NEXT_TELEMETRY_DISABLED: '1' },
+  env: { ...process.env, DOCKER_BUILD: '1', NEXT_TELEMETRY_DISABLED: '1', APP_VERSION: desktopVersion },
 });
 if (result.status !== 0) process.exit(result.status || 1);
 const resources = path.join(__dirname, 'resources');

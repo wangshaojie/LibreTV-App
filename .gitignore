@@ -23,6 +23,9 @@ android/.gradle/
 android/**/build/
 android/local.properties
 android/release-*/
+# 手机测试包与设计过程素材：都是本地产物，不入库
+android/phone-test/
+docs/design/
 # 真机调试产物
 android/tv-*.png
 android/tv-logcat*.txt

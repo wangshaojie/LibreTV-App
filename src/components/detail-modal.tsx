@@ -140,7 +140,7 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="bg-surface-raised rounded-2xl w-full max-w-3xl shadow-2xl animate-slide-up outline-none overflow-hidden"
+        className="bg-surface-raised w-full max-w-3xl animate-slide-up outline-none overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-label={`${item.name} 详情`}
@@ -153,7 +153,7 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
               mode={store.imageProxyMode}
               customProxy={store.customImageProxy}
               alt={item.name}
-              className="w-28 sm:w-32 aspect-[2/3] object-cover rounded-xl bg-chip shrink-0 border border-line"
+              className="w-28 sm:w-32 aspect-[2/3] object-cover bg-chip shrink-0"
               loading="eager"
               onExhausted={() => setPosterFailed(true)}
             />
@@ -276,7 +276,7 @@ export function DetailModal({ item, onClose }: { item: SearchResultItem | null; 
                           return (
                             <button
                               key={realIndex}
-                              className="h-10 rounded-lg border border-line bg-chip text-muted text-sm transition-colors hover:border-accent hover:text-accent"
+                              className="h-10 bg-chip text-muted text-sm transition-colors hover:bg-hover hover:text-accent"
                               onClick={() => play(realIndex)}
                             >
                               {realIndex + 1}

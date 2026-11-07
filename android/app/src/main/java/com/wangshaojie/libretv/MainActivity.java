@@ -69,10 +69,10 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle b){
         super.onCreate(b);store=new Store(this);if(Ui.tv(this))setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         boolean tv=Ui.tv(this);LinearLayout root=new LinearLayout(this);root.setOrientation(tv?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL);Ui.inset(this,root);
-        // 侧边栏：白卡片浮在暖白页面底上，留出边距并加轻投影，层次才立得住
+        // 侧边栏：白卡片浮在暖白页面底上（扁平化后无描边无投影，靠底色差异分层）
         LinearLayout navWrap=tv?Ui.column(this):Ui.row(this);
         LinearLayout nav=tv?Ui.column(this):Ui.row(this);
-        nav.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE,20));Ui.elevate(nav,2f);Ui.padding(nav,tv?16:6);
+        nav.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE,20));Ui.padding(nav,tv?16:6);
         if(tv){
             LinearLayout brand=Ui.row(this);
             TextView mark=Ui.label(this,"静",19,Ui.ON_ACCENT);mark.setGravity(Gravity.CENTER);mark.setBackground(Ui.circle(Ui.ACCENT));
@@ -184,7 +184,7 @@ public final class MainActivity extends Activity {
         reset("home");searchBox("搜索电影、剧集",()->{String term=query.getText().toString().trim();if(!term.isEmpty())namedSearch(term);});
         LinearLayout body=Ui.column(this);mainScroll=Ui.scroll(this,body);content.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));
         // 今日精选：白卡，左文右图。浅色主题下不再用深色渐变大图 —— 暖白底上压深图会又脏又重
-        FrameLayout hero=new FrameLayout(this);hero.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE,18));Ui.elevate(hero,2f);
+        FrameLayout hero=new FrameLayout(this);hero.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE,18));
         LinearLayout words=Ui.row(this);Ui.padding(words,16);
         LinearLayout copy=Ui.column(this);
         copy.addView(Ui.label(this,"今日精选",11,Ui.ACCENT));copy.addView(Ui.gap(this,4));
@@ -193,7 +193,7 @@ public final class MainActivity extends Activity {
         words.addView(copy,new LinearLayout.LayoutParams(0,-2,1));
         Button action=Ui.primary(this,"电影片单",()->browse("movie","热门"));words.addView(action);
         hero.addView(words,new FrameLayout.LayoutParams(-1,-1));
-        ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);Ui.clipRound(cover,12);
+        ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);Ui.clipRound(cover,0);
         FrameLayout.LayoutParams coverLp=new FrameLayout.LayoutParams(Ui.dp(this,150),-1,Gravity.END|Gravity.CENTER_VERTICAL);coverLp.setMargins(0,Ui.dp(this,12),Ui.dp(this,12),Ui.dp(this,12));hero.addView(cover,coverLp);
         body.addView(hero,new LinearLayout.LayoutParams(-1,Ui.dp(this,Ui.tv(this)?108:96)));body.addView(Ui.gap(this,8));
         List<Catalog.Item> history=store.items("history");if(!history.isEmpty()){LinearLayout recent=section(body,"最近观看",()->saved("history"));posterRow(recent,"recent",history.subList(0,Math.min(8,history.size())));}
@@ -206,15 +206,17 @@ public final class MainActivity extends Activity {
     }
     private void browse(String type,String tag){pushBack();reset("catalog:"+type);catalogType=type;catalogTag=tag;catalogOffset=0;content.addView(Ui.heading(this,type.equals("movie")?"发现电影":"发现剧集"));LinearLayout tabs=Ui.row(this);String[] tags=type.equals("movie")?new String[]{"热门","最新","经典","豆瓣高分","华语","欧美","动画"}:new String[]{"热门","国产剧","美剧","韩剧","日剧","综艺","纪录片"};for(String value:tags){Button b=Ui.chipOutline(this,value,tag.equals(value),()->browse(type,value));tabs.addView(b);}HorizontalScrollView categories=new HorizontalScrollView(this);categories.setHorizontalScrollBarEnabled(false);categories.setTag("h:catalog");categories.addView(tabs);content.addView(categories);createGrid();content.addView(Ui.soft(this,"加载更多",()->loadCatalog(true)));loadCatalog(false);}
     private void loadCatalog(boolean more){final int token=generation;final int offset=more?catalogOffset+24:0;status.setText("正在加载"+catalogTag+"片单…");tasks.add(workers.submit(()->{try{List<Catalog.Item> cards=Discover.load(store,catalogType,catalogTag,offset);runOnUiThread(()->{if(!current(token))return;if(!more)shown.clear();Set<String> known=new HashSet<>();for(Catalog.Item i:shown)known.add(Catalog.titleKey(i.title));int added=0;for(Catalog.Item i:cards)if(known.add(Catalog.titleKey(i.title))){shown.add(i);added++;}catalogOffset=offset;refresh();status.setText(added==0?"暂无更多内容":"共 "+shown.size()+" 部 · 点击海报查找片源");});}catch(Exception e){runOnUiThread(()->{if(current(token))status.setText("片单暂不可用，可重试或使用点播搜索");});}}));}
-    private void mine(){reset("my");LinearLayout body=Ui.column(this);mainScroll=Ui.scroll(this,body);content.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));body.addView(Ui.heading(this,"我的放映厅"));body.addView(Ui.gap(this,8));body.addView(Ui.label(this,"收藏喜欢的内容，接着上次的进度看",14,Ui.MUTED));body.addView(Ui.gap(this,20));LinearLayout stats=Ui.row(this);String[] values={store.array("favorites").length()+"\n收藏",store.array("history").length()+"\n记录",store.array("sources").length()+"\n片源"};for(String value:values){TextView cell=Ui.text(this,value,19);cell.setGravity(Gravity.CENTER);cell.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE));Ui.elevate(cell,1f);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,Ui.dp(this,88),1);lp.setMargins(Ui.dp(this,4),0,Ui.dp(this,4),0);stats.addView(cell,lp);}body.addView(stats);body.addView(Ui.gap(this,20));menu(body,"我的收藏","影片与频道，随时回来继续看",()->saved("favorites"));menu(body,"观看记录","点播自动保存播放进度",()->saved("history"));menu(body,"源管理","添加片源、启用开关、查看健康状态",this::sources);menu(body,"批量测活","检查全部源或所有直播频道",()->UiDialog.list(this,"批量测活",new String[]{"所有源地址","所有直播频道"},-1,n->ProbeActivity.launch(this,n==0?"sources":"allChannels")));menu(body,"首页片单来源","豆瓣热门或已启用片源的最近更新",this::recommendSettings);menu(body,"配置导入 / 导出","备份源、收藏与观看记录",this::transfer);menu(body,"隐私与许可","本地数据与开源信息",this::privacy);menu(body,"关于 静观 TV",getString(R.string.app_name)+" "+BuildConfig.VERSION_NAME,this::about);status.setText("数据保存在本机 · 无需账号");}
-    private void menu(LinearLayout parent,String title,String subtitle,Runnable action){LinearLayout card=Ui.panel(this);card.setBackground(Ui.focus());Ui.focusable(card,this);card.setClickable(true);card.setOnClickListener(v->action.run());card.addView(Ui.label(this,title,17,Ui.TEXT));card.addView(Ui.gap(this,5));card.addView(Ui.label(this,subtitle,13,Ui.MUTED));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,0,0,Ui.dp(this,10));parent.addView(card,lp);}
+    private void mine(){reset("my");LinearLayout body=Ui.column(this);mainScroll=Ui.scroll(this,body);content.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));body.addView(Ui.heading(this,"我的放映厅"));body.addView(Ui.gap(this,8));body.addView(Ui.label(this,"收藏喜欢的内容，接着上次的进度看",14,Ui.MUTED));body.addView(Ui.gap(this,20));LinearLayout stats=Ui.row(this);String[] values={store.array("favorites").length()+"\n收藏",store.array("history").length()+"\n记录",store.array("sources").length()+"\n片源"};for(String value:values){TextView cell=Ui.text(this,value,19);cell.setGravity(Gravity.CENTER);cell.setBackground(Ui.shape(Ui.SURFACE,Ui.LINE));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,Ui.dp(this,88),1);lp.setMargins(Ui.dp(this,4),0,Ui.dp(this,4),0);stats.addView(cell,lp);}body.addView(stats);body.addView(Ui.gap(this,20));menu(body,"我的收藏","影片与频道，随时回来继续看",()->saved("favorites"));menu(body,"观看记录","点播自动保存播放进度",()->saved("history"));menu(body,"源管理","添加片源、启用开关、查看健康状态",this::sources);menu(body,"批量测活","检查全部源或所有直播频道",()->UiDialog.list(this,"批量测活",new String[]{"所有源地址","所有直播频道"},-1,n->ProbeActivity.launch(this,n==0?"sources":"allChannels")));menu(body,"首页片单来源","豆瓣热门或已启用片源的最近更新",this::recommendSettings);menu(body,"配置导入 / 导出","备份源、收藏与观看记录",this::transfer);menu(body,"隐私与许可","本地数据与开源信息",this::privacy);menu(body,"关于 静观 TV",getString(R.string.app_name)+" "+BuildConfig.VERSION_NAME,this::about);status.setText("数据保存在本机 · 无需账号");}
+    private void menu(LinearLayout parent,String title,String subtitle,Runnable action){LinearLayout card=Ui.panel(this);card.setBackground(Ui.focus());Ui.focusable(card,this);card.setClickable(true);card.setOnClickListener(v->action.run());card.addView(Ui.label(this,title,17,Ui.TEXT));card.addView(Ui.gap(this,5));TextView sub=Ui.label(this,subtitle,13,Ui.MUTED);card.addView(sub);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,0,0,Ui.dp(this,10));parent.addView(card,lp);
+        // 聚焦时整张卡片换成实心淡青底，副标题的灰字在淡青底上偏糊 —— 聚焦时换成深色字
+        card.setOnFocusChangeListener((v,focused)->sub.setTextColor(focused?Ui.TEXT:Ui.MUTED));}
     private void recommendSettings(){UiDialog.list(this,"首页片单来源",new String[]{"豆瓣热门（失败时使用片源）","仅使用已启用的片源"},store.object("preferences").optString("discover","douban").equals("cms")?1:0,n->{try{JSONObject preferences=store.object("preferences");preferences.put("discover",n==0?"douban":"cms");store.putObject("preferences",preferences);for(String type:new String[]{"movie","tv"})for(String tag:new String[]{"热门","最新","经典","豆瓣高分","华语","欧美","动画","国产剧","美剧","韩剧","日剧","综艺","纪录片"})store.remove(Discover.key(type,tag));home();}catch(Exception e){Ui.message(this,error(e));}});}
     private void privacy(){LinearLayout body=Ui.column(this);Ui.padding(body,4);body.addView(Ui.label(this,"源配置、收藏、观看记录和搜索历史保存在设备本地。应用不设置账号，不收集遥测，也没有内置广告。搜索、推荐、封面和播放请求会直接发送到你配置的源及推荐服务。\n\n推荐使用豆瓣接口，失败时尝试已配置的 CMS 源；图片会缓存到应用私有目录。配置导出由你选择文件位置，卸载应用会删除本地数据。\n\n本项目基于 LibreSpark/LibreTV，按 AGPL-3.0-or-later 提供源码。Media3 使用 Apache-2.0；兼容版 CA 数据使用 MPL-2.0。",14,Ui.MUTED));UiDialog.custom(this,"隐私与开源",body,"完整许可",()->{try(InputStream in=getAssets().open("LICENSE.txt");ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] b=new byte[4096];int read;while((read=in.read(b))!=-1)out.write(b,0,read);LinearLayout text=Ui.column(this);text.addView(Ui.label(this,out.toString("UTF-8"),12,Ui.MUTED));UiDialog.custom(this,"开源许可",text,null,null);}catch(Exception e){Ui.message(this,"许可见源码仓库");}});}
     private void reset(String next){
         // 先把当前页的视觉状态存下来 —— 无论这次是切换页面还是原地重建
         saveSnapshot();
         generation++;for(Future<?> task:tasks)task.cancel(true);tasks.clear();page=next;content.removeAllViews();items.clear();shown.clear();grouped.clear();list=null;query=null;emptyTitle=null;emptyHint=null;group="全部分组";mainScroll=null;status.setText("");
-        String selected=next.equals("live")?"live":next.equals("vod")?"vod":next.equals("home")||next.startsWith("catalog")?"home":"my";for(Map.Entry<String,Button> nav:navigation.entrySet())nav.getValue().setSelected(nav.getKey().equals(selected));
+        String selected=next.equals("live")?"live":next.equals("vod")?"vod":next.equals("home")||next.startsWith("catalog")?"home":"my";for(Map.Entry<String,Button> nav:navigation.entrySet())Ui.selectNav(nav.getValue(),nav.getKey().equals(selected));
         // 只有二级页面才显示顶栏：一级页面（首页 / 点播 / 直播 / 我的）是主导航，
         // 顶栏留着只会占掉一整行高度，把内容挤到首屏之外。
         // 源管理的入口在「我的」里，顶栏不再重复放一个。
@@ -309,7 +311,7 @@ public final class MainActivity extends Activity {
                 restoreGroup="";filter();});
         }catch(Exception e){runOnUiThread(()->{if(current(token))status.setText(items.isEmpty()?"订阅读取失败："+error(e)+" · 可在源管理中修改或测试":"更新失败，正在展示上次缓存的频道");});}}));
     }
-    private void vod(){reset("vod");content.addView(Ui.heading(this,"全源搜索"));searchBox("输入电影或剧集名称",this::searchVod);JSONArray history=store.array("searches");if(history.length()>0){LinearLayout chips=Ui.row(this);for(int n=0;n<Math.min(5,history.length());n++){String term=history.optString(n);chips.addView(Ui.chipOutline(this,term,false,()->namedSearch(term)));}HorizontalScrollView recent=new HorizontalScrollView(this);recent.setHorizontalScrollBarEnabled(false);recent.setTag("h:searchHistory");recent.addView(chips);content.addView(recent);}createGrid();int count=sourcesOf("vod").size();status.setText(count==0?"请先在源管理中添加点播源":"输入片名后点击搜索 · 已配置 "+count+" 个点播源");}
+    private void vod(){reset("vod");content.addView(Ui.heading(this,"全源搜索"));searchBox("输入电影或剧集名称",this::searchVod);JSONArray history=store.array("searches");if(history.length()>0){LinearLayout chips=Ui.row(this);for(int n=0;n<Math.min(5,history.length());n++){String term=history.optString(n);Button chip=Ui.chipOutline(this,term,false,()->namedSearch(term));chip.setOnLongClickListener(v->{UiDialog.confirm(this,"删除这条搜索记录？","「"+term+"」将从最近搜索中移除。","继续浏览","删除",()->{store.removeSearchHistory(term);vod();Ui.toast(this,"已删除该搜索记录");});return true;});chips.addView(chip);}HorizontalScrollView recent=new HorizontalScrollView(this);recent.setHorizontalScrollBarEnabled(false);recent.setTag("h:searchHistory");recent.addView(chips);content.addView(recent);content.addView(Ui.soft(this,"清空搜索记录",()->UiDialog.confirm(this,"清空全部搜索记录？","将删除 "+history.length()+" 条最近搜索记录，此操作不可撤销。","继续浏览","清空",()->{store.clearSearchHistory();vod();Ui.toast(this,"搜索记录已清空");})));}createGrid();int count=sourcesOf("vod").size();status.setText(count==0?"请先在源管理中添加点播源":"输入片名后点击搜索 · 已配置 "+count+" 个点播源");}
     private void namedSearch(String name){vod();query.setText(name);searchVod();}
     private void searchVod(){
         String term=query.getText().toString().trim();if(term.isEmpty()){Ui.toast(this,"请输入片名");return;}List<JSONObject> sources=sourcesOf("vod");if(sources.isEmpty()){Ui.message(this,"请先在源管理添加 Apple CMS 点播源");return;}
@@ -324,13 +326,93 @@ public final class MainActivity extends Activity {
         Uri uri=Uri.parse(base);Uri.Builder builder=uri.buildUpon().clearQuery();for(String name:uri.getQueryParameterNames())if(!Arrays.asList("ac","wd","ids","pg").contains(name))for(String v:uri.getQueryParameters(name))builder.appendQueryParameter(name,v);
         builder.appendQueryParameter("ac",action);if(key!=null)builder.appendQueryParameter(key,value);return builder.build().toString();
     }
-    private void saved(String key){pushBack();reset(key);content.addView(Ui.heading(this,key.equals("history")?"观看记录":"我的收藏"));items.addAll(store.items(key));createGrid();shown.addAll(items);refresh();status.setText((key.equals("history")?"最近观看，点播自动续播":"长按卡片可管理收藏")+" · "+items.size()+" 项");}
+    private void saved(String key){pushBack();reset(key);LinearLayout head=Ui.row(this);head.addView(Ui.heading(this,key.equals("history")?"观看记录":"我的收藏"),new LinearLayout.LayoutParams(0,-2,1));items.addAll(store.items(key));if(key.equals("history")&&!items.isEmpty())head.addView(Ui.outline(this,"清空记录",this::confirmClearHistory));content.addView(head);createGrid();shown.addAll(items);refresh();status.setText((key.equals("history")?"最近观看，点播自动续播":"长按卡片可管理收藏")+" · "+items.size()+" 项");}
+    /**
+     * 清空全部观看记录。
+     *
+     * 不可逆操作，所以焦点落在「继续浏览」上 —— 遥控器按一次 OK 不该直接清空。
+     */
+    private void confirmClearHistory(){
+        int count=store.array("history").length();
+        if(count==0){Ui.toast(this,"没有可清空的观看记录");return;}
+        UiDialog.confirm(this,"清空全部观看记录？","将删除 "+count+" 条观看记录及对应的续播进度，此操作不可撤销。","继续浏览","清空",()->{store.clearHistory();reloadHistory();Ui.toast(this,"观看记录已清空");});
+    }
+    /** 重新载入观看记录页的数据（删除/清空后调用，保持当前滚动位置） */
+    private void reloadHistory(){
+        items.clear();shown.clear();items.addAll(store.items("history"));shown.addAll(items);refresh();
+        status.setText("最近观看，点播自动续播 · "+items.size()+" 项");
+    }
+    /**
+     * 删除一条观看记录。
+     *
+     * 同样不可逆（安卓上没有撤销通道），焦点落在「继续浏览」。
+     */
+    private void confirmDeleteHistory(Catalog.Item item){
+        UiDialog.confirm(this,"删除这条观看记录？","「"+item.title+"」将从观看记录中移除，此操作不可撤销。","继续浏览","删除",()->{
+            store.removeHistory(item.url);
+            // 不用 removeIf：那是 Java 8 的默认方法，Android 5.0（API 21）上没有
+            dropByUrl(items,item.url);dropByUrl(shown,item.url);
+            refresh();
+            status.setText("最近观看，点播自动续播 · "+items.size()+" 项");
+            Ui.toast(this,"已删除该记录");
+        });
+    }
+    /** 按播放地址从列表里剔除一条（兼容 API 21，没有 removeIf） */
+    private static void dropByUrl(List<Catalog.Item> list,String url){for(int n=list.size()-1;n>=0;n--)if(list.get(n).url.equals(url))list.remove(n);}
     private void open(Catalog.Item item){
-        if(!item.url.isEmpty()){if(item.live&&page.equals("live")){play(new ArrayList<>(shown),Math.max(0,shown.indexOf(item)));}else play(Collections.singletonList(item),0);return;}
+        if(!item.url.isEmpty()){
+            if(item.live&&page.equals("live")){play(new ArrayList<>(shown),Math.max(0,shown.indexOf(item)));return;}
+            if(item.live){play(Collections.singletonList(item),0);return;}
+            // 点播的观看记录里只存了「看过的那一集」。直接播它的话，播放页只有一集，
+            // 遥控器按「下一集」只会得到「没有更多剧集」—— 从推荐/搜索进去反而有全集，
+            // 因为那条路会经过详情页，详情页会重新拉一次剧集列表。
+            // 这里同样按需重新拉一次，拿到全集再进播放页。
+            if(!item.source.isEmpty()){openSeries(item);return;}
+            play(Collections.singletonList(item),0);return;
+        }
         if(item.source.isEmpty()){namedSearch(item.title);return;}
         // 搜索聚合出的同名影片把全部片源带进详情页，由详情页内的片源行直接切换，不再弹窗二次选择
         List<Catalog.Item> choices=grouped.get(Catalog.titleKey(item.title));
         if(page.equals("vod")&&choices!=null&&choices.size()>1)detail(choices.get(0),choices);else detail(item,choices);
+    }
+    /**
+     * 从观看记录打开一部剧：按需重新拉一次该片的剧集列表，拿到全集再进播放页。
+     *
+     * 新记录带 vodId（剧的编号），直接按 id 取全集；
+     * 2.0.21 之前记下的老记录没有 vodId，只能按片名搜一次再取全集 ——
+     * 记录里的标题是「片名 · 第几集」，片名取第一个「 · 」之前的部分。
+     *
+     * 拉不到就退回只播这一集：源临时挂了也不能连片子都打不开。
+     */
+    private void openSeries(Catalog.Item item){
+        final String series=Catalog.seriesTitle(item);
+        status.setText("正在加载「"+series+"」的剧集…");
+        tasks.add(workers.submit(()->{
+            List<Catalog.Item> episodes=new ArrayList<>();
+            try{
+                String id=item.vodId;
+                if(id.isEmpty()){
+                    // 老记录没有 vodId：按片名搜一次，挑片名最接近的一部
+                    List<Catalog.Item> found=Catalog.search(Net.get(cmsUrl(item.source,"videolist","wd",series)),item.source,item.sourceName);
+                    if(found.isEmpty())throw new IOException("没有搜到「"+series+"」");
+                    Catalog.Item best=found.get(0);
+                    for(Catalog.Item candidate:found)if(Catalog.titleKey(candidate.title).equals(Catalog.titleKey(series))){best=candidate;break;}
+                    id=best.vodId;
+                }
+                String json=Net.get(cmsUrl(item.source,"videolist","ids",id));
+                for(List<Catalog.Item> list:Catalog.episodes(json,item.source,item.sourceName).values()){episodes=list;break;}
+            }catch(Exception e){android.util.Log.w("LibreTV-Net","resolve episodes failed: "+e.getMessage());}
+            final List<Catalog.Item> resolved=episodes;
+            runOnUiThread(()->{
+                if(resolved.isEmpty()){Ui.toast(this,"没取到这部剧的剧集列表，先看这一集");play(Collections.singletonList(item),0);return;}
+                int at=-1;
+                for(int n=0;n<resolved.size();n++)if(resolved.get(n).url.equals(item.url)){at=n;break;}
+                // 地址对不上（源换过播放地址）就退一步按集名匹配，还不行才从第一集开始
+                if(at<0){String episode=Catalog.episodeTitle(item);for(int n=0;n<resolved.size();n++)if(resolved.get(n).title.endsWith(episode)){at=n;break;}}
+                if(at<0)at=0;
+                play(resolved,at);
+            });
+        }));
     }
     private void detail(Catalog.Item item){detail(item,null);}
     private void detail(Catalog.Item item,List<Catalog.Item> choices){
@@ -340,7 +422,16 @@ public final class MainActivity extends Activity {
     }
     private void episodeList(String title,List<Catalog.Item> episodes){String[] labels=new String[episodes.size()];for(int n=0;n<labels.length;n++)labels[n]=episodes.get(n).title;UiDialog.list(this,title+" · 选集",labels,-1,p->play(episodes,p));}
     private void play(List<Catalog.Item> media,int at){Playback.open(this,media,at);}
-    private void itemMenu(Catalog.Item item){if(item.source.isEmpty()&&item.url.isEmpty()){open(item);return;}UiDialog.list(this,item.title,new String[]{"打开",store.favorite(item)?"取消收藏":"加入收藏"},-1,n->{if(n==0)open(item);else{store.toggleFavorite(item);Ui.toast(this,"收藏已更新");if(page.equals("favorites"))saved("favorites");else refresh();}});}
+    private void itemMenu(Catalog.Item item){if(item.source.isEmpty()&&item.url.isEmpty()){open(item);return;}
+        // 观看记录页多一个「删除此记录」：长按卡片或按遥控器菜单键都能调出这个菜单
+        if(page.equals("history")){
+            UiDialog.list(this,item.title,new String[]{"打开",store.favorite(item)?"取消收藏":"加入收藏","删除此记录"},-1,n->{
+                if(n==0)open(item);
+                else if(n==1){store.toggleFavorite(item);Ui.toast(this,"收藏已更新");refresh();}
+                else confirmDeleteHistory(item);});
+            return;
+        }
+        UiDialog.list(this,item.title,new String[]{"打开",store.favorite(item)?"取消收藏":"加入收藏"},-1,n->{if(n==0)open(item);else{store.toggleFavorite(item);Ui.toast(this,"收藏已更新");if(page.equals("favorites"))saved("favorites");else refresh();}});}
     @Override public boolean onKeyDown(int key,KeyEvent e){if(key==KeyEvent.KEYCODE_MENU&&list!=null&&list.getSelectedItemPosition()>=0&&list.getSelectedItemPosition()<shown.size()){itemMenu(shown.get(list.getSelectedItemPosition()));return true;}return super.onKeyDown(key,e);}
     /**
      * 拉取官方片源清单并与本地源合并。

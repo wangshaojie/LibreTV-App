@@ -5,6 +5,8 @@ import Artplayer from 'artplayer';
 import Hls, { type HlsConfig } from 'hls.js';
 import { Spinner } from './states';
 import { prefersTouchPointer } from '@/lib/touch-pointer';
+import { keepControlsWhileHovered } from '@/lib/art-hover';
+import { attachSpeedControl } from '@/lib/art-speed-button';
 import { ART_DEFAULT_CONTROL_HIDE_MS, TOUCH_CONTROL_HIDE_MS } from '@/lib/control-hide';
 
 /**
@@ -318,7 +320,7 @@ export function LivePlayer({ url, title, onPrevChannel, onNextChannel }: LivePla
       backdrop: true,
       playsInline: true,
       airplay: true,
-      theme: '#d4b483',
+      theme: '#6fa9a2',
       controls,
       lang: navigator.language.toLowerCase().startsWith('zh') ? 'zh-cn' : 'en',
       moreVideoAttr: { playsInline: true },
@@ -335,6 +337,14 @@ export function LivePlayer({ url, title, onPrevChannel, onNextChannel }: LivePla
       },
     });
     artRef.current = art;
+
+    // 控制栏右侧加一枚常驻「倍速」按钮（直播同样可调速，主流直播客户端都有）
+    const cleanupSpeed = attachSpeedControl(art);
+
+    // 指针停在底部控制区时，控制栏保持显示（ArtPlayer 自带的自动隐藏不理这个）
+    const cleanupHover = keepControlsWhileHovered(
+      containerRef.current?.querySelector<HTMLElement>('.art-video-player') ?? null
+    );
     art.on('video:loadedmetadata', () => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -370,6 +380,8 @@ export function LivePlayer({ url, title, onPrevChannel, onNextChannel }: LivePla
       disposed = true;
       clearTimeout(startTimer);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+      cleanupHover();
+      cleanupSpeed();
       cleanupEngines();
       art.destroy();
       artRef.current = null;
@@ -417,7 +429,7 @@ export function LivePlayer({ url, title, onPrevChannel, onNextChannel }: LivePla
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80">
           <p className="text-danger text-sm px-4 text-center">{error}</p>
           <button
-            className="btn-ghost text-xs !bg-white/10 !text-white !border-white/20"
+            className="btn-ghost text-xs !bg-white/20 !text-white"
             onClick={() => {
               // 重建播放器实例即可，无需整页刷新
               setError('');
@@ -430,7 +442,7 @@ export function LivePlayer({ url, title, onPrevChannel, onNextChannel }: LivePla
         </div>
       )}
       {hint && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-3 py-1.5 rounded-full pointer-events-none animate-fade-in">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none animate-fade-in bg-black/85 px-3.5 py-1.5 text-sm text-white/90">
           {hint}
         </div>
       )}

@@ -147,7 +147,7 @@ export function SearchHistoryDropdown({
     <div
       className={cn(
         'absolute left-0 right-0 top-full z-40 overflow-hidden text-left',
-        'rounded-b-xl border-x border-b border-accent bg-surface-raised shadow-2xl animate-fade-in'
+        'bg-surface-raised animate-fade-in'
       )}
     >
       <div className="flex items-center justify-between pl-4 pr-2 py-2 border-b border-line">
@@ -157,7 +157,7 @@ export function SearchHistoryDropdown({
         </span>
         <button
           type="button"
-          className="px-2 py-1 rounded-md text-xs text-faint hover:text-danger hover:bg-hover transition-colors"
+          className="px-2 py-1 text-xs text-faint hover:text-danger hover:bg-hover transition-colors"
           onClick={onClearAll}
         >
           清空
@@ -186,7 +186,7 @@ export function SearchHistoryDropdown({
             </button>
             <button
               type="button"
-              className="shrink-0 p-1.5 mr-2 rounded-md text-faint hover:text-danger hover:bg-chip transition-colors"
+              className="shrink-0 p-1.5 mr-2 text-faint hover:text-danger hover:bg-chip transition-colors"
               aria-label={`删除搜索记录 ${h.text}`}
               onClick={() => onRemove(h.text)}
             >

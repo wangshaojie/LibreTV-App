@@ -222,12 +222,15 @@ final class UiDialog {
         return dialog;
     }
 
+    /**
+     * 弹框底：纯色直角块，不描边。
+     *
+     * 扁平化之后弹框不再有圆角和描边 —— 靠一块纯色面板 + 外面的半透明遮罩
+     * 把内容从背景里分出来，和网页端弹框同一套语言。
+     */
     private static GradientDrawable panel() {
         GradientDrawable d = new GradientDrawable();
         d.setColor(Ui.SURFACE);
-        float density = Resources.getSystem().getDisplayMetrics().density;
-        d.setCornerRadius(20 * density);
-        d.setStroke(Math.max(2, Math.round(1f * density)), Ui.LINE);
         return d;
     }
 }

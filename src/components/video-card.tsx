@@ -273,7 +273,7 @@ export function AggregatedCard({
   };
 
   return (
-    <div className={cn('card', !multi && 'hover:scale-[1.02] hover:shadow-md', multi && expanded && 'ring-1 ring-accent/40')}>
+    <div className={cn('card', !multi && 'hover:scale-[1.02]', multi && expanded && 'ring-1 ring-accent/40')}>
       {/* 不用 h-full：展开面板需要撑高卡片，等高裁切会让面板不可见 */}
       <div
         className="flex h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60"
@@ -298,7 +298,7 @@ export function AggregatedCard({
               className="absolute inset-0 h-full w-full object-cover"
               onExhausted={() => setImgFailed(true)}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+            <div className="absolute inset-0 from-black/30 to-transparent" />
             {multi && (
               <span className="absolute top-1.5 left-1.5 tag bg-black/70 text-accent font-medium">
                 {group.items.length} 源
@@ -389,10 +389,10 @@ export function AggregatedCard({
                 <button
                   key={`${item.sourceKey}_${item.vodId}`}
                   className={cn(
-                    'group flex w-full min-w-0 flex-col gap-1 rounded-lg border px-3 py-2',
+                    'group flex w-full min-w-0 flex-col gap-1 px-3 py-2',
                     'text-xs transition-all cursor-pointer',
-                    'border-line bg-chip hover:border-accent hover:bg-accent/10',
-                    item.isAdult && 'border-pink-500/30'
+                    'bg-chip hover:bg-accent/20',
+                    item.isAdult && 'bg-pink-500/15 text-pink-600'
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -435,7 +435,7 @@ export function VideoCard({ item, onClick }: { item: SearchResultItem; onClick: 
 
   return (
     <div
-      className="card cursor-pointer hover:scale-[1.02] hover:shadow-md h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+      className="card cursor-pointer hover:scale-[1.02] h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       role="button"
       tabIndex={0}
       onClick={onClick}
@@ -458,7 +458,7 @@ export function VideoCard({ item, onClick }: { item: SearchResultItem; onClick: 
               className="h-full w-full object-cover"
               onExhausted={() => setImgFailed(true)}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+            <div className="absolute inset-0 from-black/30 to-transparent" />
           </div>
         ) : (
           <div className="flex-shrink-0 w-[105px] sm:w-[120px] aspect-[2/3] bg-chip flex items-center justify-center">
@@ -497,7 +497,7 @@ export function DoubanCard({ item, onClick }: { item: { title: string; cover: st
 
   return (
     <div
-      className="cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 rounded-xl"
+      className="cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       role="button"
       tabIndex={0}
       onClick={onClick}
@@ -509,7 +509,7 @@ export function DoubanCard({ item, onClick }: { item: { title: string; cover: st
         }
       }}
     >
-      <div className="relative aspect-[2/3] bg-chip rounded-xl overflow-hidden border border-line transition-transform duration-200 group-hover:scale-[1.03]">
+      <div className="relative aspect-[2/3] bg-chip overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
         {item.cover && !imgFailed ? (
           <SmartImage
             url={item.cover}

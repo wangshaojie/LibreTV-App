@@ -67,7 +67,7 @@ export function ConfirmDialog({
         role="alertdialog"
         aria-modal="true"
         aria-label={title}
-        className="relative bg-surface-raised border border-line rounded-xl w-full max-w-sm shadow-2xl p-5 animate-slide-up"
+        className="relative bg-surface-raised w-full max-w-sm p-5 animate-slide-up"
       >
         <h2 className="text-base font-semibold text-content mb-2">{title}</h2>
         {message && <div className="text-sm text-muted leading-relaxed">{message}</div>}

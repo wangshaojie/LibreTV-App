@@ -108,7 +108,7 @@ export function Switch({
     >
       <span
         className={cn(
-          'absolute left-[2px] top-[2px] h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-transform duration-200 ease-out',
+          'absolute left-[2px] top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-transform duration-200 ease-out',
           checked ? 'translate-x-[18px]' : 'translate-x-0'
         )}
       />
@@ -205,7 +205,7 @@ export function TestBadge({
       )}
       <button
         className={cn(
-          'rounded-md p-2 transition-colors disabled:opacity-40',
+          'p-2 transition-colors disabled:opacity-40',
           state?.status === 'done' && !state.ok ? 'text-danger' : 'text-muted hover:text-accent hover:bg-hover'
         )}
         disabled={state?.status === 'loading'}
