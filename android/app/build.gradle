@@ -7,8 +7,8 @@ android {
         applicationId 'com.wangshaojie.libretv'
         minSdk 21
         targetSdk 35
-        versionCode 28
-        versionName '2.0.23'
+        versionCode 29
+        versionName '2.0.24'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         resValue 'string', 'app_name', '静观 TV'
     }

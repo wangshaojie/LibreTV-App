@@ -56,6 +56,8 @@ public final class DetailActivity extends Activity {
         if(!film.rating.isEmpty()){TextView badge=Ui.label(this,film.rating,12,Ui.RATING);badge.setTypeface(null,android.graphics.Typeface.BOLD);badge.setBackground(Ui.pill(this,Ui.CARD));badge.setPadding(Ui.dp(this,8),Ui.dp(this,3),Ui.dp(this,8),Ui.dp(this,3));FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.RIGHT);bp.setMargins(0,Ui.dp(this,5),Ui.dp(this,5),0);art.addView(badge,bp);}
         header.addView(art,new LinearLayout.LayoutParams(Ui.dp(this,Ui.tv(this)?150:104),Ui.dp(this,Ui.tv(this)?220:156)));
         LinearLayout words=Ui.column(this);
+        // 封面与右侧介绍之间留一段空：贴在一起时介绍的第一行像是从海报里长出来的，看着挤
+        LinearLayout.LayoutParams wordsLp=new LinearLayout.LayoutParams(0,-2,1);wordsLp.setMargins(Ui.dp(this,14),0,0,0);
         TextView title=Ui.heading(this,film.title);words.addView(title);words.addView(Ui.gap(this,8));
         // 元信息做成标签，和桌面端详情弹窗一致
         LinearLayout tags=Ui.row(this);tags.setGravity(Gravity.START);
@@ -65,11 +67,16 @@ public final class DetailActivity extends Activity {
         sourceLine=Ui.label(this,film.sourceName+" · "+film.remarks,13,Ui.ACCENT_DEEP);words.addView(sourceLine);words.addView(Ui.gap(this,14));
         LinearLayout actions=Ui.row(this);
         Button play=Ui.primary(this,"立即播放",()->{if(selected.isEmpty())Ui.toast(this,"剧集正在加载，请稍候");else play(0);});actions.addView(play);
+        // 初始焦点落在「立即播放」上，不能落在顶栏的返回箭头上 ——
+        // 电视上详情页一打开焦点就在第一个可聚焦控件（返回箭头），
+        // 用户顺势按一次 OK 就会把详情页直接关掉，看起来就是「点开电影又弹回上一页」。
         favorite=Ui.outline(this,store.favorite(item)?"已收藏":"加入收藏",()->{});favorite.setOnClickListener(v->{store.toggleFavorite(item);favorite.setText(store.favorite(item)?"已收藏":"加入收藏");Ui.toast(this,store.favorite(item)?"已加入收藏":"已取消收藏");});actions.addView(favorite);
         words.addView(actions);
-        header.addView(words,new LinearLayout.LayoutParams(0,-2,1));
+        header.addView(words,wordsLp);
         card.addView(header);body.addView(card);body.addView(Ui.gap(this,14));
         if(!film.summary.isEmpty())renderSummary(film.summary);
+        // 电视端：把初始焦点从顶栏的返回箭头挪到「立即播放」
+        if(Ui.tv(this))play.post(()->{if(!isFinishing()&&!isDestroyed())play.requestFocus();});
     }
     /** 简介：默认最多 3 行，超出时出现「展开 / 收起」按钮。 */
     private void renderSummary(String summary){

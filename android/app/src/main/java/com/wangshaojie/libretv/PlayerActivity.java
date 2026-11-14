@@ -62,6 +62,8 @@ public final class PlayerActivity extends Activity {
     private long lastRecoveryAt=-1L;private int recoverCount;private boolean reconnecting,connecting;
     // 缓冲指示：播放中卡顿时画面是静止的，没有提示就会被当成应用死了。
     private View bufferView;private TextView bufferLabel;private boolean buffering;
+    /** 上一轮轮询时的播放头位置：用来判断画面是不是真的停住了（见 BufferHint）。 */
+    private long lastPosition=-1L;
     /** 加载态持续多久才判定为「缓冲中」——短暂卡顿不提示，提示闪一下更烦。 */
     private static final long BUFFER_HINT_DELAY=800;
     private final Handler ui=new Handler(Looper.getMainLooper());
@@ -403,6 +405,8 @@ public final class PlayerActivity extends Activity {
         if(items.isEmpty())return;
         // 切集 / 重连时把长按快进收掉：否则旧的定时器会继续在新的一集上乱跳
         endHoldSeek();
+        // 播放头位置也归零重来：新的一集从 0 开始，拿上一集末尾的位置去比没有意义
+        lastPosition=-1L;
         hideErrorActions();Catalog.Item item=items.get(index);title.setText(item.title+" · "+(index+1)+"/"+items.size());
         if(prevButton!=null)prevButton.setContentDescription(item.live?"上一台":"上一集");
         if(nextButton!=null)nextButton.setContentDescription(item.live?"下一台":"下一集");
@@ -469,18 +473,29 @@ public final class PlayerActivity extends Activity {
      * 实测这台设备上的 media3 不会派发 onIsLoadingChanged，
      * onPlaybackStateChanged 也未必带 BUFFERING —— 靠回调等着就永远等不到。
      * 所以每 400ms 自己问一次播放器现在什么状态，交给 BufferHint 判断该不该亮转圈。
+     *
+     * 判据是「画面停没停」（播放头走没走），不是 player.isLoading()：
+     * 后者表示「正在取数据」，正常播放时它一直是真，照它判就会在画面好好放着的时候
+     * 弹出「缓冲中」。详见 {@link BufferHint}。
      */
     private final Runnable bufferWatch = new Runnable() {
         @Override public void run() {
             if (player != null && !locked) {
                 int state = Player.STATE_IDLE;
-                boolean loading = false;
+                boolean shouldAdvance = false;
+                boolean advancing = true;
                 try {
                     state = player.getPlaybackState();
-                    loading = player.isLoading();
+                    long position = player.getCurrentPosition();
+                    advancing = lastPosition < 0L || position != lastPosition;
+                    lastPosition = position;
+                    // 画面该往前走的前提：用户要播，而且没被系统压制
+                    // （来电、音频焦点丢失、被别的应用抢走音频输出）。
+                    shouldAdvance = player.getPlayWhenReady()
+                            && player.getPlaybackSuppressionReason() == Player.PLAYBACK_SUPPRESSION_REASON_NONE;
                 } catch (Throwable ignore) {
                 }
-                int action = bufferHint.update(state, loading, SystemClock.uptimeMillis());
+                int action = bufferHint.update(state, shouldAdvance, advancing, SystemClock.uptimeMillis());
                 if (action == BufferHint.SHOW) showBufferHint();
                 else if (action == BufferHint.HIDE) hideBufferHint();
             }

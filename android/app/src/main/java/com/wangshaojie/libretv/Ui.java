@@ -311,16 +311,28 @@ final class Ui {
         if(e.getHint()==null||e.getHint().length()==0)e.setHint(hint);
 
         // 清除按钮：输入有内容时才出现，用 × 划掉当前输入
-        Button clear=new Button(c);clear.setPadding(dp(c,6),0,dp(c,14),0);
-        NavIcon cross=new NavIcon("close",dp(c,18),MUTED);cross.setBounds(0,0,dp(c,18),dp(c,18));
-        clear.setCompoundDrawables(null,null,cross,null);clear.setGravity(Gravity.CENTER);
-        clear.setContentDescription("清除搜索词");clear.setFocusable(true);clear.setVisibility(View.GONE);
+        //
+        // 三个坑：
+        //   1) 系统 Button 自带一块深灰圆角底，不清掉的话电视上就是一块灰方块 ——
+        //      比图标本身还显眼，看着像禁用按钮。
+        //   2) Button 的文本块会预留 compoundDrawablePadding，图标不在正中，
+        //      所以改用 ImageButton（ImageView 自己居中），跟搜索按钮一致。
+        //   3) × 的颜色要跟着底色走：输入区聚焦时底色是青绿，× 用白；
+        //      没聚焦时底色是浅灰，× 用深青。深青压在青绿底上看不清。
+        ImageButton clear=new ImageButton(c);
+        NavIcon cross=new NavIcon("close",dp(c,20),ACCENT_DEEP);
+        clear.setImageDrawable(cross);
+        clear.setScaleType(ImageView.ScaleType.CENTER);
+        clear.setPadding(0,0,0,0);
+        clear.setBackground(null);
+        clear.setContentDescription("清除搜索词");
+        focusable(clear,c);
+        clear.setVisibility(View.GONE);
+        // ImageButton 继承的是 ImageView，不是 Button，plain() 用不上，直接关掉抬升动画
+        if(Build.VERSION.SDK_INT>=21)clear.setStateListAnimator(null);
         clear.setOnClickListener(v->{e.setText("");});
-        // 遥控器聚焦到 × 上时给一个淡青圆底，图标同时转深青
-        clear.setOnFocusChangeListener((v,focused)->{
-            clear.setBackground(focused?circle(ACCENT_SOFT):null);
-            cross.setColor(focused?ACCENT_DEEP:MUTED);
-        });
+        // 聚焦时深青实心方块 + 白图标（扁平化后一律直角，圆形只留给本身就是圆的图标）
+        clear.setOnFocusChangeListener((v,focused)->paintClear(clear,cross,e));
 
         // 容器右边不留内边距 —— 输入区必须和青绿按钮严丝合缝；
         // × 与按钮之间的空隙由 × 按钮自身的右内边距提供
@@ -328,7 +340,10 @@ final class Ui {
         input.setPadding(dp(c,6),0,0,0);
         input.setBackground(searchInput(r,false));
         input.addView(e,new LinearLayout.LayoutParams(0,-1,1));
-        input.addView(clear,new LinearLayout.LayoutParams(dp(c,36),-1));
+        // × 是一个 40dp 的方块，垂直居中；聚焦时的深青底不会撑成整条高
+        LinearLayout.LayoutParams clearLp=new LinearLayout.LayoutParams(dp(c,40),dp(c,40));
+        clearLp.setMargins(dp(c,2),0,dp(c,4),0);
+        input.addView(clear,clearLp);
         row.addView(input,new LinearLayout.LayoutParams(0,h,1));
 
         // 搜索按钮：青绿实心 + 白色放大镜，紧贴输入区
@@ -351,10 +366,10 @@ final class Ui {
         goLp.setMargins(-dp(c,2),0,0,0);
         row.addView(go,goLp);
 
-        // 聚焦输入框时输入区换底色、清除按钮跟着亮起
+        // 聚焦输入框时输入区换底色；× 的颜色跟着底色重新算一次
         e.setOnFocusChangeListener((v,focused)->{
             input.setBackground(searchInput(r,focused));
-            cross.setColor(focused?ACCENT_DEEP:MUTED);
+            paintClear(clear,cross,e);
         });
         // 有文字才显示清除按钮；文字变化时同步
         e.addTextChangedListener(new android.text.TextWatcher(){
@@ -366,6 +381,22 @@ final class Ui {
 
         e.setOnEditorActionListener((v,id,event)->{if(id==android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH){action.run();return true;}return false;});
         return row;
+    }
+    /**
+     * 清除按钮 × 的底色与图标色。
+     *
+     * 两块底色决定图标色：
+     *   × 自己被选中 → 深青实心方块 + 白色图标（焦点必须一眼可见）
+     *   输入区聚焦   → 底色是青绿，× 必须是白的，深青压青绿看不清
+     *   其余         → 底色是浅灰，× 用深青
+     *
+     * 输入框和 × 会互相抢焦点，两个焦点监听都调它，按当前焦点状态重算一遍，
+     * 谁最后触发谁说了算 —— 不依赖事件先后顺序。
+     */
+    private static void paintClear(ImageButton clear,NavIcon cross,EditText e){
+        if(clear.isFocused()){clear.setBackground(shape(ACCENT_DEEP,0));cross.setColor(ON_ACCENT);return;}
+        clear.setBackground(null);
+        cross.setColor(e.isFocused()?ON_ACCENT:ACCENT_DEEP);
     }
     /**
      * 输入区背景：纯色块，直角无描边。
@@ -455,10 +486,22 @@ final class Ui {
         TextView rating=label(c,item.rating.isEmpty()?item.year:item.rating,12,RATING);rating.setBackground(pill(c,0xF2FFFFFF));rating.setPadding(dp(c,8),dp(c,3),dp(c,8),dp(c,3));FrameLayout.LayoutParams badge=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.RIGHT);badge.setMargins(0,dp(c,5),dp(c,5),0);art.addView(rating,badge);if(rating.getText().length()==0)rating.setVisibility(View.GONE);
         if(!item.poster.isEmpty())Images.load(c,item.poster,image);
         card.addView(art,new LinearLayout.LayoutParams(-1,dp(c,width*3/2)));TextView title=label(c,item.title,tv(c)?16:14,TEXT);title.setTypeface(null,Typeface.BOLD);title.setMaxLines(1);title.setEllipsize(android.text.TextUtils.TruncateAt.END);title.setPadding(dp(c,6),dp(c,8),dp(c,4),0);card.addView(title);
-        String subtitle=!item.remarks.isEmpty()?item.remarks:(!item.category.isEmpty()?item.category:item.sourceName);TextView sub=label(c,subtitle,12,MUTED);sub.setMaxLines(1);sub.setEllipsize(android.text.TextUtils.TruncateAt.END);sub.setPadding(dp(c,6),dp(c,4),dp(c,4),0);card.addView(sub);
-        // 聚焦时整张卡片换成实心淡青底，副标题的灰字在淡青底上偏糊 —— 聚焦时换成深色字
-        final TextView subView=sub;
-        card.setOnFocusChangeListener((v,focused)->{subView.setTextColor(focused?TEXT:MUTED);if(tv(c))scale(v,focused?1.035f:1f);});return card;
+        String subtitle=!item.remarks.isEmpty()?item.remarks:(!item.category.isEmpty()?item.category:item.sourceName);TextView sub=label(c,subtitle,12,MUTED);sub.setTextColor(cardText());sub.setMaxLines(1);sub.setEllipsize(android.text.TextUtils.TruncateAt.END);sub.setPadding(dp(c,6),dp(c,4),dp(c,4),0);card.addView(sub);
+        // 卡片被选中（网格里的选中项）或拿到焦点时，整张卡片会换成实心淡青底 ——
+        // 常态的灰字压在淡青底上偏糊，遥控器移动选中项时看不清自己停在哪一张。
+        // 所以副标题的颜色交给 ColorStateList 按选中/聚焦状态自己切换，不再在这里手动改。
+        card.setOnFocusChangeListener((v,focused)->{if(tv(c))scale(v,focused?1.035f:1f);});return card;
+    }
+    /**
+     * 卡片文字色：常态灰字，选中或聚焦时深色字。
+     *
+     * 选中态用淡青底（ACCENT_LIGHT），深色字压在上面才看得清；
+     * 灰字（110,116,128）压在淡青底上对比度不够，遥控器扫过去像没变化。
+     */
+    static android.content.res.ColorStateList cardText(){
+        return new android.content.res.ColorStateList(
+                new int[][]{{android.R.attr.state_selected},{android.R.attr.state_focused},{-android.R.attr.state_selected,-android.R.attr.state_focused}},
+                new int[]{TEXT,TEXT,MUTED});
     }
     /**
      * 聚焦时的轻微放大。

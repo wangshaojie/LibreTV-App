@@ -278,7 +278,10 @@ function HomeContent() {
                 {input && (
                   <button
                     type="button"
-                    className="shrink-0 self-center mr-1 p-1.5 text-faint hover:text-content hover:bg-hover transition-colors"
+                    /* 常态就是深青，不是灰 —— 打完字时鼠标还停在输入框上，
+                       浅灰的 × 看着像禁用，用户会以为清不掉。
+                       强调色只落在图标按钮这类操作位上，不铺界面。 */
+                    className="shrink-0 self-center mr-1 p-1.5 text-accent-deep hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
                     onClick={() => {
                       setInput('');
                       searchHistory.resetActive();
